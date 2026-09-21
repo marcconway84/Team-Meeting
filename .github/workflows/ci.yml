@@ -17,6 +17,9 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
+          # Named explicitly: the cache looks for requirements.txt by default, and
+          # this repo's only dependency file is the dev one.
+          cache-dependency-path: requirements-dev.txt
 
       - name: Install dependencies
         run: pip install -r requirements-dev.txt
