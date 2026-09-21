@@ -1,8 +1,14 @@
 # Publishes the game to GitHub Pages.
 #
-# Nothing to switch on by hand: the configure-pages step below enables Pages for
-# the repository on its first run, using the workflow's own token, and is a no-op
-# once it is on. That needs the `pages: write` permission granted below.
+# ONE-TIME SETUP, and it cannot be done from here: go to
+# Settings -> Pages -> Source and choose "GitHub Actions". Until that is done the
+# deploy step fails with a 404, because there is no Pages site to deploy to.
+#
+# Enabling it from inside the workflow was tried and does not work:
+# actions/configure-pages with enablement:true is refused with "Resource not
+# accessible by integration", because creating a Pages site needs admin rights on
+# the repository and the workflow token does not have them. pages:write is enough
+# to deploy to a site that exists, not to bring one into being.
 #
 # Note: on the free plan, Pages only serves public repositories.
 name: Publish the game
@@ -30,13 +36,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      # Turns Pages on if it is not already, rather than failing the deploy with a
-      # 404 and leaving someone to go and find the setting.
-      - name: Make sure Pages is switched on
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Build the site
         run: python scripts/build.py --site
