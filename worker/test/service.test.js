@@ -1,14 +1,11 @@
 // End-to-end tests against a real worker with a real database.
 //
-// The unit tests cover the arithmetic; these cover the things only a database can
-// tell you - that the first-attempt rule actually holds, that a token cannot be
-// spent twice, that the board comes back in the right order. They start the worker
-// with `wrangler dev --local`, which runs the same runtime Cloudflare does, offline.
+// The unit tests cover the arithmetic; these cover the things only a running
+// service can tell you - that the host owns the clock, that everyone gets the same
+// five minutes, that a game ends whether or not anybody is asking, and that the
+// board is the server's arithmetic rather than whatever a browser posted.
 //
 //     npm run test:service
-//
-// Skipped automatically when the worker cannot be started, so `npm test` stays
-// runnable anywhere.
 
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
@@ -18,6 +15,7 @@ import { after, before, describe, test } from "node:test";
 const PORT = 8789;
 const BASE = `http://127.0.0.1:${PORT}`;
 const ROOT = new URL("..", import.meta.url).pathname;
+const HOST_KEY = "a-host-key-for-testing";
 
 let worker = null;
 
@@ -25,11 +23,8 @@ async function waitForHealth(timeoutMs = 60_000) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
-      const response = await fetch(`${BASE}/health`);
-      if (response.ok) return true;
-    } catch {
-      // not up yet
-    }
+      if ((await fetch(`${BASE}/health`)).ok) return true;
+    } catch { /* not up yet */ }
     await new Promise((resolve) => setTimeout(resolve, 400));
   }
   return false;
@@ -44,38 +39,17 @@ async function post(path, body) {
   return { status: response.status, body: await response.json() };
 }
 
-async function startRound(round) {
-  const { body } = await post("/round/start", { pack: round });
-  return body.token;
+async function get(path) {
+  const response = await fetch(BASE + path);
+  return { status: response.status, body: await response.json() };
 }
 
-/** A clean sweep: 19 x 100, the finisher, and the no-clues bonus. */
-const PERFECT = 1900 + 400 + 400;
+const openGame = () => post("/host/open", { key: HOST_KEY, round: "sept-28" });
+const startGame = () => post("/host/start", { key: HOST_KEY });
+const join = (player, name) => post("/join", { player, name });
+const report = (player, found, clues = []) => post("/progress", { player, found, clues });
 
-const ROUND = "sept-28";
-
-/**
- * Play a round through the service.
- *
- * The reported time is near zero, because these run in milliseconds and the worker
- * refuses a round claiming to have taken longer than the token has existed. Weaker
- * scores are made by finding fewer, not by burning time - time earns nothing here.
- */
-async function finish(round, player, name, overrides = {}) {
-  const token = await startRound(round);
-  return post("/round/finish", {
-    token,
-    player,
-    name,
-    right: 19,
-    questions: 19,
-    seconds: 1,
-    clues: [],
-    ...overrides,
-  });
-}
-
-describe("the leaderboard service", { concurrency: false }, () => {
+describe("the live game", { concurrency: false }, () => {
   before(async () => {
     rmSync(`${ROOT}.wrangler/state/v3/d1`, { recursive: true, force: true });
     const setup = spawn(
@@ -87,18 +61,8 @@ describe("the leaderboard service", { concurrency: false }, () => {
 
     worker = spawn(
       `${ROOT}node_modules/.bin/wrangler`,
-      // The signing secret is passed in rather than read from .dev.vars, so the tests
-      // need no local setup and run the same way on a fresh checkout and in CI.
-      [
-        "dev",
-        "--local",
-        "--port",
-        String(PORT),
-        "--ip",
-        "127.0.0.1",
-        "--var",
-        "SCORE_SECRET:a-secret-for-testing",
-      ],
+      ["dev", "--local", "--port", String(PORT), "--ip", "127.0.0.1",
+       "--var", `HOST_KEY:${HOST_KEY}`],
       { cwd: ROOT, stdio: "ignore", env: { ...process.env, CI: "1" } }
     );
     if (!(await waitForHealth())) {
@@ -108,148 +72,154 @@ describe("the leaderboard service", { concurrency: false }, () => {
     }
   });
 
-  after(() => {
-    if (worker) worker.kill("SIGTERM");
+  after(() => { if (worker) worker.kill("SIGTERM"); });
+
+  test("a fresh service is a lobby, not an error", async () => {
+    const { status, body } = await get("/game");
+    assert.equal(status, 200);
+    assert.equal(body.phase, "lobby");
+    assert.equal(body.endsAt, null);
+    assert.ok(Number.isInteger(body.now), "every reply carries the server's own clock");
   });
 
-  test("a finished round comes back with a score and a place", async () => {
-    const { status, body } = await finish(ROUND, "player-a", "Marc");
-    assert.equal(status, 200);
-    assert.equal(body.counted, true);
-    assert.equal(body.score, PERFECT);
+  test("players gather in the lobby before anything starts", async () => {
+    await openGame();
+    await join("p1", "Ada");
+    const { body } = await join("p2", "Ben");
+    assert.equal(body.phase, "lobby");
+    assert.equal(body.players, 2);
+  });
+
+  test("nobody can score before the host starts it", async () => {
+    const { status, body } = await report("p1", 3);
+    assert.equal(status, 400);
+    assert.match(body.error, /not started/);
+  });
+
+  test("only the host can start it", async () => {
+    const wrong = await post("/host/start", { key: "not-the-key" });
+    assert.equal(wrong.status, 403);
+    assert.equal((await get("/game")).body.phase, "lobby", "and it really did not start");
+  });
+
+  test("starting it gives everyone the same end time", async () => {
+    const started = await startGame();
+    assert.equal(started.body.phase, "running");
+
+    const ada = await get("/game?player=p1");
+    const ben = await get("/game?player=p2");
+    assert.equal(ada.body.endsAt, started.body.endsAt);
+    assert.equal(ben.body.endsAt, started.body.endsAt);
+    assert.equal(ada.body.seconds, 300, "five minutes");
+    // The end is a fixed instant, so a slow client does not get a longer game.
+    assert.ok(started.body.endsAt - started.body.now > 290_000);
+  });
+
+  test("pressing start twice does not hand out a second five minutes", async () => {
+    const first = (await get("/game")).body.endsAt;
+    const again = await startGame();
+    assert.equal(again.body.endsAt, first);
+  });
+
+  test("a correct answer comes back with where you now stand", async () => {
+    const { body } = await report("p1", 4);
+    assert.equal(body.you.score, 400);
     assert.equal(body.you.rank, 1);
+    assert.equal(body.players, 2);
   });
 
-  test("only the first attempt at a round counts", async () => {
-    await finish(ROUND, "player-b", "Marc", { right: 5 });
-    const second = await finish(ROUND, "player-b", "Marc");
-
-    assert.equal(second.body.counted, false);
-    assert.match(second.body.reason, /first attempt/);
-    // The board still shows the weaker first attempt, which is the point of the rule.
-    assert.equal(second.body.you.score, 500);
-  });
-
-  test("the board is ordered by score, best first", async () => {
-    await finish(ROUND, "p1", "Low", { right: 3 });
-    await finish(ROUND, "p3", "Middle", { right: 8 });
-
-    const response = await fetch(`${BASE}/board?pack=${ROUND}&player=p3`);
-    const body = await response.json();
-    assert.equal(body.top[0].name, "Marc");
-    assert.equal(body.top.at(-1).name, "Low");
-    assert.ok(body.you.rank > 1);
-  });
-
-  test("on an equal score the quicker round is placed first", async () => {
-    // The only thing the timer is for. Both of these score 700.
-    await finish(ROUND, "slow-one", "Tortoise", { right: 7, seconds: 3 });
-    await finish(ROUND, "fast-one", "Hare", { right: 7, seconds: 0 });
-
-    const response = await fetch(`${BASE}/board?pack=${ROUND}`);
-    const body = await response.json();
-    const sevens = body.top.filter((row) => row.score === 700).map((row) => row.name);
-    assert.deepEqual(sevens, ["Hare", "Tortoise"]);
-  });
-
-  test("a made-up score is recalculated, not believed", async () => {
-    const token = await startRound(ROUND);
-    const { status, body } = await post("/round/finish", {
-      token,
-      player: "cheat",
-      name: "Cheat",
-      right: 19,
-      seconds: 1,
-      clues: [],
-      score: 9_999_999, // ignored - the worker works it out itself
-      total: 9_999_999,
+  test("the score on the board is the server's arithmetic, not the browser's", async () => {
+    // Posting a made-up total must change nothing: the worker recalculates from
+    // what was found and what was bought.
+    const { body } = await post("/progress", {
+      player: "p2", found: 6, clues: ["where", "hint"], score: 9_999_999, total: 9_999_999,
     });
-    assert.equal(status, 200);
-    assert.equal(body.score, PERFECT);
+    assert.equal(body.you.score, 600 - 20 - 45);
   });
 
-  test("a token cannot be spent twice", async () => {
-    const token = await startRound(ROUND);
-    const payload = { token, player: "r1", name: "Replay", right: 19, seconds: 1, clues: [] };
-    assert.equal((await post("/round/finish", payload)).status, 200);
-
-    // Same round, new identity - the shape a faked board would take.
-    const again = await post("/round/finish", { ...payload, player: "r2" });
-    assert.equal(again.status, 400);
-    assert.match(again.body.error, /already been submitted/);
+  test("overtaking someone changes both their positions", async () => {
+    assert.equal((await report("p1", 4)).body.you.rank, 2, "Ben is ahead on 535");
+    const ada = await report("p1", 9);
+    assert.equal(ada.body.you.score, 900);
+    assert.equal(ada.body.you.rank, 1);
+    assert.equal((await report("p2", 6, ["where", "hint"])).body.you.rank, 2);
   });
 
-  test("a forged token is refused", async () => {
-    const { status, body } = await post("/round/finish", {
-      token: "bWFkZS11cA.bm90LWEtc2lnbmF0dXJl",
-      player: "forger",
-      name: "Forger",
-      right: 19,
-      seconds: 1,
-      clues: [],
-    });
+  test("an impossible score is refused rather than ranked", async () => {
+    const tooMany = await report("p1", 20);
+    assert.equal(tooMany.status, 400);
+    assert.match(tooMany.body.error, /20 found out of a round of 19/);
+
+    const invented = await post("/progress", { player: "p1", found: 2, clues: ["freebie"] });
+    assert.equal(invented.status, 400);
+  });
+
+  test("somebody who never joined cannot post a score", async () => {
+    const { status, body } = await report("gatecrasher", 19);
     assert.equal(status, 400);
-    assert.match(body.error, /does not check out/);
+    assert.match(body.error, /not in this game/);
   });
 
-  test("a round cannot have taken longer than it has existed", async () => {
-    const token = await startRound(ROUND);
-    const { status, body } = await post("/round/finish", {
-      token, player: "liar", name: "Liar", right: 19, seconds: 9000, clues: [],
-    });
-    assert.equal(status, 400);
-    assert.match(body.error, /longer than it has existed/);
-  });
-
-  test("an impossible round is refused", async () => {
-    const token = await startRound(ROUND);
-    const { status, body } = await post("/round/finish", {
-      token, player: "x", name: "X", right: 20, seconds: 1, clues: [],
-    });
-    assert.equal(status, 400);
-    assert.match(body.error, /20 found out of a round of 19/);
-  });
-
-  test("a round nobody has heard of is refused at the start", async () => {
-    const { status, body } = await post("/round/start", { pack: "invented-round" });
-    assert.equal(status, 400);
-    assert.match(body.error, /unknown round/);
-  });
-
-  test("an empty board is an empty board, not an error", async () => {
-    const response = await fetch(`${BASE}/board?pack=${ROUND}&player=never-played`);
-    assert.equal(response.status, 200);
-    assert.equal((await response.json()).you, null);
-  });
-
-  test("a name with angle brackets cannot smuggle markup onto the board", async () => {
-    await finish(ROUND, "m1", "<script>alert(1)</script>Marc", { right: 2 });
-    const response = await fetch(`${BASE}/board?pack=${ROUND}`);
-    const body = await response.json();
+  test("a name cannot smuggle markup onto the board", async () => {
+    await join("p3", "<script>alert(1)</script>Cal");
+    const { body } = await get("/board");
     assert.equal(body.top.some((row) => row.name.includes("<")), false);
   });
 
   test("a blank name becomes Anonymous rather than an empty row", async () => {
-    await finish(ROUND, "b1", "   ", { right: 1 });
-    const response = await fetch(`${BASE}/board?pack=${ROUND}&player=b1`);
-    assert.equal((await response.json()).you.name, "Anonymous");
+    await join("p4", "   ");
+    const { body } = await get("/board");
+    assert.ok(body.top.some((row) => row.name === "Anonymous"));
   });
 
-  test("the board comes back in one request", async () => {
-    const response = await fetch(`${BASE}/boards?packs=${ROUND},never-played&player=player-a`);
-    const { boards } = await response.json();
-    assert.equal(boards[ROUND].leader.score, PERFECT);
-    assert.equal(boards[ROUND].yourScore, PERFECT);
-    // A round nobody has played still gets an entry, so the list has no holes.
-    assert.deepEqual(boards["never-played"], { players: 0, leader: null, yourScore: null });
+  test("the board is ordered best first and counts everyone in the room", async () => {
+    const { body } = await get("/board");
+    const scores = body.top.map((row) => row.score);
+    assert.deepEqual(scores, [...scores].sort((a, b) => b - a));
+    assert.equal(body.top[0].name, "Ada");
+    assert.equal(body.players, 4);
   });
 
-  test("asking for no boards is refused rather than answered emptily", async () => {
-    assert.equal((await fetch(`${BASE}/boards?packs=`)).status, 400);
+  test("the game ends on its own, and then it is over for everybody", async () => {
+    // Wind the clock back rather than waiting five minutes: the phase is worked
+    // out from the stored end time, so a game in the past is simply over.
+    const setup = spawn(
+      `${ROOT}node_modules/.bin/wrangler`,
+      ["d1", "execute", "quickfire-scores", "--local",
+       "--command", `UPDATE game SET ends_at = ${Date.now() - 1000} WHERE id = 1`],
+      { cwd: ROOT, stdio: "ignore" }
+    );
+    await new Promise((resolve) => setup.on("exit", resolve));
+
+    const { body } = await get("/game?player=p1");
+    assert.equal(body.phase, "over");
+    assert.ok(Array.isArray(body.board), "and the final table comes with it");
+    assert.equal(body.board[0].name, "Ada");
+  });
+
+  test("a score posted after the whistle does not change the table", async () => {
+    const before = (await get("/board")).body.top.find((row) => row.name === "Ada").score;
+    const late = await report("p1", 19);
+    assert.equal(late.status, 200, "it is answered, not rejected - you just gain nothing");
+    const after = (await get("/board")).body.top.find((row) => row.name === "Ada").score;
+    assert.equal(after, before);
+  });
+
+  test("nobody can join a game that has finished", async () => {
+    const { status, body } = await join("latecomer", "Late");
+    assert.equal(status, 400);
+    assert.match(body.error, /finished/);
+  });
+
+  test("a new game empties the room and stops the clock", async () => {
+    const { body } = await openGame();
+    assert.equal(body.phase, "lobby");
+    assert.equal(body.players, 0);
+    assert.equal(body.endsAt, null);
   });
 
   test("the board is readable from the page, wherever it is served from", async () => {
-    const response = await fetch(`${BASE}/board?pack=${ROUND}`);
+    const response = await fetch(`${BASE}/board`);
     assert.equal(response.headers.get("access-control-allow-origin"), "*");
   });
 });

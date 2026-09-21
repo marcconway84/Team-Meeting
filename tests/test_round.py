@@ -282,3 +282,43 @@ class TestTheWorkersCopyOfTheRules:
         order = ["category", "letter", "where", "spot", "hint", "anagram"]
         costs = [source["picture"]["clueCosts"][key] for key in order]
         assert costs == sorted(costs), dict(zip(order, costs))
+
+
+class TestTheLiveGame:
+    """Five minutes, one clock, and it belongs to the server."""
+
+    @staticmethod
+    @pytest.fixture(scope="class")
+    def live() -> dict:
+        return json.loads(RULES_FILE.read_text(encoding="utf-8"))["live"]
+
+    def test_the_round_is_five_minutes(self, live):
+        assert live["seconds"] == 300
+
+    def test_the_settings_reach_the_server(self, live):
+        # The server is what decides when time is up, so it is the server that has
+        # to know how long five minutes is.
+        generated = json.loads(GENERATED.read_text(encoding="utf-8"))
+        assert generated["live"] == live
+
+    def test_the_polls_are_often_enough_to_feel_live_and_rare_enough_to_be_cheap(self, live):
+        assert 1000 <= live["lobbyPollMs"] <= 5000
+        assert 1000 <= live["playPollMs"] <= 10000
+
+    def test_the_board_holds_a_room_full(self, live):
+        assert live["boardSize"] >= 10
+
+    def test_the_page_never_ships_a_host_key(self, page):
+        # The host key is a server secret. It arrives in the address bar at the
+        # meeting, so the page must only ever read one - never carry one. An
+        # earlier version of this test just looked for "?host=" and caught the
+        # comment that explains the mechanism, which is not the thing that matters.
+        baked = re.search(r'HOST_KEY\s*=\s*["\'][^"\']+["\']', page)
+        assert not baked, f"a host key is built into the page: {baked.group(0)}"
+        assert "URLSearchParams" in page, "and it does read one from the query string"
+
+    def test_the_page_reads_the_clock_from_the_server(self, page):
+        # If a client ever counted down against its own wall clock, a laptop three
+        # minutes fast would get a three minute shorter game.
+        assert "server.offset" in page
+        assert "data.now - Date.now()" in page

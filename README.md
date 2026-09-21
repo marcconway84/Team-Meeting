@@ -2,8 +2,10 @@
 
 A competitive ice breaker for a team meeting. One cartoon, nineteen things people
 actually celebrate on the 28th of September, and a clue sheet you pay for out of
-your own score. Everyone plays at their own pace and turns up with a number to
-argue about.
+your own score.
+
+Everyone plays **at the same time**. The host starts the clock, the room gets five
+minutes, and when it stops it stops for all of them and the table goes up.
 
 ```
 World  _ _ B _ _ S  Day                          six letters
@@ -25,6 +27,22 @@ python scripts/build.py     # writes dist/quickfire.html
 One file, no server, no dependencies — open it from disk, mail it round, or put it
 anywhere static. Pushing to `main` publishes it to GitHub Pages.
 
+## Running a game
+
+1. **Everyone opens the link** and puts a name in. They land in a lobby that counts
+   heads as people arrive.
+2. **You open it with `?host=<key>`.** That is the only difference between you and
+   them: a dashed box with a start button. Players never see it.
+3. **Press start.** Within a couple of seconds every screen in the room flips to the
+   picture with 5:00 on it. The clock belongs to the server, so everyone is counting
+   down to the same instant regardless of what their own laptop thinks the time is.
+4. **They play.** Each answer tells them where they have just landed — "3rd of 11" —
+   and the place sits in the header next to the score for the rest of the round.
+5. **Time stops for everybody at once** and the same final table appears on every
+   screen.
+
+**New game** clears the room and puts everyone back in the lobby.
+
 ## How the round works
 
 - **One picture, nineteen answers.** Every one is drawn somewhere in the cartoon.
@@ -40,13 +58,9 @@ anywhere static. Pushing to `main` publishes it to GitHub Pages.
 - **Giving up on one is free.** Revealing an answer costs nothing, but that one
   scores nothing — and it ends any hope of the bonuses.
 - **The bonuses need a clean sheet.** All nineteen earns 400, and doing it without
-  buying a single clue is another 400. Because both want all nineteen *found*, and a
-  revealed answer is never found, "reveal the lot and collect the bonus" earns zero.
-- **No clock.** The round is self-paced. A timer runs, but only to separate two
-  people who finished on the same score.
-- **One go.** Your first attempt is the one the leaderboard keeps.
-- **Interruptions are fine.** Progress is saved as you go, so a refresh or a closed
-  tab picks up where you left off.
+  buying a single clue is another 400. In five minutes, good luck.
+- **Interruptions are survivable.** Progress is saved as you go and posted to the
+  server on every answer, so a closed tab or a dead battery keeps its score.
 
 ## The picture
 
@@ -92,31 +106,41 @@ pytest
 cd worker && npm test
 ```
 
-## The leaderboard
+## The game server
 
-Optional. With no address in `data/leaderboard.json` the game plays exactly the same
-and makes no network calls at all.
+**Not optional any more.** A shared clock and a live table need somewhere shared to
+keep them. With no address in `data/leaderboard.json` the page says so plainly and
+falls back to a solo five minutes against nobody.
 
-It is a Cloudflare Worker in front of one SQLite table, and it **recalculates every
-score it is sent** rather than trusting the browser — that is the only reason a
-public board is worth reading. Twenty found out of nineteen, or a clue the game does
-not sell, is refused. Rounds are signed at the start and the signature must come back
-with the result.
+It is a Cloudflare Worker in front of two small tables — one game, one row per
+player. It owns three things worth owning:
 
-One thing it deliberately does not police: how long you took. The round is
-self-paced, so a browser could under-report it. The check catches someone claiming
-*more* time than they had, not less — which is why time only ever breaks a tie and
-never earns a point.
+- **The clock.** The host sets an end time; everybody else is told what it is. Every
+  reply also carries the server's own `now`, so each client measures how far its own
+  clock is out and counts down against ours. A laptop three minutes fast does not
+  get a three minute shorter game.
+- **The arithmetic.** A client says how many it has found and which clues it bought;
+  the score is worked out on the server. Posting a made-up total changes nothing,
+  and a score that could not have happened — twenty found out of nineteen, a clue
+  the game does not sell — is refused outright.
+- **The start button.** Guarded by a host key. Without it you get a 403.
+
+What it deliberately does **not** do is check that an answer was really right. That
+would mean holding the answers on the server and round-tripping every keystroke, and
+the answers are readable in the page source anyway. This is an ice breaker; the
+person who opens the console to win has already lost.
 
 To switch it on:
 
 1. Add `CLOUDFLARE_API_TOKEN` (Workers Scripts:Edit and D1:Edit) under
-   **Settings → Secrets and variables → Actions**.
-2. Run the **Deploy the leaderboard** workflow.
+   **Settings → Secrets and variables → Actions**. Optionally add `HOST_KEY` too —
+   otherwise one is generated and printed to the workflow summary.
+2. Run the **Deploy the game server** workflow. It creates the database, applies the
+   schema, and plays a whole game through the live service before calling it done.
 3. Put the printed `workers.dev` address into `data/leaderboard.json` and push.
 
-No accounts and no email addresses: a player is a random id their browser keeps, plus
-whatever name they type.
+No accounts and no email addresses: a player is a random id their browser made up,
+plus whatever name they typed.
 
 ## Layout
 
@@ -128,7 +152,7 @@ app/
 data/rounds/        one file per round
 data/rules.json     the scoring, written once and copied to the worker
 scripts/build.py    inlines all of the above into one HTML file
-worker/             the leaderboard
+worker/             the game server: the clock, the room and the table
 tests/              the round data, the picture, and the build
 ```
 
@@ -140,5 +164,7 @@ cd worker && npm install && npm test && npm run test:service
 ```
 
 Every answer is checked against its own aliases, every clue against its own answer,
-every item against the picture, and the leaderboard is run for real against a local
-database. CI runs all of it.
+and every item against the picture. The service tests run a real worker against a
+real database and play a whole game through it: the lobby, the host key, one clock
+for everybody, overtaking, an impossible score, the whistle, and the fact that a
+point posted afterwards does not move the table. CI runs all of it.

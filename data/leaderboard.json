@@ -1,4 +1,4 @@
 {
-  "_comment": "Where the leaderboard lives. Leave url empty to build the game without one - it plays exactly the same, just with no board. Filled in with the workers.dev address printed by the deploy workflow.",
+  "_comment": "Where the game server lives. Leave url empty and the page plays on its own instead of against the room - there is no shared clock without it. Filled in with the workers.dev address printed by the deploy workflow.",
   "url": ""
 }

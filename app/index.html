@@ -14,6 +14,7 @@
     <div class="scoreboard" id="scoreboard" hidden>
       <div class="gauge"><span class="gauge-label">Score</span><strong id="score">0</strong></div>
       <div class="gauge"><span class="gauge-label">Found</span><strong id="tally">0/19</strong></div>
+      <div class="gauge" id="gauge-place" hidden><span class="gauge-label">Place</span><strong id="rank">&ndash;</strong></div>
       <div class="gauge"><span class="gauge-label">Time</span><strong id="clock">0:00</strong></div>
     </div>
     <nav>
@@ -22,19 +23,37 @@
     </nav>
   </header>
 
-  <!-- ------------------------------------------------------------- the start -->
-  <section class="screen" id="screen-home">
+  <!-- ------------------------------------------------------------- the lobby -->
+  <section class="screen" id="screen-home" hidden>
     <div class="intro">
       <p class="kicker" id="home-subject"></p>
       <h1 id="home-title"></h1>
       <p class="lede" id="home-blurb"></p>
+
       <label class="namefield">
         <span>Play as</span>
         <input id="player-name" type="text" maxlength="24" placeholder="Your name" autocomplete="nickname" />
       </label>
-      <p class="namenote" id="name-note">Used on the leaderboard your team shares. Nothing else is kept.</p>
-      <button type="button" class="primary big" id="start-btn">Start the round</button>
-      <p class="pace">No clock. Take as long as you like &mdash; the timer only breaks a tie.</p>
+      <p class="namenote" id="name-note">Everyone plays the same five minutes. Put your name in and wait for the off.</p>
+      <button type="button" class="primary big" id="join-btn">Join the game</button>
+
+      <div class="waiting" id="waiting" hidden>
+        <p class="waitline"><span class="dot"></span> <span id="wait-text">Waiting for the host to start&hellip;</span></p>
+        <p class="waitcount" id="wait-count"></p>
+        <ul class="roster" id="roster"></ul>
+      </div>
+
+      <!-- Only ever shown to whoever opened the page with the host key. -->
+      <div class="hostbox" id="hostbox" hidden>
+        <p class="hostlabel">Host controls</p>
+        <p class="hostnote" id="host-note"></p>
+        <div class="hostbuttons">
+          <button type="button" class="primary" id="start-btn">Start the five minutes</button>
+          <button type="button" class="ghost" id="reset-btn">New game</button>
+        </div>
+      </div>
+
+      <p class="pace" id="offline-note" hidden></p>
     </div>
   </section>
 
@@ -68,11 +87,12 @@
       <p class="result-kicker" id="result-kicker"></p>
       <p class="result-total" id="result-total">0</p>
       <p class="result-sub" id="result-sub"></p>
+      <p class="result-place" id="result-place"></p>
     </div>
     <table class="breakdown" id="breakdown"></table>
     <div class="result-actions">
       <button type="button" class="primary" id="share-btn">Copy my result</button>
-      <button type="button" class="ghost" id="again-btn">Back to the start</button>
+      <button type="button" class="ghost" id="again-btn">Back to the lobby</button>
     </div>
     <section class="board" id="board" hidden>
       <h3 id="board-title">Leaderboard</h3>
@@ -101,9 +121,9 @@
         <li><strong>100 points each.</strong> Spelling is forgiven, accents and punctuation are optional.</li>
         <li><strong>Clues cost points.</strong> The category is 10, another letter 15, pointing it out in the picture 20, describing the drawing 30, a proper hint 45, an anagram 65.</li>
         <li><strong>Giving up on one is free.</strong> Revealing an answer costs nothing, but that one scores nothing &mdash; and it ends any hope of the bonuses.</li>
-        <li><strong>The bonuses need a clean sheet.</strong> All nineteen earns 400, and doing it without buying a single clue is another 400.</li>
-        <li><strong>Go at your own pace.</strong> There is no clock. The timer runs only to separate two people on the same score.</li>
-        <li><strong>One go.</strong> Your first attempt is the one the leaderboard keeps.</li>
+        <li><strong>The bonuses need a clean sheet.</strong> All nineteen earns 400, and doing it without buying a single clue is another 400. In five minutes, good luck.</li>
+        <li><strong>Everyone plays at once.</strong> The host starts the clock and you all get the same five minutes. When it stops, it stops for everybody and the table goes up.</li>
+        <li><strong>The board is live.</strong> Every time you get one, you are told where you have just landed.</li>
       </ul>
       <button type="button" class="primary" id="rules-close">Got it</button>
     </div>

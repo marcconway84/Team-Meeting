@@ -29,6 +29,14 @@
   var STORE_NAME = "quickfire.name";
   var STORE_ROUND = "quickfire.picture";
 
+  // Whoever opens the page with ?host=<key> gets the start button. The key is a
+  // secret on the server; a player who has not been given it sees nothing.
+  var HOST_KEY = (function () {
+    try {
+      return new URLSearchParams(window.location.search).get("host") || "";
+    } catch (err) { return ""; }
+  })();
+
   var E = QuickFireEngine;
   var COSTS = RULES.picture.clueCosts;
 
@@ -38,23 +46,6 @@
 
   var state = null;
   var ticker = null;
-
-  function freshRound() {
-    return {
-      round: ROUND.id,
-      startedAt: Date.now(),
-      elapsed: 0,
-      open: null,
-      items: ROUND.items.map(function () {
-        return { status: "open", clues: [], letters: 0, typed: "" };
-      })
-    };
-  }
-
-  /** Seconds played. Held as a running total so closing the tab does not bank time. */
-  function elapsed() {
-    return state.elapsed + Math.floor((Date.now() - state.startedAt) / 1000);
-  }
 
   function cluesBought() {
     var all = [];
@@ -83,7 +74,7 @@
       base: found * RULES.picture.pointsPerItem,
       spent: spent,
       clues: clues,
-      seconds: elapsed(),
+      seconds: RULES.live.seconds - secondsLeft(),
       finisher: perfect ? RULES.picture.finisherBonus : 0,
       cleanSweep: perfect && clues.length === 0 ? RULES.picture.cleanSweepBonus : 0,
       get running() { return Math.max(0, this.base - this.spent); },
@@ -94,10 +85,7 @@
   function save() {
     if (!state) return;
     try {
-      var snapshot = JSON.parse(JSON.stringify(state));
-      snapshot.elapsed = elapsed();
-      snapshot.startedAt = Date.now();
-      window.localStorage.setItem(STORE_ROUND, JSON.stringify(snapshot));
+      window.localStorage.setItem(STORE_ROUND, JSON.stringify(state));
     } catch (err) { /* private browsing; the round will not survive a refresh */ }
   }
 
@@ -156,6 +144,7 @@
       $(id).hidden = id !== screen;
     });
     $("scoreboard").hidden = screen !== "screen-round";
+    if (screen !== "screen-round") $("gauge-place").hidden = true;
     $("quit-link").hidden = screen !== "screen-round";
     measureMasthead();
     window.scrollTo(0, 0);
@@ -169,9 +158,11 @@
 
   function renderGauges() {
     var scores = tally();
+    var left = secondsLeft();
     $("score").textContent = scores.running;
     $("tally").textContent = scores.found + "/" + scores.of;
-    $("clock").textContent = formatClock(scores.seconds);
+    $("clock").textContent = formatClock(left);
+    $("clock").parentNode.classList.toggle("urgent", left <= 60);
   }
 
   function blanksFor(item, entry) {
@@ -403,7 +394,7 @@
       ringsOff();
       save();
       refreshItem(index);
-      flash(item.answer + " — right.");
+      pushProgress(true);
       if (everythingResolved()) offerResult();
       return;
     }
@@ -424,6 +415,7 @@
       save();
       refreshItem(index);
       flash("Shown — that one scores nothing now.");
+      pushProgress(false);
       if (everythingResolved()) offerResult();
       return;
     }
@@ -445,6 +437,7 @@
     } else {
       say(index, "−" + COSTS[clue.key] + " points.", "soft");
     }
+    pushProgress(false);
   }
 
   /** A brief note where the list header is, for when the row it concerns has closed. */
@@ -487,32 +480,157 @@
     host.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  /* ================================================================ round === */
+  /* ============================================================= the server ===
+     The clock lives on the server. Everyone in the room is counting down to the
+     same instant, and a client never decides for itself that time is up - it
+     asks, and it measures its own clock against the server's so that a laptop
+     three minutes fast does not get a three minute shorter game.
+  */
 
-  function begin() {
+  var server = {
+    offset: 0,        // serverNow - ourNow, in ms
+    phase: "offline",
+    endsAt: null,
+    players: 0,
+    you: null,
+    board: null,
+    reachable: Boolean(LEADERBOARD)
+  };
+
+  var poller = null;
+
+  function api(path, body) {
+    if (!LEADERBOARD) return Promise.reject(new Error("no server"));
+    var url = LEADERBOARD.url + path;
+    var options = body
+      ? { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }
+      : { method: "GET" };
+    return fetch(url, options).then(function (response) {
+      return response.json().then(function (data) {
+        if (!response.ok) throw new Error(data && data.error ? data.error : "server error");
+        return data;
+      });
+    });
+  }
+
+  /** Fold a reply into what we know, including how far our own clock is out. */
+  function absorb(data) {
+    if (typeof data.now === "number") server.offset = data.now - Date.now();
+    if (data.phase) server.phase = data.phase;
+    if ("endsAt" in data) server.endsAt = data.endsAt;
+    if (typeof data.players === "number") server.players = data.players;
+    if (data.you) server.you = data.you;
+    if (data.board) server.board = data.board;
+    server.reachable = true;
+    return data;
+  }
+
+  function serverNow() {
+    return Date.now() + server.offset;
+  }
+
+  /** Seconds left of the shared five minutes, by the server's clock. */
+  function secondsLeft() {
+    if (!server.endsAt) return RULES.live.seconds;
+    return Math.max(0, Math.ceil((server.endsAt - serverNow()) / 1000));
+  }
+
+  /* ================================================================ lobby === */
+
+  function renderLobby() {
+    var joined = Boolean(state);
+    $("join-btn").hidden = joined;
+    $("waiting").hidden = !joined;
+    $("wait-count").textContent = server.players === 1
+      ? "1 player in so far."
+      : server.players + " players in so far.";
+    $("wait-text").textContent = server.phase === "running"
+      ? "The game is already running \u2014 joining you now\u2026"
+      : "Waiting for the host to start\u2026";
+
+    if (HOST_KEY) {
+      $("hostbox").hidden = false;
+      $("host-note").textContent = server.phase === "lobby"
+        ? "Everyone in the room should have joined before you press this."
+        : server.phase === "running"
+          ? "Running. It stops for everybody at the same moment."
+          : "That game is over. Start a new one to play again.";
+      $("start-btn").disabled = server.phase !== "lobby";
+    }
+  }
+
+  function joinGame() {
     var name = $("player-name").value.trim();
     if (!name) {
-      $("name-note").textContent = "Put a name in first — it is how your team will find you on the board.";
-      $("name-note").style.color = "var(--amber)";
+      $("name-note").textContent = "Put a name in first \u2014 it is how you will show up on the board.";
+      $("name-note").style.color = "var(--crimson)";
       $("player-name").focus();
       return;
     }
     remember(STORE_NAME, name);
 
+    if (!LEADERBOARD) {
+      // No server means no shared clock, so there is no game to join. Say so
+      // rather than quietly starting a solo round nobody else is in.
+      offline("This copy has no game server configured, so it cannot run a live game. "
+        + "You can still play it on your own against the clock.");
+      beginSolo();
+      return;
+    }
+
+    api("/join", { player: playerId(), name: name }).then(function (data) {
+      absorb(data);
+      state = state || freshRound();
+      save();
+      renderLobby();
+      if (server.phase === "running") enterRound();
+    }).catch(function (err) {
+      offline("Could not reach the game server (" + err.message + "). Playing on your own instead.");
+      beginSolo();
+    });
+  }
+
+  function offline(message) {
+    server.reachable = false;
+    $("offline-note").hidden = false;
+    $("offline-note").textContent = message;
+  }
+
+  /* ================================================================ round === */
+
+  function freshRound() {
+    return {
+      round: ROUND.id,
+      open: null,
+      items: ROUND.items.map(function () {
+        return { status: "open", clues: [], letters: 0, typed: "" };
+      })
+    };
+  }
+
+  /** A round with nobody else in it, for a page that cannot reach the server. */
+  function beginSolo() {
     state = freshRound();
-    save();
+    server.phase = "running";
+    server.endsAt = Date.now() + RULES.live.seconds * 1000;
+    server.offset = 0;
+    enterRound();
+  }
+
+  function enterRound() {
     show("screen-round");
     paintPicture();
     renderItems();
     startTicking();
-    startRound().then(function (token) {
-      if (state) { state.token = token; save(); }
-    });
+    pushProgress();
   }
 
   function startTicking() {
     stopTicking();
-    ticker = window.setInterval(renderGauges, 1000);
+    ticker = window.setInterval(function () {
+      renderGauges();
+      if (secondsLeft() <= 0) finish();
+    }, 500);
   }
 
   function stopTicking() {
@@ -520,19 +638,107 @@
     ticker = null;
   }
 
+  /* ============================================================== polling === */
+
+  function startPolling(everyMs) {
+    stopPolling();
+    if (!LEADERBOARD) return;
+    poller = window.setInterval(pollOnce, everyMs);
+    pollOnce();
+  }
+
+  function stopPolling() {
+    if (poller) window.clearInterval(poller);
+    poller = null;
+  }
+
+  function pollOnce() {
+    if (!LEADERBOARD) return;
+    api("/game?player=" + encodeURIComponent(playerId())).then(function (data) {
+      var was = server.phase;
+      absorb(data);
+      if (was !== "running" && server.phase === "running" && state) {
+        enterRound();
+        startPolling(RULES.live.playPollMs);
+      } else if (server.phase === "over" && $("screen-round").hidden === false) {
+        finish();
+      } else if ($("screen-result").hidden === false) {
+        renderFinalBoard();
+      } else if ($("screen-home").hidden === false) {
+        renderLobby();
+      }
+    }).catch(function () { /* a dropped poll is not worth shouting about */ });
+  }
+
+  /**
+   * Tell the server where we have got to, and say where that puts us.
+   *
+   * Sent on every answer rather than at the end, because the board is live and
+   * because a browser that dies at minute four should still have its score.
+   */
+  function pushProgress(announce) {
+    if (!LEADERBOARD || !server.reachable || !state) return;
+    var scores = tally();
+    api("/progress", {
+      player: playerId(),
+      found: scores.found,
+      clues: scores.clues
+    }).then(function (data) {
+      absorb(data);
+      renderRank(data, announce);
+      if (data.phase === "over") finish();
+    }).catch(function () { /* keep playing; the next answer will try again */ });
+  }
+
+  /** The running position, and a louder version of it the moment it changes. */
+  function renderRank(data, announce) {
+    if (!data.you) return;
+    $("gauge-place").hidden = false;
+    $("rank").textContent = ordinal(data.you.rank);
+    if (announce) {
+      // The alert the round is played for: told where that answer just put you.
+      flash("Right \u2014 " + ordinal(data.you.rank) + " of " + data.players
+        + " on " + data.you.score + ".");
+      var gauge = $("gauge-place");
+      gauge.classList.remove("bump");
+      void gauge.offsetWidth;
+      gauge.classList.add("bump");
+    }
+  }
+
+  var finishing = false;
+
+  /**
+   * Time is up, for everybody at once.
+   *
+   * The last thing sent is the final progress, so a point earned in the closing
+   * seconds still counts, and only then is the shared table fetched. Guarded,
+   * because the ticker and a poll can both notice the end in the same moment.
+   */
   function finish() {
-    if (!state) return;
+    if (!state || finishing) return;
+    finishing = true;
     stopTicking();
     stash();
+
     var scores = tally();
     var finished = state;
-    var token = state.token;
     clearSaved();
-    state = null;
 
-    renderResult(finished, scores);
-    show("screen-result");
-    submitRound(token, scores);
+    var done = function () {
+      state = null;
+      finishing = false;
+      renderResult(finished, scores);
+      show("screen-result");
+      startPolling(RULES.live.playPollMs);
+    };
+
+    if (!LEADERBOARD || !server.reachable) { done(); return; }
+    api("/progress", { player: playerId(), found: scores.found, clues: scores.clues })
+      .then(absorb)
+      .catch(function () { /* the board will show what it last heard */ })
+      .then(function () { return api("/board").then(absorb).catch(function () {}); })
+      .then(done);
   }
 
   /* ============================================================== results === */
@@ -551,8 +757,10 @@
     $("result-kicker").textContent = ROUND.title;
     $("result-total").textContent = scores.total.toLocaleString();
     $("result-sub").textContent = scores.found + " of " + scores.of + " found"
-      + (scores.clues.length ? ", " + scores.clues.length + " clue" + (scores.clues.length === 1 ? "" : "s") + " bought" : ", no clues bought")
-      + ", in " + formatClock(scores.seconds);
+      + (scores.clues.length
+          ? ", " + scores.clues.length + " clue" + (scores.clues.length === 1 ? "" : "s") + " bought"
+          : ", no clues bought");
+    renderFinalBoard();
 
     var table = $("breakdown");
     table.innerHTML = "";
@@ -592,6 +800,55 @@
     $("share-btn").onclick = function () { copyResult(finished, scores, $("share-btn")); };
   }
 
+  /**
+   * The table everybody sees at the end.
+   *
+   * Drawn from whatever the server last told us, and redrawn by the poll that
+   * keeps running after the whistle - so a straggler's final answer still shows
+   * up on everyone else's screen a few seconds later.
+   */
+  function renderFinalBoard() {
+    var place = $("result-place");
+    if (server.you) {
+      place.textContent = ordinal(server.you.rank) + " of " + server.players;
+    } else {
+      place.textContent = "";
+    }
+
+    var board = $("board");
+    var rows = server.board;
+    if (!rows || !rows.length) {
+      board.hidden = true;
+      return;
+    }
+    board.hidden = false;
+    $("board-title").textContent = "Final table \u2014 " + server.players
+      + (server.players === 1 ? " player" : " players");
+
+    var table = $("board-table");
+    table.innerHTML = "";
+    var head = table.createTHead().insertRow();
+    ["", "Player", "Found", "Score"].forEach(function (label) {
+      var th = document.createElement("th");
+      th.textContent = label;
+      head.appendChild(th);
+    });
+    var body = table.createTBody();
+    rows.forEach(function (row, index) {
+      var tr = body.insertRow();
+      tr.insertCell().textContent = String(index + 1);
+      tr.insertCell().textContent = row.name;
+      tr.insertCell().textContent = row.found + "/" + ROUND.items.length;
+      tr.insertCell().textContent = row.score.toLocaleString();
+      if (server.you && row.name === server.you.name && row.score === server.you.score) {
+        tr.className = "you";
+      }
+    });
+    $("board-note").textContent = server.reachable
+      ? ""
+      : "Shown from the last thing this device heard from the game server.";
+  }
+
   /** A Wordle-shaped line for the team chat: clean, helped, or not at all. */
   function shareText(finished, scores) {
     var squares = finished.items.map(function (entry) {
@@ -624,83 +881,6 @@
 
   /* ========================================================= leaderboard === */
 
-  function boardUrl(path) {
-    return LEADERBOARD ? LEADERBOARD.url + path : null;
-  }
-
-  function startRound() {
-    var url = boardUrl("/round/start");
-    if (!url) return Promise.resolve(null);
-    return fetch(url, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ pack: ROUND.id })
-    }).then(function (response) {
-      return response.ok ? response.json() : null;
-    }).then(function (body) {
-      return body ? body.token : null;
-    }).catch(function () { return null; });
-  }
-
-  function submitRound(token, scores) {
-    var url = boardUrl("/round/finish");
-    var board = $("board");
-    if (!url || !token) { board.hidden = true; return; }
-
-    board.hidden = false;
-    $("board-title").textContent = "Leaderboard — " + ROUND.title;
-    $("board-note").textContent = "Posting your score…";
-    $("board-table").innerHTML = "";
-
-    fetch(url, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        token: token,
-        player: playerId(),
-        name: remembered(STORE_NAME, "") || $("player-name").value.trim(),
-        right: scores.found,
-        questions: scores.of,
-        clues: scores.clues,
-        seconds: scores.seconds
-      })
-    }).then(function (response) {
-      return response.json().then(function (body) { return { ok: response.ok, body: body }; });
-    }).then(function (result) {
-      if (!result.ok) throw new Error(result.body && result.body.error);
-      renderBoard(result.body);
-    }).catch(function () {
-      $("board-note").textContent = "The leaderboard could not be reached. Your score still stands — "
-        + "use “Copy my result” to post it to the team.";
-    });
-  }
-
-  function renderBoard(body) {
-    var table = $("board-table");
-    table.innerHTML = "";
-    var head = table.createTHead().insertRow();
-    ["", "Player", "Score"].forEach(function (label) {
-      var th = document.createElement("th");
-      th.textContent = label;
-      head.appendChild(th);
-    });
-    var tbody = table.createTBody();
-    (body.top || []).forEach(function (entry, index) {
-      var tr = tbody.insertRow();
-      tr.insertCell().textContent = String(index + 1);
-      tr.insertCell().textContent = entry.name;
-      tr.insertCell().textContent = entry.score.toLocaleString();
-      if (body.you && entry.name === body.you.name && entry.score === body.you.score) {
-        tr.className = "you";
-      }
-    });
-
-    var parts = [];
-    if (body.you) parts.push("You are " + ordinal(body.you.rank) + " of " + body.players + ".");
-    if (body.counted === false) parts.push("Only your first attempt counts, so this run did not move the board.");
-    $("board-note").textContent = parts.join(" ");
-  }
-
   function ordinal(n) {
     var rest = n % 100;
     if (rest >= 11 && rest <= 13) return n + "th";
@@ -715,27 +895,49 @@
     state = null;
     clearSaved();
     show("screen-home");
+    renderLobby();
+    startPolling(RULES.live.lobbyPollMs);
   }
 
   /**
    * Tell the stylesheet how tall the masthead actually is.
    *
    * It wraps to two lines on a narrow screen, so a fixed offset for the sticky
-   * picture hid its top row behind the header on exactly the devices most
-   * likely to be used.
+   * picture hid its top row behind the header on exactly the devices most likely
+   * to be used.
    */
   function measureMasthead() {
-    var height = document.querySelector(".masthead").getBoundingClientRect().height;
-    document.documentElement.style.setProperty("--mast", Math.round(height) + "px");
+    var bar = document.querySelector(".masthead");
+    if (!bar) return;
+    document.documentElement.style.setProperty(
+      "--mast", Math.round(bar.getBoundingClientRect().height) + "px");
   }
 
   function wire() {
-    $("start-btn").addEventListener("click", begin);
+    $("join-btn").addEventListener("click", joinGame);
+    $("start-btn").addEventListener("click", function () {
+      $("start-btn").disabled = true;
+      api("/host/start", { key: HOST_KEY }).then(function (data) {
+        absorb(data);
+        renderLobby();
+        if (server.phase === "running" && state) enterRound();
+      }).catch(function (err) {
+        $("host-note").textContent = "Could not start it: " + err.message;
+        $("start-btn").disabled = false;
+      });
+    });
+    $("reset-btn").addEventListener("click", function () {
+      if (!window.confirm("Start a new game? Everyone will have to join again.")) return;
+      api("/host/open", { key: HOST_KEY, round: ROUND.id }).then(function (data) {
+        absorb(data);
+        goHome();
+      }).catch(function (err) { $("host-note").textContent = "Could not reset: " + err.message; });
+    });
     $("home-link").addEventListener("click", function () {
-      if (!state || window.confirm("Leave this round? It will not be scored.")) goHome();
+      if (!state || window.confirm("Leave this round? Your score stands as it is.")) goHome();
     });
     $("quit-link").addEventListener("click", function () {
-      if (window.confirm("Finish here and see the answers?")) finish();
+      if (window.confirm("Stop here? The clock carries on for everyone else.")) finish();
     });
     $("rules-link").addEventListener("click", function () { $("rules-sheet").hidden = false; });
     $("rules-close").addEventListener("click", function () { $("rules-sheet").hidden = true; });
@@ -767,20 +969,15 @@
     window.addEventListener("orientationchange", measureMasthead);
   }
 
+  /** Pick up a round that was interrupted. The clock is the server's, not ours. */
   function resume() {
     var saved;
     try { saved = JSON.parse(window.localStorage.getItem(STORE_ROUND)); } catch (err) { saved = null; }
     if (!saved || saved.round !== ROUND.id || !Array.isArray(saved.items)
         || saved.items.length !== ROUND.items.length) {
-      return false;
+      return null;
     }
-    state = saved;
-    state.startedAt = Date.now();
-    show("screen-round");
-    paintPicture();
-    renderItems();
-    startTicking();
-    return true;
+    return saved;
   }
 
   function boot() {
@@ -791,7 +988,19 @@
     $("home-blurb").textContent = ROUND.blurb;
     $("tally").textContent = "0/" + ROUND.items.length;
     $("player-name").value = remembered(STORE_NAME, "");
-    if (!resume()) show("screen-home");
+    state = resume();
+
+    show("screen-home");
+    renderLobby();
+
+    if (!LEADERBOARD) {
+      offline("No game server is configured, so this copy plays on its own rather than "
+        + "against the room. Everything else works the same.");
+      return;
+    }
+    // Ask once straight away so the lobby is right on the first paint, then settle
+    // into the slower poll.
+    startPolling(RULES.live.lobbyPollMs);
   }
 
   if (document.readyState === "loading") {

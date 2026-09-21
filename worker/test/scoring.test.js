@@ -4,13 +4,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { BadRound, RULES, cluePenalty, roundSize, scoreRound } from "../src/scoring.js";
+import { BadScore, RULES, cluePenalty, roundSize, scoreFrom } from "../src/scoring.js";
 
 const ROUND = "sept-28";
 const SIZE = roundSize(ROUND);
 
 function round(overrides = {}) {
-  return { round: ROUND, found: SIZE, seconds: 600, clues: [], ...overrides };
+  return { round: ROUND, found: SIZE, clues: [], ...overrides };
 }
 
 test("the round came across from data/rounds", () => {
@@ -19,22 +19,22 @@ test("the round came across from data/rounds", () => {
 });
 
 test("a clean sweep collects everything there is", () => {
-  const result = scoreRound(round());
+  const result = scoreFrom(round());
   assert.equal(result.base, 1900);
   assert.equal(result.finisher, RULES.picture.finisherBonus);
   assert.equal(result.cleanSweep, RULES.picture.cleanSweepBonus);
   assert.equal(result.total, 1900 + 400 + 400);
 });
 
-test("taking longer earns nothing and costs nothing", () => {
-  // The round is self-paced. Time is a tie-break on the board, never a score.
-  const quick = scoreRound(round({ seconds: 60 }));
-  const slow = scoreRound(round({ seconds: 6000 }));
-  assert.equal(quick.total, slow.total);
+test("the clock is not part of the score", () => {
+  // Everyone plays the same five minutes, so there is nothing to earn by being
+  // quick beyond getting more of them - and the scorer is not even told the time.
+  const result = scoreFrom(round());
+  assert.equal("seconds" in result, false);
 });
 
 test("clues are taken off, and cost the clean sweep as well as their price", () => {
-  const helped = scoreRound(round({ clues: ["category"] }));
+  const helped = scoreFrom(round({ clues: ["category"] }));
   assert.equal(helped.spent, 10);
   assert.equal(helped.cleanSweep, 0, "one clue is still a clue");
   assert.equal(helped.finisher, RULES.picture.finisherBonus, "but the finisher survives it");
@@ -44,11 +44,11 @@ test("clues are taken off, and cost the clean sweep as well as their price", () 
 test("the letter clue can be bought over and over and charges every time", () => {
   const clues = ["letter", "letter", "letter", "letter"];
   assert.equal(cluePenalty(clues), 4 * RULES.picture.clueCosts.letter);
-  assert.equal(scoreRound(round({ clues })).spent, 60);
+  assert.equal(scoreFrom(round({ clues })).spent, 60);
 });
 
 test("one short and both bonuses are gone", () => {
-  const result = scoreRound(round({ found: SIZE - 1 }));
+  const result = scoreFrom(round({ found: SIZE - 1 }));
   assert.equal(result.base, 1800);
   assert.deepEqual([result.finisher, result.cleanSweep], [0, 0],
     "the bonuses want a clean sheet, which is what makes reveal safe to give away free");
@@ -61,21 +61,20 @@ test("revealing everything earns nothing at all", () => {
   // `found` is zero and so is the lot.
   const reveals = Array.from({ length: SIZE }, () => "reveal");
   assert.equal(cluePenalty(reveals), 0, "reveal is free");
-  assert.equal(scoreRound(round({ found: 0, clues: reveals })).total, 0);
+  assert.equal(scoreFrom(round({ found: 0, clues: reveals })).total, 0);
 });
 
 test("a score that could not have been played is refused", () => {
-  assert.throws(() => scoreRound(round({ found: SIZE + 1 })), BadRound, "more found than exist");
-  assert.throws(() => scoreRound(round({ found: -1 })), BadRound, "a negative tally");
-  assert.throws(() => scoreRound(round({ seconds: -5 })), BadRound, "a negative clock");
-  assert.throws(() => scoreRound(round({ round: "invented" })), BadRound, "a round nobody has");
-  assert.throws(() => scoreRound(round({ found: 1.5 })), BadRound, "a fractional tally");
-  assert.throws(() => scoreRound(round({ items: 3 })), BadRound, "a round resized in flight");
+  assert.throws(() => scoreFrom(round({ found: SIZE + 1 })), BadScore, "more found than exist");
+  assert.throws(() => scoreFrom(round({ found: -1 })), BadScore, "a negative tally");
+  assert.throws(() => scoreFrom(round({ round: "invented" })), BadScore, "a round nobody has");
+  assert.throws(() => scoreFrom(round({ found: 1.5 })), BadScore, "a fractional tally");
+  assert.throws(() => cluePenalty(["nonsense"]), BadScore, "a clue nobody sells");
 });
 
 test("an invented clue is refused rather than priced at nothing", () => {
-  assert.throws(() => cluePenalty(["freebie"]), BadRound);
-  assert.throws(() => scoreRound(round({ clues: ["category", "freebie"] })), BadRound);
+  assert.throws(() => cluePenalty(["freebie"]), BadScore);
+  assert.throws(() => scoreFrom(round({ clues: ["category", "freebie"] })), BadScore);
 });
 
 test("the price list is the one the browser was shown", () => {

@@ -215,7 +215,9 @@ def leaderboard_payload() -> str:
     url = str(config.get("url") or "").strip()
     if not url:
         return "null"
-    if not url.startswith("https://"):
+    # Loopback is allowed so the game can be driven against a local server during
+    # development; anything else has to be https, because the page is.
+    if not url.startswith("https://") and not url.startswith("http://127.0.0.1"):
         raise BadPack(f"leaderboard url must be https, got {url!r}")
     return json.dumps({"url": url.rstrip("/")})
 

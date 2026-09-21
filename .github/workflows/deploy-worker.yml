@@ -1,4 +1,4 @@
-# Deploys the leaderboard to Cloudflare.
+# Deploys the game server to Cloudflare.
 #
 # This runs here rather than from a laptop because it keeps the deploy credential in
 # GitHub's secret store instead of on anyone's machine.
@@ -6,6 +6,9 @@
 # One repository secret is needed, under Settings -> Secrets and variables -> Actions:
 #
 #   CLOUDFLARE_API_TOKEN   a token with Workers Scripts:Edit and D1:Edit
+#   HOST_KEY               optional; the passphrase that unlocks the start button.
+#                          One is generated on the first deploy if you do not set one,
+#                          and printed to this workflow's summary.
 #
 # The account id is in wrangler.toml. It is an identifier, not a credential - it
 # appears in the address bar of the Cloudflare dashboard - so it does not need hiding.
@@ -14,7 +17,7 @@
 # already there, applies the schema with CREATE TABLE IF NOT EXISTS, and invents a
 # signing secret only on the first deploy, so existing rounds are not invalidated by
 # a redeploy.
-name: Deploy the leaderboard
+name: Deploy the game server
 
 on:
   workflow_dispatch:
@@ -73,16 +76,24 @@ jobs:
       - name: Apply the schema
         run: npx wrangler d1 execute quickfire-scores --remote --file=schema.sql
 
-      - name: Set the signing secret, once
+      - name: Set the host key, once
+        id: hostkey
+        env:
+          SUPPLIED: ${{ secrets.HOST_KEY }}
         run: |
           set -euo pipefail
-          # Rotating this on every deploy would invalidate every round in progress, so
-          # it is only set when the worker does not already have one.
+          # Whoever has this can start and reset a game, so it is only set when the
+          # worker does not already have one - a redeploy mid-meeting must not lock
+          # the host out of their own game.
           existing=$(npx wrangler secret list --name quickfire-scores 2>/dev/null || echo '[]')
-          if echo "$existing" | grep -q SCORE_SECRET; then
-            echo "Signing secret already set - leaving it alone."
+          if echo "$existing" | grep -q HOST_KEY; then
+            echo "Host key already set - leaving it alone."
+            echo "made=no" >> "$GITHUB_OUTPUT"
           else
-            openssl rand -base64 48 | npx wrangler secret put SCORE_SECRET --name quickfire-scores
+            key="${SUPPLIED:-$(openssl rand -hex 8)}"
+            printf '%s' "$key" | npx wrangler secret put HOST_KEY --name quickfire-scores
+            echo "made=yes" >> "$GITHUB_OUTPUT"
+            if [ -z "$SUPPLIED" ]; then echo "key=$key" >> "$GITHUB_OUTPUT"; fi
           fi
 
       - name: Deploy
@@ -90,52 +101,70 @@ jobs:
         run: npx wrangler deploy 2>&1 | tee deploy.log
 
       - name: Prove it actually works
+        env:
+          KEY: ${{ steps.hostkey.outputs.key || secrets.HOST_KEY }}
         run: |
           set -euo pipefail
           url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)
           echo "Testing $url"
+          if [ -z "$KEY" ]; then
+            echo "::notice::Host key already set and not supplied here, so the host routes are not exercised."
+            curl -fsS "$url/game" | jq -e '.phase' > /dev/null
+            echo "Service is answering."
+            exit 0
+          fi
 
-          # A round, played through the live service exactly as the game plays one.
-          # The development sandbox cannot reach workers.dev, so this is the only
-          # place a deploy can be checked against the real thing.
-          token=$(curl -fsS -X POST "$url/round/start" \
-            -H 'content-type: application/json' \
-            -d '{"pack":"mixed-bag"}' | jq -r .token)
-          [ -n "$token" ] && [ "$token" != "null" ] || { echo "::error::no token"; exit 1; }
+          # A whole game, played through the live service exactly as the room plays
+          # one. The development sandbox cannot reach workers.dev, so this is the
+          # only place the real thing gets checked.
+          post() { curl -fsS -X POST "$url$1" -H 'content-type: application/json' -d "$2"; }
 
-          player="smoke-$(date +%s)"
-          result=$(curl -fsS -X POST "$url/round/finish" \
-            -H 'content-type: application/json' \
-            -d "{\"token\":\"$token\",\"player\":\"$player\",\"name\":\"Smoke test\",
-                 \"right\":12,\"questions\":12,\"secondsLeft\":600,\"clues\":[]}")
-          echo "$result"
-          score=$(echo "$result" | jq -r .score)
-          [ "$score" = "2900" ] || { echo "::error::scored $score, expected 2900"; exit 1; }
+          post /host/open "{\"key\":\"$KEY\",\"round\":\"sept-28\"}" | jq -e '.phase == "lobby"' > /dev/null
+          post /join '{"player":"smoke-1","name":"Smoke"}' | jq -e '.players == 1' > /dev/null
 
-          # A made-up total must not be believed.
-          token2=$(curl -fsS -X POST "$url/round/start" \
-            -H 'content-type: application/json' \
-            -d '{"pack":"mixed-bag"}' | jq -r .token)
-          faked=$(curl -fsS -X POST "$url/round/finish" \
-            -H 'content-type: application/json' \
-            -d "{\"token\":\"$token2\",\"player\":\"$player-2\",\"name\":\"Faker\",
-                 \"right\":12,\"questions\":12,\"secondsLeft\":600,\"clues\":[],
-                 \"score\":9999999}" | jq -r .score)
-          [ "$faked" = "2900" ] || { echo "::error::accepted a made-up score: $faked"; exit 1; }
+          # Scoring before the off must be refused.
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$url/progress" \
+            -H 'content-type: application/json' -d '{"player":"smoke-1","found":5,"clues":[]}')
+          [ "$code" = "400" ] || { echo "::error::scored before the start (HTTP $code)"; exit 1; }
 
-          echo "Live service answered correctly."
+          ends=$(post /host/start "{\"key\":\"$KEY\"}" | jq -r .endsAt)
+          [ "$ends" != "null" ] || { echo "::error::no end time after start"; exit 1; }
+
+          # A made-up total must not be believed: 4 found, one 20-point clue.
+          score=$(post /progress '{"player":"smoke-1","found":4,"clues":["where"],"score":9999999}' | jq -r .you.score)
+          [ "$score" = "380" ] || { echo "::error::scored $score, expected 380"; exit 1; }
+
+          # And an impossible one must be refused outright.
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$url/progress" \
+            -H 'content-type: application/json' -d '{"player":"smoke-1","found":99,"clues":[]}')
+          [ "$code" = "400" ] || { echo "::error::accepted 99 out of 19 (HTTP $code)"; exit 1; }
+
+          # Only the host may start or reset.
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$url/host/start" \
+            -H 'content-type: application/json' -d '{"key":"not-the-key"}')
+          [ "$code" = "403" ] || { echo "::error::a stranger could start the game (HTTP $code)"; exit 1; }
+
+          post /host/open "{\"key\":\"$KEY\"}" | jq -e '.players == 0' > /dev/null
+          echo "Live service played a full game correctly."
 
       - name: Say where it went
         run: |
           url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1 || true)
           {
-            echo "### Leaderboard deployed"
+            echo "### Game server deployed"
             echo
             if [ -n "$url" ]; then
               echo "Address: \`$url\`"
               echo
-              echo "Put this in \`data/leaderboard.json\` and push, to switch the board on."
+              echo "Put this in \`data/leaderboard.json\` and push, to switch the live game on."
             else
               echo "Deployed, but the address was not in the log - check the run above."
+            fi
+            if [ "${{ steps.hostkey.outputs.made }}" = "yes" ] && [ -n "${{ steps.hostkey.outputs.key }}" ]; then
+              echo
+              echo "**Host key: \`${{ steps.hostkey.outputs.key }}\`**"
+              echo
+              echo "Open the game at \`?host=THAT_KEY\` to get the start button."
+              echo "Copy it now - this summary is the only place it is printed."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
