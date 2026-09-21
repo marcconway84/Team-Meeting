@@ -116,8 +116,22 @@ jobs:
           echo "url=$url" >> "$GITHUB_ENV"
           echo "Testing $url"
 
-          # The parts that need no key: it answers, and it knows what a game is.
-          curl -fsS "$url/health" | jq -e '.ok' > /dev/null
+          # A workers.dev subdomain is not resolvable the instant the deploy
+          # returns, and the first run of this failed on a 404 half a second
+          # after a perfectly good deploy. Wait for it rather than race it.
+          for attempt in $(seq 1 30); do
+            if curl -fsS --max-time 10 "$url/health" | jq -e '.ok' > /dev/null 2>&1; then
+              echo "Answering after ${attempt} attempt(s)."
+              break
+            fi
+            if [ "$attempt" = "30" ]; then
+              echo "::error::$url never came up"
+              exit 1
+            fi
+            sleep 5
+          done
+
+          # The parts that need no key: it knows what a game is.
           curl -fsS "$url/game" | jq -e '.phase' > /dev/null
           curl -fsS "$url/game" | jq -e '.seconds == 300' > /dev/null
 
