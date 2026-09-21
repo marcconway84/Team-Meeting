@@ -24,37 +24,42 @@
   </header>
 
   <!-- ------------------------------------------------------------- the lobby -->
+  <!-- Two states. Before joining: a name and a button, and nothing else to read.
+       After joining: the instructions, which are the whole screen, because the
+       wait for the host is the only time anybody is going to read them. -->
   <section class="screen" id="screen-home" hidden>
-    <div class="intro">
+
+    <div class="joinbox" id="joinbox">
       <p class="kicker" id="home-subject"></p>
       <h1 id="home-title"></h1>
       <p class="lede" id="home-blurb"></p>
-
       <label class="namefield">
         <span>Play as</span>
         <input id="player-name" type="text" maxlength="24" placeholder="Your name" autocomplete="nickname" />
       </label>
       <p class="namenote" id="name-note">Everyone plays the same five minutes. Put your name in and wait for the off.</p>
       <button type="button" class="primary big" id="join-btn">Join the game</button>
-
-      <div class="waiting" id="waiting" hidden>
-        <p class="waitline"><span class="dot"></span> <span id="wait-text">Waiting for the host to start&hellip;</span></p>
-        <p class="waitcount" id="wait-count"></p>
-        <ul class="roster" id="roster"></ul>
-      </div>
-
-      <!-- Only ever shown to whoever opened the page with the host key. -->
-      <div class="hostbox" id="hostbox" hidden>
-        <p class="hostlabel">Host controls</p>
-        <p class="hostnote" id="host-note"></p>
-        <div class="hostbuttons">
-          <button type="button" class="primary" id="start-btn">Start the five minutes</button>
-          <button type="button" class="ghost" id="reset-btn">New game</button>
-        </div>
-      </div>
-
-      <p class="pace" id="offline-note" hidden></p>
     </div>
+
+    <div class="waiting" id="waiting" hidden>
+      <p class="waitline"><span class="dot"></span> <span id="wait-text">Waiting for the host to start&hellip;</span></p>
+      <p class="waitcount" id="wait-count"></p>
+      <h2 class="briefhead">How to play</h2>
+      <ul class="rulelist" id="brief"></ul>
+      <p class="waitcalm">Nothing starts until the host presses go. The picture appears then.</p>
+    </div>
+
+    <!-- Only ever shown to whoever opened the page with the host key. -->
+    <div class="hostbox" id="hostbox" hidden>
+      <p class="hostlabel">Host controls</p>
+      <p class="hostnote" id="host-note"></p>
+      <div class="hostbuttons">
+        <button type="button" class="primary" id="start-btn">Start the five minutes</button>
+        <button type="button" class="ghost" id="reset-btn">New game</button>
+      </div>
+    </div>
+
+    <p class="pace" id="offline-note" hidden></p>
   </section>
 
   <!-- ------------------------------------------------------------- the round -->
@@ -115,16 +120,7 @@
   <div class="sheet" id="rules-sheet" hidden>
     <div class="sheet-inner">
       <h2>How to play</h2>
-      <ul class="rulelist">
-        <li><strong>One picture, nineteen answers.</strong> Every one is a real thing somebody celebrates on the 28th of September, and every one is drawn in the picture somewhere.</li>
-        <li><strong>Name the missing word.</strong> Not the whole day &mdash; just the blank. A couple of letters are filled in to start you off.</li>
-        <li><strong>100 points each.</strong> Spelling is forgiven, accents and punctuation are optional.</li>
-        <li><strong>Clues cost points.</strong> The category is 10, another letter 15, pointing it out in the picture 20, describing the drawing 30, a proper hint 45, an anagram 65.</li>
-        <li><strong>Giving up on one is free.</strong> Revealing an answer costs nothing, but that one scores nothing &mdash; and it ends any hope of the bonuses.</li>
-        <li><strong>The bonuses need a clean sheet.</strong> All nineteen earns 400, and doing it without buying a single clue is another 400. In five minutes, good luck.</li>
-        <li><strong>Everyone plays at once.</strong> The host starts the clock and you all get the same five minutes. When it stops, it stops for everybody and the table goes up.</li>
-        <li><strong>The board is live.</strong> Every time you get one, you are told where you have just landed.</li>
-      </ul>
+      <ul class="rulelist" id="rulelist"></ul>
       <button type="button" class="primary" id="rules-close">Got it</button>
     </div>
   </div>

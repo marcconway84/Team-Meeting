@@ -42,6 +42,54 @@
 
   var $ = function (id) { return document.getElementById(id); };
 
+  /* ============================================================ briefing ===
+     Written once and shown in two places: the lobby, where people are waiting
+     with nothing to do and will actually read it, and the How to play sheet.
+     One list, so the two cannot end up saying different things - and the prices
+     come from the rules rather than being typed out again beside them.
+  */
+
+  var BRIEFING = [
+    ["One picture, nineteen answers.",
+     "Every one is a real thing somebody celebrates on the 28th of September, and every one is drawn in the picture somewhere."],
+    ["Name the missing word.",
+     "Not the whole day \u2014 just the blank. " + ROUND.items.length
+       + " of them, each with a couple of letters filled in to start you off."],
+    ["Everyone plays at once.",
+     "The host starts the clock and you all get the same " + Math.round(RULES.live.seconds / 60)
+       + " minutes. When it stops it stops for everybody, and the table goes up."],
+    ["100 points an answer.",
+     "Spelling is forgiven on the longer ones, and accents and punctuation are optional."],
+    ["Clues cost points.",
+     "The category is " + COSTS.category + ", another letter " + COSTS.letter
+       + ", pointing it out in the picture " + COSTS.where + ", describing the drawing "
+       + COSTS.spot + ", a hint in words " + COSTS.hint + ", an anagram " + COSTS.anagram
+       + ". Buy what you need and no more."],
+    ["Giving up on one is free.",
+     "Revealing an answer costs nothing, but that one scores nothing \u2014 and it ends any hope of the bonuses."],
+    ["The bonuses need a clean sheet.",
+     "All " + ROUND.items.length + " right earns " + RULES.picture.finisherBonus
+       + ", and doing it without buying a single clue is another " + RULES.picture.cleanSweepBonus
+       + ". In " + Math.round(RULES.live.seconds / 60) + " minutes, good luck."],
+    ["The board is live.",
+     "Every time you get one, you are told where you have just landed."]
+  ];
+
+  function renderBriefing() {
+    ["brief", "rulelist"].forEach(function (id) {
+      var list = $(id);
+      if (!list || list.childNodes.length) return;
+      BRIEFING.forEach(function (line) {
+        var li = document.createElement("li");
+        var lead = document.createElement("strong");
+        lead.textContent = line[0];
+        li.appendChild(lead);
+        li.appendChild(document.createTextNode(" " + line[1]));
+        list.appendChild(li);
+      });
+    });
+  }
+
   /* ============================================================== state === */
 
   var state = null;
@@ -539,7 +587,9 @@
 
   function renderLobby() {
     var joined = Boolean(state);
-    $("join-btn").hidden = joined;
+    // Once you are in, the instructions take the screen: the title and the blurb
+    // have been read by then, and the briefing says everything they did.
+    $("joinbox").hidden = joined;
     $("waiting").hidden = !joined;
     $("wait-count").textContent = server.players === 1
       ? "1 player in so far."
@@ -982,6 +1032,7 @@
 
   function boot() {
     wire();
+    renderBriefing();
     measureMasthead();
     $("home-subject").textContent = ROUND.subject;
     $("home-title").textContent = ROUND.title;
