@@ -1,4 +1,4 @@
 {
   "_comment": "Where the game server lives. Leave url empty and the page plays on its own instead of against the room - there is no shared clock without it. Filled in with the workers.dev address printed by the deploy workflow.",
-  "url": ""
+  "url": "https://quickfire-scores.conwaym-mc.workers.dev"
 }
