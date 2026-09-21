@@ -39,17 +39,27 @@
   </section>
 
   <!-- ------------------------------------------------------------- the round -->
-  <section class="screen" id="screen-round" hidden>
+  <!-- Two panes. Wide enough and they sit side by side; on a phone the picture
+       pins itself under the masthead while the list scrolls beneath it. Either
+       way the picture is on screen the whole time, which is the point. -->
+  <section class="screen round" id="screen-round" hidden>
     <figure class="picture" id="picture">
       <div class="picture-frame" id="picture-frame"></div>
-      <figcaption>
-        <span id="picture-caption">Nineteen things, one picture. Every answer is in here somewhere.</span>
+      <div class="picturebar">
         <button type="button" class="ghost tiny" id="zoom-btn">Full screen</button>
-      </figcaption>
+        <label class="hidefound">
+          <input type="checkbox" id="hide-found" />
+          <span>Hide the ones I have</span>
+        </label>
+      </div>
     </figure>
 
-    <p class="verdict" id="verdict" role="status" aria-live="polite">&nbsp;</p>
-    <ol class="items" id="item-list"></ol>
+    <div class="listpane">
+      <ol class="items" id="item-list"></ol>
+      <p class="allfound" id="all-found" hidden>
+        That is every one of them. <button type="button" class="ghost" id="finish-btn">See the result</button>
+      </p>
+    </div>
   </section>
 
   <!-- ------------------------------------------------------------ the result -->

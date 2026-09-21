@@ -20,11 +20,11 @@
      role="img" aria-label="A cartoon collage of nineteen things celebrated on the 28th of September">
   <defs>
     <style>
-      .scene .ink   { stroke: #22304a; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; }
-      .scene .fill  { stroke: #22304a; stroke-width: 3; stroke-linejoin: round; }
-      .scene .thin  { stroke: #22304a; stroke-width: 2; stroke-linecap: round; fill: none; }
+      .scene .ink   { stroke: #2e1338; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .scene .fill  { stroke: #2e1338; stroke-width: 3; stroke-linejoin: round; }
+      .scene .thin  { stroke: #2e1338; stroke-width: 2; stroke-linecap: round; fill: none; }
       .scene text   { font-family: ui-sans-serif, system-ui, sans-serif; }
-      .scene .ring  { fill: none; stroke: #f0b429; stroke-width: 6; opacity: 0; }
+      .scene .ring  { fill: none; stroke: #e4003b; stroke-width: 6; opacity: 0; }
       .scene .ring.on { opacity: 1; }
       @media (prefers-reduced-motion: no-preference) {
         .scene .ring.on { animation: ringpulse 1.1s ease-in-out infinite; }
@@ -33,16 +33,16 @@
     </style>
   </defs>
 
-  <rect x="0" y="0" width="1200" height="820" rx="10" fill="#fdf7ea"/>
-  <rect x="0" y="0" width="1200" height="232" fill="#d9ecf8"/>
-  <rect x="0" y="640" width="1200" height="180" fill="#f3ead6"/>
+  <rect x="0" y="0" width="1200" height="820" rx="10" fill="#ffffff"/>
+  <rect x="0" y="0" width="1200" height="232" fill="#efe7f5"/>
+  <rect x="0" y="640" width="1200" height="180" fill="#f7f4fa"/>
   <path d="M0 640 H1200" class="thin" opacity="0.5"/>
 
   <!-- ============ 5  British Home Child Day: the ship ============ -->
   <g class="vig" id="vig-5">
     <path d="M52 700 h0" />
     <path d="M40 176 h190 l-22 34 H62 Z" class="fill" fill="#3a5a8c"/>
-    <rect x="72" y="140" width="118" height="38" class="fill" fill="#f4efe2"/>
+    <rect x="72" y="140" width="118" height="38" class="fill" fill="#f3eef7"/>
     <rect x="118" y="96" width="26" height="46" class="fill" fill="#e2574c"/>
     <path d="M131 96 c4 -16 -10 -20 -4 -34" class="thin"/>
     <path d="M143 92 c5 -14 -8 -18 -3 -30" class="thin" opacity="0.7"/>
@@ -77,25 +77,25 @@
     <g>
       <circle cx="378" cy="212" r="13" class="fill" fill="#f6c9a8"/>
       <path d="M372 213 q6 6 12 0" class="thin"/>
-      <circle cx="374" cy="209" r="1.6" fill="#22304a"/>
-      <circle cx="383" cy="209" r="1.6" fill="#22304a"/>
+      <circle cx="374" cy="209" r="1.6" fill="#2e1338"/>
+      <circle cx="383" cy="209" r="1.6" fill="#2e1338"/>
     </g>
   </g>
 
   <!-- ============ 9  Gold Star Mother's Day: the window banner ============ -->
   <g class="vig" id="vig-9">
-    <rect x="502" y="86" width="126" height="120" rx="4" class="fill" fill="#f4efe2"/>
+    <rect x="502" y="86" width="126" height="120" rx="4" class="fill" fill="#f3eef7"/>
     <path d="M565 86 v120 M502 146 h126" class="thin"/>
-    <rect x="536" y="106" width="58" height="80" class="fill" fill="#fdf7ea"/>
+    <rect x="536" y="106" width="58" height="80" class="fill" fill="#ffffff"/>
     <rect x="536" y="106" width="58" height="80" fill="none" stroke="#e2574c" stroke-width="7"/>
     <path d="M565 122 l7 14 15 2 -11 11 3 15 -14 -8 -14 8 3 -15 -11 -11 15 -2 Z"
-          fill="#f0b429" stroke="#22304a" stroke-width="2"/>
+          fill="#f0b429" stroke="#2e1338" stroke-width="2"/>
     <path d="M536 106 h58" stroke="#a9714b" stroke-width="5"/>
   </g>
 
   <!-- ============ 18  Prop Trading Day: the screens ============ -->
   <g class="vig" id="vig-18">
-    <rect x="690" y="84" width="170" height="96" rx="5" class="fill" fill="#22304a"/>
+    <rect x="690" y="84" width="170" height="96" rx="5" class="fill" fill="#2e1338"/>
     <path d="M747 84 v96 M804 84 v96 M690 132 h170" stroke="#5b6d8a" stroke-width="2"/>
     <g stroke-linecap="round" stroke-width="4" fill="none">
       <path d="M703 122 v-16" stroke="#3fb27f"/><path d="M716 126 v-24" stroke="#3fb27f"/>
@@ -111,14 +111,14 @@
     <rect x="712" y="188" width="128" height="8" rx="3" class="fill" fill="#a9714b"/>
     <g>
       <circle cx="776" cy="216" r="14" class="fill" fill="#f6c9a8"/>
-      <path d="M762 214 a14 14 0 0 1 28 0" class="fill" fill="#22304a"/>
+      <path d="M762 214 a14 14 0 0 1 28 0" class="fill" fill="#2e1338"/>
       <path d="M770 220 q6 5 12 0" class="thin"/>
     </g>
   </g>
 
   <!-- ============ 19  National North Carolina Day ============ -->
   <g class="vig" id="vig-19">
-    <rect x="902" y="80" width="232" height="132" rx="5" class="fill" fill="#f4efe2"/>
+    <rect x="902" y="80" width="232" height="132" rx="5" class="fill" fill="#f3eef7"/>
     <!-- The state itself: long and thin, pointed in the west, ragged on the coast. -->
     <path d="M922 166 L952 146 L1040 136 L1094 140 L1110 154 L1098 164 L1106 172
              L1064 182 L1000 180 L958 174 Z" class="fill" fill="#8fbf5a"/>
@@ -130,7 +130,7 @@
       <path d="M990 108 v8 M1012 108 v8" class="thin"/>
       <path d="M1001 100 v8" class="thin"/>
       <path d="M994 100 h14" class="ink" stroke-width="3"/>
-      <path d="M1024 112 l10 -4 -10 -2" class="fill" fill="#22304a"/>
+      <path d="M1024 112 l10 -4 -10 -2" class="fill" fill="#2e1338"/>
     </g>
     <path d="M948 118 q26 -14 52 -10" class="thin" stroke-dasharray="5 6" opacity="0.6"/>
     <!-- The cardinal, on the frame. -->
@@ -138,7 +138,7 @@
       <path d="M1086 106 a14 14 0 1 1 -20 -13 l-8 -12 12 5 a14 14 0 0 1 16 20 Z"
             class="fill" fill="#e2574c"/>
       <path d="M1068 92 l3 -14 7 12" class="fill" fill="#e2574c"/>
-      <circle cx="1072" cy="97" r="2" fill="#22304a"/>
+      <circle cx="1072" cy="97" r="2" fill="#2e1338"/>
       <path d="M1062 98 l-8 3 8 3" class="fill" fill="#f5a623"/>
       <path d="M1086 104 l16 10" class="thin"/>
       <path d="M1072 118 v8 M1078 118 v8" class="thin"/>
@@ -148,11 +148,11 @@
   <!-- ============ 3  Right to Know Day: town hall + magnifier ============ -->
   <g class="vig" id="vig-3">
     <path d="M62 320 l82 -44 82 44 Z" class="fill" fill="#e2574c"/>
-    <rect x="72" y="320" width="144" height="92" class="fill" fill="#f4efe2"/>
+    <rect x="72" y="320" width="144" height="92" class="fill" fill="#f3eef7"/>
     <path d="M92 332 v68 M120 332 v68 M148 332 v68 M176 332 v68" class="ink" stroke-width="7" stroke="#cbd8e6"/>
     <rect x="72" y="404" width="144" height="10" class="fill" fill="#cbd8e6"/>
     <g>
-      <circle cx="176" cy="352" r="40" fill="#cde8f7" opacity="0.55" stroke="#22304a" stroke-width="4"/>
+      <circle cx="176" cy="352" r="40" fill="#cde8f7" opacity="0.55" stroke="#2e1338" stroke-width="4"/>
       <path d="M204 380 l28 28" class="ink" stroke-width="9"/>
     </g>
   </g>
@@ -160,25 +160,25 @@
   <!-- ============ 2  Universal Access to Information ============ -->
   <g class="vig" id="vig-2">
     <rect x="278" y="300" width="112" height="116" rx="4" class="fill" fill="#8fa9c4"/>
-    <rect x="288" y="312" width="92" height="26" class="fill" fill="#f4efe2"/>
-    <rect x="288" y="346" width="92" height="26" class="fill" fill="#f4efe2"/>
-    <rect x="270" y="380" width="110" height="26" class="fill" fill="#fdf7ea"/>
+    <rect x="288" y="312" width="92" height="26" class="fill" fill="#f3eef7"/>
+    <rect x="288" y="346" width="92" height="26" class="fill" fill="#f3eef7"/>
+    <rect x="270" y="380" width="110" height="26" class="fill" fill="#ffffff"/>
     <path d="M330 320 h22 M330 354 h22" class="thin"/>
     <path d="M276 388 h96" class="thin"/>
     <g>
-      <rect x="292" y="258" width="36" height="46" rx="4" class="fill" fill="#fdf7ea" transform="rotate(-14 310 281)"/>
+      <rect x="292" y="258" width="36" height="46" rx="4" class="fill" fill="#ffffff" transform="rotate(-14 310 281)"/>
       <path d="M298 272 h24 M296 282 h26 M298 292 h20" class="thin" transform="rotate(-14 310 281)"/>
     </g>
     <g>
       <circle cx="366" cy="266" r="26" class="fill" fill="#4a90d9"/>
-      <circle cx="366" cy="252" r="3.6" fill="#fdf7ea"/>
+      <circle cx="366" cy="252" r="3.6" fill="#ffffff"/>
       <path d="M366 261 v18" stroke="#fdf7ea" stroke-width="6" stroke-linecap="round"/>
     </g>
   </g>
 
   <!-- ============ 6  Good Neighbor Day: over the fence ============ -->
   <g class="vig" id="vig-6">
-    <g fill="#c99a63" stroke="#22304a" stroke-width="3">
+    <g fill="#c99a63" stroke="#2e1338" stroke-width="3">
       <rect x="470" y="336" width="18" height="86"/><rect x="496" y="336" width="18" height="86"/>
       <rect x="522" y="336" width="18" height="86"/><rect x="548" y="336" width="18" height="86"/>
       <rect x="574" y="336" width="18" height="86"/><rect x="600" y="336" width="18" height="86"/>
@@ -188,17 +188,17 @@
     <g>
       <circle cx="510" cy="308" r="22" class="fill" fill="#f6c9a8"/>
       <path d="M489 302 a22 22 0 0 1 42 0 q-20 -10 -42 0 Z" class="fill" fill="#a9714b"/>
-      <circle cx="503" cy="308" r="2.4" fill="#22304a"/><circle cx="517" cy="308" r="2.4" fill="#22304a"/>
+      <circle cx="503" cy="308" r="2.4" fill="#2e1338"/><circle cx="517" cy="308" r="2.4" fill="#2e1338"/>
       <path d="M502 318 q8 8 16 0" class="thin"/>
-      <path d="M534 330 h16 v-12 h-16 Z" class="fill" fill="#fdf7ea"/>
+      <path d="M534 330 h16 v-12 h-16 Z" class="fill" fill="#ffffff"/>
       <path d="M550 322 a6 6 0 0 1 0 8" class="thin"/>
     </g>
     <g>
       <circle cx="602" cy="308" r="22" class="fill" fill="#efbb96"/>
       <path d="M581 306 a22 22 0 0 1 42 0 q-20 -14 -42 0 Z" class="fill" fill="#6b4a2f"/>
-      <circle cx="595" cy="308" r="2.4" fill="#22304a"/><circle cx="609" cy="308" r="2.4" fill="#22304a"/>
+      <circle cx="595" cy="308" r="2.4" fill="#2e1338"/><circle cx="609" cy="308" r="2.4" fill="#2e1338"/>
       <path d="M594 318 q8 8 16 0" class="thin"/>
-      <path d="M566 330 h16 v-12 h-16 Z" class="fill" fill="#fdf7ea"/>
+      <path d="M566 330 h16 v-12 h-16 Z" class="fill" fill="#ffffff"/>
       <path d="M566 322 a6 6 0 0 0 0 8" class="thin"/>
     </g>
   </g>
@@ -206,12 +206,12 @@
   <!-- ============ 15  Ask a Stupid Question Day ============ -->
   <g class="vig" id="vig-15">
     <rect x="686" y="272" width="150" height="104" rx="4" class="fill" fill="#2f4a3a"/>
-    <text x="761" y="352" text-anchor="middle" font-size="86" font-weight="700" fill="#fdf7ea">?</text>
+    <text x="761" y="352" text-anchor="middle" font-size="86" font-weight="700" fill="#ffffff">?</text>
     <rect x="686" y="376" width="150" height="8" class="fill" fill="#a9714b"/>
     <g>
       <circle cx="702" cy="412" r="16" class="fill" fill="#f6c9a8"/>
       <path d="M686 408 a16 16 0 0 1 32 0 q-16 -8 -32 0 Z" class="fill" fill="#f0b429"/>
-      <circle cx="696" cy="412" r="2" fill="#22304a"/><circle cx="708" cy="412" r="2" fill="#22304a"/>
+      <circle cx="696" cy="412" r="2" fill="#2e1338"/><circle cx="708" cy="412" r="2" fill="#2e1338"/>
       <path d="M696 420 q6 6 12 0" class="thin"/>
       <path d="M702 428 v18" class="ink"/>
       <path d="M702 434 l-14 10" class="ink"/>
@@ -223,10 +223,10 @@
   <!-- ============ 16  Fish Tank Floorshow Night ============ -->
   <g class="vig" id="vig-16">
     <rect x="906" y="266" width="224" height="132" rx="5" class="fill" fill="#bfe4f2"/>
-    <rect x="906" y="266" width="224" height="132" rx="5" fill="none" stroke="#22304a" stroke-width="5"/>
+    <rect x="906" y="266" width="224" height="132" rx="5" fill="none" stroke="#2e1338" stroke-width="5"/>
     <rect x="898" y="392" width="240" height="14" rx="4" class="fill" fill="#6b4a2f"/>
-    <path d="M906 286 h224" stroke="#22304a" stroke-width="3" opacity="0.4"/>
-    <path d="M906 286 q18 16 0 24 Z M1130 286 q-18 16 0 24 Z" fill="#e2574c" stroke="#22304a" stroke-width="2"/>
+    <path d="M906 286 h224" stroke="#2e1338" stroke-width="3" opacity="0.4"/>
+    <path d="M906 286 q18 16 0 24 Z M1130 286 q-18 16 0 24 Z" fill="#e2574c" stroke="#2e1338" stroke-width="2"/>
     <rect x="906" y="272" width="36" height="120" class="fill" fill="#e2574c" opacity="0.9"/>
     <rect x="1094" y="272" width="36" height="120" class="fill" fill="#e2574c" opacity="0.9"/>
     <path d="M950 378 h140" class="fill" fill="none" stroke="#c99a63" stroke-width="8"/>
@@ -234,12 +234,12 @@
     <g>
       <path d="M994 340 a20 14 0 1 1 0 0.1 Z" class="fill" fill="#f5a623"/>
       <path d="M974 340 l-14 -10 v20 Z" class="fill" fill="#f5a623"/>
-      <circle cx="1006" cy="336" r="2.4" fill="#22304a"/>
+      <circle cx="1006" cy="336" r="2.4" fill="#2e1338"/>
     </g>
     <g>
       <path d="M1054 312 a15 11 0 1 1 0 0.1 Z" class="fill" fill="#4a90d9"/>
       <path d="M1039 312 l-11 -8 v16 Z" class="fill" fill="#4a90d9"/>
-      <circle cx="1063" cy="309" r="2" fill="#22304a"/>
+      <circle cx="1063" cy="309" r="2" fill="#2e1338"/>
     </g>
     <path d="M934 372 q6 -14 0 -28 M946 376 q7 -16 0 -32" class="thin" stroke="#3fb27f"/>
     <circle cx="1078" cy="300" r="4" class="thin"/><circle cx="1086" cy="284" r="3" class="thin"/>
@@ -252,17 +252,17 @@
       <circle cx="216" cy="546" r="26" class="fill" fill="#d8a45e"/>
       <path d="M232 524 l16 -12 2 22 Z" class="fill" fill="#b8854a"/>
       <path d="M200 524 l-16 -12 -2 22 Z" class="fill" fill="#b8854a"/>
-      <circle cx="226" cy="544" r="2.8" fill="#22304a"/>
-      <ellipse cx="238" cy="554" rx="7" ry="5" class="fill" fill="#22304a"/>
+      <circle cx="226" cy="544" r="2.8" fill="#2e1338"/>
+      <ellipse cx="238" cy="554" rx="7" ry="5" class="fill" fill="#2e1338"/>
       <path d="M232 562 q6 6 12 2" class="thin"/>
       <path d="M124 596 v18 M150 598 v16 M186 598 v16 M206 594 v20" class="ink" stroke-width="7"/>
       <path d="M122 560 q-22 -18 -10 -34" class="ink" stroke-width="5"/>
-      <path d="M158 566 h30" stroke="#f4efe2" stroke-width="7" stroke-linecap="round"/>
+      <path d="M158 566 h30" stroke="#f3eef7" stroke-width="7" stroke-linecap="round"/>
     </g>
     <g>
       <circle cx="70" cy="516" r="17" class="fill" fill="#efbb96"/>
       <path d="M53 512 a17 17 0 0 1 34 0 q-17 -9 -34 0 Z" class="fill" fill="#6b4a2f"/>
-      <circle cx="64" cy="516" r="2" fill="#22304a"/><circle cx="76" cy="516" r="2" fill="#22304a"/>
+      <circle cx="64" cy="516" r="2" fill="#2e1338"/><circle cx="76" cy="516" r="2" fill="#2e1338"/>
       <path d="M52 538 h36 l6 62 H46 Z" class="fill" fill="#fdfdfd"/>
       <path d="M70 538 v62" class="thin"/>
       <path d="M88 548 l26 12" class="ink"/>
@@ -278,7 +278,7 @@
   <!-- Arms come in below the loaf and no further left than x=256, which is where
        the dog of vignette 1 ends. They read as one hand passing to another. -->
   <g class="vig" id="vig-4">
-    <path d="M282 594 a50 26 0 0 0 100 0 Z" class="fill" fill="#f4efe2"/>
+    <path d="M282 594 a50 26 0 0 0 100 0 Z" class="fill" fill="#f3eef7"/>
     <path d="M274 594 h116" class="ink" stroke-width="5"/>
     <g>
       <ellipse cx="332" cy="514" rx="40" ry="22" class="fill" fill="#c98b3f"/>
@@ -299,7 +299,7 @@
   <!-- ============ 11  Sukkot: the sukkah ============ -->
   <g class="vig" id="vig-11">
     <rect x="474" y="486" width="170" height="112" class="fill" fill="#e6d3ad"/>
-    <rect x="474" y="486" width="170" height="112" fill="none" stroke="#22304a" stroke-width="4"/>
+    <rect x="474" y="486" width="170" height="112" fill="none" stroke="#2e1338" stroke-width="4"/>
     <path d="M462 486 h194" class="ink" stroke-width="5"/>
     <g stroke="#3f8a4a" stroke-width="7" stroke-linecap="round">
       <path d="M470 478 l26 -16"/><path d="M500 480 l26 -18"/><path d="M530 478 l26 -16"/>
@@ -326,35 +326,35 @@
   <g class="vig" id="vig-7">
     <ellipse cx="786" cy="560" rx="106" ry="28" class="fill" fill="#c99a63"/>
     <path d="M700 566 v34 M872 566 v34" class="ink" stroke="#a9714b" stroke-width="7"/>
-    <ellipse cx="786" cy="552" rx="40" ry="16" class="fill" fill="#fdf7ea"/>
+    <ellipse cx="786" cy="552" rx="40" ry="16" class="fill" fill="#ffffff"/>
     <ellipse cx="786" cy="546" rx="28" ry="12" class="fill" fill="#b8703c"/>
     <path d="M774 540 q12 -8 24 0" class="thin"/>
-    <ellipse cx="722" cy="556" rx="16" ry="7" class="fill" fill="#fdf7ea"/>
-    <ellipse cx="850" cy="556" rx="16" ry="7" class="fill" fill="#fdf7ea"/>
+    <ellipse cx="722" cy="556" rx="16" ry="7" class="fill" fill="#ffffff"/>
+    <ellipse cx="850" cy="556" rx="16" ry="7" class="fill" fill="#ffffff"/>
     <g>
       <circle cx="712" cy="506" r="18" class="fill" fill="#f6c9a8"/>
       <path d="M694 502 a18 18 0 0 1 36 0 q-18 -9 -36 0 Z" class="fill" fill="#6b4a2f"/>
-      <circle cx="706" cy="506" r="2" fill="#22304a"/><circle cx="718" cy="506" r="2" fill="#22304a"/>
+      <circle cx="706" cy="506" r="2" fill="#2e1338"/><circle cx="718" cy="506" r="2" fill="#2e1338"/>
       <path d="M706 514 q6 5 12 0" class="thin"/>
       <path d="M712 524 v22" class="ink" stroke-width="8" stroke="#4a90d9"/>
     </g>
     <g>
       <circle cx="764" cy="494" r="18" class="fill" fill="#efbb96"/>
       <path d="M746 494 a18 18 0 0 1 36 0 q-18 -14 -36 0 Z" class="fill" fill="#f0b429"/>
-      <circle cx="758" cy="494" r="2" fill="#22304a"/><circle cx="770" cy="494" r="2" fill="#22304a"/>
+      <circle cx="758" cy="494" r="2" fill="#2e1338"/><circle cx="770" cy="494" r="2" fill="#2e1338"/>
       <path d="M758 502 q6 5 12 0" class="thin"/>
       <path d="M764 512 v26" class="ink" stroke-width="8" stroke="#e2574c"/>
     </g>
     <g>
       <circle cx="812" cy="496" r="15" class="fill" fill="#f6c9a8"/>
       <path d="M797 494 a15 15 0 0 1 30 0 q-15 -10 -30 0 Z" class="fill" fill="#a9714b"/>
-      <circle cx="807" cy="496" r="1.8" fill="#22304a"/><circle cx="817" cy="496" r="1.8" fill="#22304a"/>
+      <circle cx="807" cy="496" r="1.8" fill="#2e1338"/><circle cx="817" cy="496" r="1.8" fill="#2e1338"/>
       <path d="M812 511 v24" class="ink" stroke-width="7" stroke="#3fb27f"/>
     </g>
     <g>
       <circle cx="858" cy="508" r="16" class="fill" fill="#efbb96"/>
       <path d="M842 506 a16 16 0 0 1 32 0 q-16 -10 -32 0 Z" class="fill" fill="#6b4a2f"/>
-      <circle cx="852" cy="508" r="1.8" fill="#22304a"/><circle cx="864" cy="508" r="1.8" fill="#22304a"/>
+      <circle cx="852" cy="508" r="1.8" fill="#2e1338"/><circle cx="864" cy="508" r="1.8" fill="#2e1338"/>
       <path d="M858 524 v22" class="ink" stroke-width="8" stroke="#8f6fb0"/>
     </g>
   </g>
@@ -367,17 +367,17 @@
     <g>
       <circle cx="984" cy="510" r="19" class="fill" fill="#efbb96"/>
       <path d="M965 508 a19 19 0 0 1 38 0 q-19 -12 -38 0 Z" class="fill" fill="#6b4a2f"/>
-      <circle cx="978" cy="510" r="2" fill="#22304a"/><circle cx="990" cy="510" r="2" fill="#22304a"/>
+      <circle cx="978" cy="510" r="2" fill="#2e1338"/><circle cx="990" cy="510" r="2" fill="#2e1338"/>
       <path d="M978 518 q6 5 12 0" class="thin"/>
     </g>
     <g>
       <circle cx="1030" cy="524" r="14" class="fill" fill="#f6c9a8"/>
       <path d="M1016 522 a14 14 0 0 1 28 0 q-14 -9 -28 0 Z" class="fill" fill="#f0b429"/>
-      <circle cx="1025" cy="524" r="1.8" fill="#22304a"/><circle cx="1035" cy="524" r="1.8" fill="#22304a"/>
+      <circle cx="1025" cy="524" r="1.8" fill="#2e1338"/><circle cx="1035" cy="524" r="1.8" fill="#2e1338"/>
       <path d="M1025 531 q5 4 10 0" class="thin"/>
     </g>
     <g>
-      <path d="M978 546 l30 -10 30 10 -30 12 Z" class="fill" fill="#fdf7ea"/>
+      <path d="M978 546 l30 -10 30 10 -30 12 Z" class="fill" fill="#ffffff"/>
       <path d="M1008 536 v22" class="thin"/>
       <path d="M986 546 h16 M1014 546 h16" class="thin" opacity="0.6"/>
     </g>
@@ -388,7 +388,7 @@
     <g>
       <circle cx="132" cy="690" r="18" class="fill" fill="#efbb96"/>
       <path d="M114 688 a18 18 0 0 1 36 0 q-18 -11 -36 0 Z" class="fill" fill="#6b4a2f"/>
-      <circle cx="126" cy="690" r="2" fill="#22304a"/><circle cx="138" cy="690" r="2" fill="#22304a"/>
+      <circle cx="126" cy="690" r="2" fill="#2e1338"/><circle cx="138" cy="690" r="2" fill="#2e1338"/>
       <path d="M126 698 q6 5 12 0" class="thin"/>
       <path d="M132 708 v34" class="ink" stroke-width="9" stroke="#4a90d9"/>
       <path d="M132 718 l-18 -14" class="ink"/>
@@ -397,7 +397,7 @@
     <g>
       <circle cx="252" cy="716" r="14" class="fill" fill="#f6c9a8"/>
       <path d="M238 714 a14 14 0 0 1 28 0 q-14 -9 -28 0 Z" class="fill" fill="#c98b3f"/>
-      <circle cx="247" cy="716" r="1.8" fill="#22304a"/><circle cx="257" cy="716" r="1.8" fill="#22304a"/>
+      <circle cx="247" cy="716" r="1.8" fill="#2e1338"/><circle cx="257" cy="716" r="1.8" fill="#2e1338"/>
       <path d="M247 723 q5 4 10 0" class="thin"/>
       <path d="M252 730 v26" class="ink" stroke-width="8" stroke="#e2574c"/>
       <path d="M252 738 l16 -12" class="ink"/>
@@ -423,7 +423,7 @@
   <!-- ============ 13  International Poke Day ============ -->
   <g class="vig" id="vig-13">
     <path d="M596 714 a62 40 0 0 0 124 0 Z" class="fill" fill="#3a4a63"/>
-    <ellipse cx="658" cy="714" rx="62" ry="15" class="fill" fill="#fdf7ea"/>
+    <ellipse cx="658" cy="714" rx="62" ry="15" class="fill" fill="#ffffff"/>
     <g>
       <rect x="620" y="700" width="17" height="17" rx="3" class="fill" fill="#e8798e"/>
       <rect x="642" y="694" width="17" height="17" rx="3" class="fill" fill="#e8798e"/>
@@ -439,7 +439,7 @@
   <!-- ============ 14  National Strawberry Cream Pie Day ============ -->
   <g class="vig" id="vig-14">
     <path d="M818 770 h188 l-14 -46 H832 Z" class="fill" fill="#e6c98d"/>
-    <ellipse cx="912" cy="724" rx="88" ry="22" class="fill" fill="#f4efe2"/>
+    <ellipse cx="912" cy="724" rx="88" ry="22" class="fill" fill="#f3eef7"/>
     <path d="M824 724 q10 -10 20 0 q10 -10 20 0 q10 -10 20 0 q10 -10 20 0 q10 -10 20 0 q10 -10 20 0 q10 -10 20 0 q10 -10 16 0"
           class="ink" stroke="#c99a63" stroke-width="4"/>
     <g>

@@ -157,6 +157,7 @@
     });
     $("scoreboard").hidden = screen !== "screen-round";
     $("quit-link").hidden = screen !== "screen-round";
+    measureMasthead();
     window.scrollTo(0, 0);
   }
 
@@ -287,6 +288,12 @@
       var body = document.createElement("div");
       body.className = "itembody";
 
+      var verdict = document.createElement("p");
+      verdict.className = "verdict";
+      verdict.setAttribute("role", "status");
+      verdict.setAttribute("aria-live", "polite");
+      body.appendChild(verdict);
+
       if (entry.status === "open") {
         var form = document.createElement("form");
         form.className = "answerbar";
@@ -327,7 +334,13 @@
     var list = $("item-list");
     list.innerHTML = "";
     ROUND.items.forEach(function (_, index) { list.appendChild(renderItem(index)); });
+    applyHideFound();
     renderGauges();
+  }
+
+  /** Shorten the list as it gets easier, rather than scrolling past what is done. */
+  function applyHideFound() {
+    $("item-list").classList.toggle("hide-found", $("hide-found").checked);
   }
 
   /** Redraw one row, so typing in another row is not thrown away by a full repaint. */
@@ -355,14 +368,26 @@
     if (previous !== null && previous !== index) refreshItem(previous);
     refreshItem(index);
     if (state.open === index) {
+      var row = $("item-" + index);
+      // Opening a row near the bottom would otherwise put the input and its clue
+      // sheet below the fold, which is the scrolling this layout exists to avoid.
+      if (row) row.scrollIntoView({ behavior: "smooth", block: "nearest" });
       var input = document.querySelector("#item-" + index + " input");
-      if (input) input.focus();
+      if (input) input.focus({ preventScroll: true });
     }
   }
 
-  function say(text, kind) {
-    $("verdict").textContent = text;
-    $("verdict").className = "verdict " + (kind || "");
+  /**
+   * Say something, inside the row it is about.
+   *
+   * It used to sit above the list, which on a phone meant the answer to "was
+   * that right?" was off the top of the screen by the time you had typed it.
+   */
+  function say(index, text, kind) {
+    var host = document.querySelector("#item-" + index + " .verdict");
+    if (!host) return;
+    host.textContent = text;
+    host.className = "verdict " + (kind || "");
   }
 
   function guess(index, typed) {
@@ -378,13 +403,13 @@
       ringsOff();
       save();
       refreshItem(index);
-      say("“" + item.answer + "” — right.", "good");
-      if (everythingResolved()) finish();
+      flash(item.answer + " — right.");
+      if (everythingResolved()) offerResult();
       return;
     }
     entry.typed = typed;
     save();
-    say("Not that one. Try again, or buy a clue.", "bad");
+    say(index, "Not that one. Try again, or buy a clue.", "bad");
     var input = document.querySelector("#item-" + index + " input");
     if (input) input.select();
   }
@@ -398,8 +423,8 @@
       entry.typed = "";
       save();
       refreshItem(index);
-      say("Shown — that one scores nothing now.", "soft");
-      if (everythingResolved()) finish();
+      flash("Shown — that one scores nothing now.");
+      if (everythingResolved()) offerResult();
       return;
     }
 
@@ -416,15 +441,50 @@
 
     if (clue.key === "where") {
       ringOn(ROUND.items[index].n);
-      $("picture").scrollIntoView({ behavior: "smooth", block: "center" });
-      say("−" + COSTS[clue.key] + " points. It is ringed in the picture.", "soft");
+      say(index, "−" + COSTS[clue.key] + " points — ringed in the picture above.", "soft");
     } else {
-      say("−" + COSTS[clue.key] + " points.", "soft");
+      say(index, "−" + COSTS[clue.key] + " points.", "soft");
     }
+  }
+
+  /** A brief note where the list header is, for when the row it concerns has closed. */
+  var flashTimer = null;
+  function flash(text) {
+    var host = $("all-found");
+    host.hidden = false;
+    host.textContent = text;
+    host.className = "allfound";
+    if (flashTimer) window.clearTimeout(flashTimer);
+    flashTimer = window.setTimeout(function () {
+      if (state && !everythingResolved()) { host.hidden = true; host.textContent = ""; }
+    }, 2200);
   }
 
   function everythingResolved() {
     return state.items.every(function (entry) { return entry.status !== "open"; });
+  }
+
+  /**
+   * Nothing left open.
+   *
+   * Offered rather than taken: dropping someone straight onto the results page
+   * the instant they fill the last blank gives them no moment to look at what
+   * they have done, and no way back if the last one was a guess.
+   */
+  function offerResult() {
+    if (flashTimer) window.clearTimeout(flashTimer);
+    var host = $("all-found");
+    host.hidden = false;
+    host.className = "allfound";
+    host.innerHTML = "";
+    host.appendChild(document.createTextNode("That is every one of them. "));
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "ghost";
+    button.textContent = "See the result";
+    button.addEventListener("click", finish);
+    host.appendChild(button);
+    host.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   /* ================================================================ round === */
@@ -657,6 +717,18 @@
     show("screen-home");
   }
 
+  /**
+   * Tell the stylesheet how tall the masthead actually is.
+   *
+   * It wraps to two lines on a narrow screen, so a fixed offset for the sticky
+   * picture hid its top row behind the header on exactly the devices most
+   * likely to be used.
+   */
+  function measureMasthead() {
+    var height = document.querySelector(".masthead").getBoundingClientRect().height;
+    document.documentElement.style.setProperty("--mast", Math.round(height) + "px");
+  }
+
   function wire() {
     $("start-btn").addEventListener("click", begin);
     $("home-link").addEventListener("click", function () {
@@ -671,6 +743,8 @@
       if (event.target === $("rules-sheet")) $("rules-sheet").hidden = true;
     });
     $("again-btn").addEventListener("click", goHome);
+    $("hide-found").addEventListener("change", applyHideFound);
+    $("finish-btn").addEventListener("click", finish);
     $("player-name").addEventListener("change", function () {
       remember(STORE_NAME, $("player-name").value.trim());
     });
@@ -689,6 +763,8 @@
       $("lightbox-inner").innerHTML = "";
     });
     window.addEventListener("beforeunload", save);
+    window.addEventListener("resize", measureMasthead);
+    window.addEventListener("orientationchange", measureMasthead);
   }
 
   function resume() {
@@ -709,6 +785,7 @@
 
   function boot() {
     wire();
+    measureMasthead();
     $("home-subject").textContent = ROUND.subject;
     $("home-title").textContent = ROUND.title;
     $("home-blurb").textContent = ROUND.blurb;

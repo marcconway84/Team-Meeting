@@ -1,31 +1,46 @@
 /* ---------------------------------------------------------------------------
-   Quick Fire: a quiz-night scoreboard. Ink blue, amber lamps, chalk numerals.
-   A cousin of the tactics board the football game is painted on, deliberately
-   not the same room.
+   House style: deep purple, crimson, and a lot of white space.
 
-   Unlike that game, this page scrolls. Question prompts vary in length and a
-   clue sheet grows as clues are bought, so pinning everything to one viewport
-   would mean clipping the thing the player is reading. Every colour is painted
-   explicitly - there is one visual world here, not a light and a dark one.
+   Colours only - no logo, no wordmark and no borrowed imagery. This is an
+   internal team game wearing the team's colours, and it should never be
+   mistakable for an official publication.
+
+   Every colour is a token on :root so the whole thing can be re-skinned by
+   editing this block and nothing else.
    --------------------------------------------------------------------------- */
 :root {
-  --ink:       #101827;
-  --ink-deep:  #0a0f1a;
-  --panel:     #18233a;
-  --panel-2:   #1f2d49;
-  --chalk:     #eef2f8;
-  --chalk-dim: #94a3b8;
-  --line:      rgba(238, 242, 248, 0.16);
-  --amber:     #f0b429;
-  --amber-deep:#c98b12;
-  --right:     #3fb27f;
-  --wrong:     #e2574c;
+  --purple:      #4a0d68;
+  --purple-deep: #35094c;
+  --purple-mid:  #6a2a88;
+  --purple-wash: #f3eef7;
+  --purple-line: #ddd0e6;
 
-  --display: "Haettenschweiler", "Arial Narrow", "Helvetica Neue", Impact, sans-serif;
+  --crimson:      #e4003b;
+  --crimson-deep: #b80030;
+
+  --ink:       #1d1d1b;
+  --ink-dim:   #5d5a66;
+  --paper:     #ffffff;
+  --panel:     #faf8fc;
+  --panel-2:   #f3eef7;
+
+  --right: #16794a;
+  --wrong: #c2002f;
+
+  /* Kept as aliases so the rest of the stylesheet did not have to be rewritten
+     line by line when the palette changed. */
+  --ink-deep:  var(--paper);
+  --chalk:     var(--ink);
+  --chalk-dim: var(--ink-dim);
+  --amber:     var(--crimson);
+  --amber-deep:var(--crimson-deep);
+  --line:      var(--purple-line);
+
+  --display: "Trebuchet MS", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
   --body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  --rule: 1px solid var(--line);
+  --rule: 1px solid var(--purple-line);
   --pad: clamp(0.85rem, 4vw, 1.5rem);
   --wide: 44rem;
 }
@@ -43,10 +58,8 @@ html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
   min-height: 100dvh;
-  background: var(--ink-deep);
-  background-image:
-    radial-gradient(1200px 500px at 50% -10%, rgba(240, 180, 41, 0.10), transparent 70%);
-  color: var(--chalk);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--body);
   line-height: 1.5;
 }
@@ -69,31 +82,38 @@ h1, h2, h3 { line-height: 1.2; }
   justify-content: space-between;
   gap: 0.75rem;
   flex-wrap: wrap;
-  padding: 0.6rem 0;
-  background: var(--ink-deep);
-  border-bottom: var(--rule);
+  padding: 0.6rem var(--pad);
+  margin: 0 calc(var(--pad) * -1);
+  background: var(--purple);
+  border-bottom: 3px solid var(--crimson);
 }
 
 .wordmark {
   font-family: var(--display);
   font-size: 1.35rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   background: none;
   border: 0;
-  color: var(--chalk);
+  color: #fff;
   padding: 0;
   cursor: pointer;
   line-height: 1;
 }
-.wordmark span { color: var(--amber); }
+.wordmark span {
+  background: var(--crimson);
+  color: #fff;
+  padding: 0.05em 0.3em;
+  border-radius: 0.15rem;
+  margin-left: 0.1em;
+}
 
 .masthead nav { display: flex; gap: 0.8rem; align-items: center; }
 
 .textlink {
   background: none;
   border: 0;
-  color: var(--chalk-dim);
+  color: rgba(255, 255, 255, 0.82);
   font: 600 0.7rem/1 var(--body);
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -101,7 +121,7 @@ h1, h2, h3 { line-height: 1.2; }
   padding: 0.35rem 0;
   border-bottom: 1px solid transparent;
 }
-.textlink:hover, .textlink:focus-visible { color: var(--amber); border-bottom-color: var(--amber); }
+.textlink:hover, .textlink:focus-visible { color: #fff; border-bottom-color: #fff; }
 
 /* The three gauges. Monospaced so the clock does not jog the layout every second. */
 .scoreboard { display: flex; gap: 0.5rem; order: 3; width: 100%; }
@@ -113,16 +133,17 @@ h1, h2, h3 { line-height: 1.2; }
   flex-direction: column;
   align-items: center;
   padding: 0.25rem 0.6rem;
-  border: var(--rule);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 0.4rem;
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.1);
   min-width: 4.5rem;
+  color: #fff;
 }
 .gauge-label {
   font-size: 0.55rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--chalk-dim);
+  color: rgba(255, 255, 255, 0.75);
 }
 .gauge strong { font: 700 1.05rem/1.2 var(--data); font-variant-numeric: tabular-nums; }
 #gauge-clock.urgent strong { color: var(--wrong); }
@@ -131,13 +152,14 @@ h1, h2, h3 { line-height: 1.2; }
 /* ------------------------------------------------------------------ home */
 .intro { padding: 1.8rem 0 0.6rem; }
 .kicker {
-  font: 600 0.68rem/1 var(--body);
+  font: 700 0.68rem/1 var(--body);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--amber);
+  color: var(--crimson);
   margin: 0 0 0.5rem;
 }
 .intro h1 {
+  color: var(--purple);
   font-family: var(--display);
   font-size: clamp(2rem, 8vw, 3rem);
   letter-spacing: 0.01em;
@@ -168,39 +190,101 @@ h1, h2, h3 { line-height: 1.2; }
 .pace { font-size: 0.82rem; color: var(--chalk-dim); margin: 0.8rem 0 0; text-align: center; }
 
 /* --------------------------------------------------------------- picture */
-.picture { margin: 1rem 0 0.4rem; }
+/* The layout problem this solves: the picture and the box you type into were at
+   opposite ends of a long page, so every single answer meant scrolling up to
+   look and back down to type. Now the picture never leaves the screen - pinned
+   under the masthead on a phone, in its own column on anything wider. */
+
+.round { display: block; }
+
+.picture {
+  position: sticky;
+  /* Measured, not guessed: the masthead wraps to two lines on a phone, and a
+     hard-coded offset slid the top row of the picture underneath it. */
+  top: var(--mast, 3.4rem);
+  z-index: 3;
+  margin: 0.6rem 0 0.5rem;
+  background: var(--paper);
+  padding-bottom: 0.4rem;
+}
 .picture-frame {
+  display: flex;
+  justify-content: center;
   border: var(--rule);
   border-radius: 0.5rem;
   overflow: hidden;
-  background: #fdf7ea;
+  background: #fff;
   line-height: 0;
 }
-.picture-frame svg { width: 100%; height: auto; display: block; }
-.picture figcaption {
+.picture-frame svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  /* Short enough to leave room for the list under it, tall enough to make out
+     what each vignette is. Full screen is a tap away for a proper look. */
+  max-height: 34vh;
+}
+.picturebar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.8rem;
-  margin-top: 0.5rem;
-  font-size: 0.78rem;
-  color: var(--chalk-dim);
+  margin-top: 0.45rem;
 }
 .ghost.tiny { padding: 0.35rem 0.6rem; font-size: 0.62rem; white-space: nowrap; }
+
+.hidefound {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font: 600 0.68rem/1 var(--body);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--chalk-dim);
+  cursor: pointer;
+}
+.hidefound input { accent-color: var(--crimson); width: 1rem; height: 1rem; }
+
+.listpane { min-width: 0; }
+.allfound {
+  margin: 1rem 0 0;
+  padding: 0.9rem;
+  border: var(--rule);
+  border-radius: 0.45rem;
+  background: var(--panel);
+  text-align: center;
+  font-size: 0.9rem;
+}
+.allfound .ghost { margin-left: 0.5rem; }
+
+/* Wide enough for two columns: the picture gets its own, full height, and the
+   answers scroll beside it. No scrolling between them at all. */
+@media (min-width: 64rem) {
+  #app { max-width: 78rem; }
+  .round {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
+    gap: 1.6rem;
+    align-items: start;
+  }
+  .picture { top: calc(var(--mast, 4.2rem) + 0.6rem); margin-top: 1rem; }
+  .picture-frame svg { max-height: calc(100vh - 8rem); }
+  .listpane { padding-top: 1rem; }
+}
 
 .lightbox {
   position: fixed;
   inset: 0;
   z-index: 30;
-  background: rgba(10, 15, 26, 0.95);
+  background: rgba(53, 9, 76, 0.97);
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
   padding: 0.7rem;
   overflow: auto;
 }
-/* The picture is wider than it is tall, so on a phone it is turned on its side
-   and scrolled - far more readable than shrinking it to fit the width. */
+/* The picture is much wider than it is tall, so on a phone held upright it is
+   turned on its side - far more readable than shrinking it to the width. */
 .lightbox-inner { flex: 1; display: flex; align-items: center; justify-content: center; }
 .lightbox-inner svg { width: 100%; height: auto; }
 @media (orientation: portrait) {
@@ -212,7 +296,9 @@ h1, h2, h3 { line-height: 1.2; }
 .items { list-style: none; padding: 0; margin: 0.6rem 0 0; display: grid; gap: 0.4rem; }
 
 .item { border: var(--rule); border-radius: 0.45rem; background: var(--panel); overflow: hidden; }
+.item.open { border-color: var(--purple); }
 .item.is-found { border-left: 3px solid var(--right); }
+.items.hide-found .item.is-found { display: none; }
 .item.is-shown { border-left: 3px solid var(--chalk-dim); opacity: 0.75; }
 .item.open { background: var(--panel-2); }
 
@@ -233,11 +319,11 @@ h1, h2, h3 { line-height: 1.2; }
   flex: none;
   width: 1.5rem;
   font: 700 0.75rem/1.6 var(--data);
-  color: var(--chalk-dim);
+  color: var(--purple-mid);
 }
 .itemmain { flex: 1; min-width: 0; }
 .template { display: block; font-size: 0.95rem; line-height: 1.9; }
-.solved { color: var(--right); }
+.solved { color: var(--purple); }
 .itemmeta {
   display: block;
   margin-top: 0.2rem;
@@ -251,12 +337,12 @@ h1, h2, h3 { line-height: 1.2; }
 .blanks .box {
   width: 1.05rem;
   height: 1.35rem;
-  border-bottom: 2px solid var(--chalk-dim);
+  border-bottom: 2px solid var(--purple-line);
   font: 700 0.9rem/1.35rem var(--data);
   text-align: center;
-  color: var(--amber);
+  color: var(--purple);
 }
-.blanks .box.filled { border-bottom-color: var(--amber); }
+.blanks .box.filled { border-bottom-color: var(--crimson); }
 .blanks .gap { width: 0.55rem; }
 
 .itembody { padding: 0 0.8rem 0.8rem; }
@@ -277,9 +363,9 @@ h1, h2, h3 { line-height: 1.2; }
 
 .primary {
   border: 0;
-  border-radius: 0.4rem;
-  background: var(--amber);
-  color: var(--ink-deep);
+  border-radius: 2rem;
+  background: var(--crimson);
+  color: #fff;
   font: 700 0.8rem/1 var(--body);
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -287,33 +373,29 @@ h1, h2, h3 { line-height: 1.2; }
   cursor: pointer;
   min-height: 2.75rem;
 }
-.primary:hover { background: var(--amber-deep); }
+.primary:hover { background: var(--crimson-deep); }
 
 .ghost {
-  border: var(--rule);
-  border-radius: 0.4rem;
+  border: 1px solid var(--purple);
+  border-radius: 2rem;
   background: none;
-  color: var(--chalk-dim);
+  color: var(--purple);
   font: 600 0.72rem/1 var(--body);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   padding: 0.6rem 0.9rem;
   cursor: pointer;
 }
-.ghost:hover:not(:disabled) { color: var(--chalk); border-color: var(--chalk-dim); }
+.ghost:hover:not(:disabled) { background: var(--purple); color: #fff; }
 .ghost:disabled { opacity: 0.35; cursor: default; }
 
 .verdict {
-  position: sticky;
-  top: 4.2rem;
-  z-index: 4;
-  min-height: 1.4rem;
-  margin: 0.4rem 0 0;
-  font-size: 0.86rem;
+  min-height: 1.2rem;
+  margin: 0 0 0.7rem;
+  font-size: 0.84rem;
   font-weight: 600;
-  background: var(--ink-deep);
-  padding: 0.2rem 0;
 }
+.verdict:empty { display: none; }
 .verdict.good { color: var(--right); }
 .verdict.bad  { color: var(--wrong); }
 .verdict.soft { color: var(--chalk-dim); font-weight: 500; }
@@ -329,8 +411,8 @@ h1, h2, h3 { line-height: 1.2; }
   padding: 0.6rem 0.8rem;
   border: var(--rule);
   border-radius: 0.4rem;
-  background: var(--ink-deep);
-  color: var(--chalk);
+  background: var(--paper);
+  color: var(--ink);
   font: inherit;
   font-size: 0.9rem;
   cursor: pointer;
@@ -340,16 +422,16 @@ h1, h2, h3 { line-height: 1.2; }
 .clue .cluename { flex: 1; }
 .clue .cost {
   font: 700 0.8rem/1 var(--data);
-  color: var(--amber);
+  color: var(--crimson);
   white-space: nowrap;
 }
-.clue.bought { border-left: 3px solid var(--amber); }
+.clue.bought { border-left: 3px solid var(--crimson); }
 .clue.bought .cost { color: var(--chalk-dim); }
 .clue .given {
   display: block;
   font: 700 1rem/1.3 var(--data);
   letter-spacing: 0.1em;
-  color: var(--amber);
+  color: var(--purple);
   margin-top: 0.25rem;
   overflow-wrap: anywhere;
 }
@@ -358,13 +440,14 @@ h1, h2, h3 { line-height: 1.2; }
 /* ---------------------------------------------------------------- result */
 .result-head { text-align: center; padding: 2rem 0 1.2rem; }
 .result-kicker {
-  font: 600 0.7rem/1 var(--body);
+  font: 700 0.7rem/1 var(--body);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--amber);
+  color: var(--crimson);
   margin: 0 0 0.5rem;
 }
 .result-total {
+  color: var(--purple);
   font-family: var(--display);
   font-size: clamp(3.4rem, 18vw, 5.5rem);
   line-height: 0.9;
@@ -387,7 +470,7 @@ h1, h2, h3 { line-height: 1.2; }
 }
 .breakdown tr.total td { font-weight: 700; border-bottom: 0; border-top: 2px solid var(--line); }
 .breakdown td.minus { color: var(--wrong); }
-.breakdown td.bonus { color: var(--amber); }
+.breakdown td.bonus { color: var(--purple); }
 
 .result-actions { display: flex; gap: 0.6rem; margin: 1.4rem 0; flex-wrap: wrap; }
 .result-actions .primary { flex: 1 1 12rem; min-height: 2.9rem; }
@@ -406,7 +489,7 @@ h1, h2, h3 { line-height: 1.2; }
   text-transform: uppercase;
   color: var(--chalk-dim);
 }
-#board-table tr.you td { color: var(--amber); font-weight: 700; }
+#board-table tr.you td { color: var(--crimson); font-weight: 700; }
 .boardnote { color: var(--chalk-dim); font-size: 0.8rem; margin: 0.7rem 0 0; }
 
 .answerlist { padding-left: 1.3rem; display: grid; gap: 0.9rem; margin: 0; }
@@ -422,7 +505,7 @@ h1, h2, h3 { line-height: 1.2; }
   position: fixed;
   inset: 0;
   z-index: 20;
-  background: rgba(10, 15, 26, 0.82);
+  background: rgba(53, 9, 76, 0.55);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -433,20 +516,20 @@ h1, h2, h3 { line-height: 1.2; }
 .sheet-inner {
   width: 100%;
   max-width: 32rem;
-  background: var(--panel);
+  background: var(--paper);
   border: var(--rule);
   border-radius: 0.6rem;
   padding: 1.3rem;
 }
-.sheet-inner h2 { font-family: var(--display); font-size: 1.6rem; margin: 0 0 0.9rem; letter-spacing: 0.02em; }
+.sheet-inner h2 { color: var(--purple); font-family: var(--display); font-size: 1.6rem; margin: 0 0 0.9rem; letter-spacing: 0.02em; }
 .rulelist { padding-left: 1.1rem; margin: 0 0 1.2rem; display: grid; gap: 0.6rem; font-size: 0.9rem; }
-.rulelist li::marker { color: var(--amber); }
+.rulelist li::marker { color: var(--crimson); }
 .sheet-inner .primary { width: 100%; }
 
 .footer {
   margin-top: 2.5rem;
   padding-top: 0.8rem;
-  border-top: var(--rule);
+  border-top: 3px solid var(--purple);
   font: 500 0.66rem/1 var(--data);
   color: var(--chalk-dim);
   opacity: 0.6;
