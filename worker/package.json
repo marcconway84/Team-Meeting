@@ -1,0 +1,16 @@
+{
+  "name": "quickfire-scores",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Leaderboard for Quick Fire: best score per pack, first attempt only.",
+  "scripts": {
+    "dev": "wrangler dev --local --port 8787",
+    "test": "node --test 'test/scoring.test.js' 'test/engine.test.js'",
+    "test:service": "node --test 'test/service.test.js'",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
