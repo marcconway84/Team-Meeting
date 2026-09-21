@@ -4,93 +4,87 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { BadRound, RULES, cluePenalty, packSize, scoreRound } from "../src/scoring.js";
+import { BadRound, RULES, cluePenalty, roundSize, scoreRound } from "../src/scoring.js";
 
-// Every pack shipped so far is twelve questions, and the tests below lean on that.
-const PACK = "mixed-bag";
-const SIZE = packSize(PACK);
+const ROUND = "sept-28";
+const SIZE = roundSize(ROUND);
 
 function round(overrides = {}) {
-  return { pack: PACK, right: SIZE, secondsLeft: 300, clues: [], ...overrides };
+  return { round: ROUND, found: SIZE, seconds: 600, clues: [], ...overrides };
 }
 
-test("the packs came across from data/packs", () => {
-  assert.equal(SIZE, 12);
-  assert.equal(packSize("no-such-pack"), null);
+test("the round came across from data/rounds", () => {
+  assert.equal(SIZE, 19);
+  assert.equal(roundSize("no-such-round"), null);
 });
 
 test("a clean sweep collects everything there is", () => {
   const result = scoreRound(round());
-  assert.equal(result.base, 1200);
-  assert.equal(result.finisher, RULES.finisherBonus);
-  assert.equal(result.timeBonus, 300 * RULES.pointsPerSecondRemaining);
-  assert.equal(result.cleanSweep, RULES.cleanSweepBonus);
-  assert.equal(result.total, 1200 + 250 + 600 + 250);
+  assert.equal(result.base, 1900);
+  assert.equal(result.finisher, RULES.picture.finisherBonus);
+  assert.equal(result.cleanSweep, RULES.picture.cleanSweepBonus);
+  assert.equal(result.total, 1900 + 400 + 400);
+});
+
+test("taking longer earns nothing and costs nothing", () => {
+  // The round is self-paced. Time is a tie-break on the board, never a score.
+  const quick = scoreRound(round({ seconds: 60 }));
+  const slow = scoreRound(round({ seconds: 6000 }));
+  assert.equal(quick.total, slow.total);
 });
 
 test("clues are taken off, and cost the clean sweep as well as their price", () => {
-  const helped = scoreRound(round({ clues: ["letters"] }));
+  const helped = scoreRound(round({ clues: ["category"] }));
   assert.equal(helped.spent, 10);
   assert.equal(helped.cleanSweep, 0, "one clue is still a clue");
-  assert.equal(helped.finisher, RULES.finisherBonus, "but the finisher survives it");
-  assert.equal(helped.total, 1200 - 10 + 250 + 600);
+  assert.equal(helped.finisher, RULES.picture.finisherBonus, "but the finisher survives it");
+  assert.equal(helped.total, 1900 - 10 + 400);
 });
 
-test("one question short and every bonus is gone", () => {
-  const result = scoreRound(round({ right: SIZE - 1 }));
-  assert.equal(result.base, 1100);
-  assert.deepEqual(
-    [result.finisher, result.timeBonus, result.cleanSweep],
-    [0, 0, 0],
-    "the bonuses want a clean sheet, which is what makes reveal safe to give away free"
-  );
-  assert.equal(result.total, 1100);
+test("the letter clue can be bought over and over and charges every time", () => {
+  const clues = ["letter", "letter", "letter", "letter"];
+  assert.equal(cluePenalty(clues), 4 * RULES.picture.clueCosts.letter);
+  assert.equal(scoreRound(round({ clues })).spent, 60);
+});
+
+test("one short and both bonuses are gone", () => {
+  const result = scoreRound(round({ found: SIZE - 1 }));
+  assert.equal(result.base, 1800);
+  assert.deepEqual([result.finisher, result.cleanSweep], [0, 0],
+    "the bonuses want a clean sheet, which is what makes reveal safe to give away free");
+  assert.equal(result.total, 1800);
 });
 
 test("revealing everything earns nothing at all", () => {
-  // The exploit this rules out: reveal all twelve, finish with nine minutes on the
-  // clock, and collect the finisher and time bonuses for a round you did not play.
-  // A revealed question is never counted right, so `right` is zero and so is the lot.
+  // The exploit this rules out: reveal all nineteen and collect the finisher bonus
+  // for a round you did not play. A revealed item is never counted found, so
+  // `found` is zero and so is the lot.
   const reveals = Array.from({ length: SIZE }, () => "reveal");
-  const result = scoreRound(round({ right: 0, clues: reveals, secondsLeft: 540 }));
   assert.equal(cluePenalty(reveals), 0, "reveal is free");
-  assert.equal(result.total, 0);
+  assert.equal(scoreRound(round({ found: 0, clues: reveals })).total, 0);
 });
 
 test("a score that could not have been played is refused", () => {
-  assert.throws(() => scoreRound(round({ right: SIZE + 1 })), BadRound, "more right than exist");
-  assert.throws(() => scoreRound(round({ right: -1 })), BadRound, "a negative tally");
-  assert.throws(
-    () => scoreRound(round({ secondsLeft: RULES.secondsOnTheClock + 1 })),
-    BadRound,
-    "more clock than the round ever had"
-  );
-  assert.throws(() => scoreRound(round({ secondsLeft: -5 })), BadRound, "a negative clock");
-  assert.throws(() => scoreRound(round({ pack: "invented" })), BadRound, "a pack nobody has");
-  assert.throws(() => scoreRound(round({ right: 1.5 })), BadRound, "a fractional tally");
-  assert.throws(() => scoreRound(round({ questions: 3 })), BadRound, "a pack resized in flight");
+  assert.throws(() => scoreRound(round({ found: SIZE + 1 })), BadRound, "more found than exist");
+  assert.throws(() => scoreRound(round({ found: -1 })), BadRound, "a negative tally");
+  assert.throws(() => scoreRound(round({ seconds: -5 })), BadRound, "a negative clock");
+  assert.throws(() => scoreRound(round({ round: "invented" })), BadRound, "a round nobody has");
+  assert.throws(() => scoreRound(round({ found: 1.5 })), BadRound, "a fractional tally");
+  assert.throws(() => scoreRound(round({ items: 3 })), BadRound, "a round resized in flight");
 });
 
 test("an invented clue is refused rather than priced at nothing", () => {
   assert.throws(() => cluePenalty(["freebie"]), BadRound);
-  assert.throws(() => scoreRound(round({ clues: ["letters", "freebie"] })), BadRound);
-});
-
-test("more clues than the pack has to sell is refused", () => {
-  const kinds = Object.keys(RULES.clueCosts).length;
-  const everything = Array.from({ length: SIZE * kinds }, () => "letters");
-  assert.doesNotThrow(() => scoreRound(round({ right: 0, clues: everything })));
-  assert.throws(() => scoreRound(round({ right: 0, clues: everything.concat("letters") })), BadRound);
+  assert.throws(() => scoreRound(round({ clues: ["category", "freebie"] })), BadRound);
 });
 
 test("the price list is the one the browser was shown", () => {
-  // data/rules.json is the original; this file is generated from it. If the two
-  // ever part company the player is charged one price and ranked on another.
-  assert.equal(RULES.clueCosts.reveal, 0);
-  assert.equal(RULES.pointsPerQuestion, 100);
-  assert.equal(RULES.secondsOnTheClock, 600);
-  for (const [key, cost] of Object.entries(RULES.clueCosts)) {
+  // data/rules.json is the original; this file is generated from it. If the two ever
+  // part company the player is charged one price and ranked on another.
+  assert.equal(RULES.picture.clueCosts.reveal, 0);
+  assert.equal(RULES.picture.pointsPerItem, 100);
+  for (const [key, cost] of Object.entries(RULES.picture.clueCosts)) {
     assert.ok(Number.isInteger(cost) && cost >= 0, `${key} is priced oddly: ${cost}`);
-    assert.ok(cost < RULES.pointsPerQuestion, `${key} costs more than the question is worth`);
+    assert.ok(cost < RULES.picture.pointsPerItem, `${key} costs more than an item is worth`);
   }
 });

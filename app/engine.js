@@ -149,7 +149,9 @@ var QuickFireEngine = (function () {
     return String(answer).trim().split(/\s+/).filter(Boolean);
   }
 
-  var NUMBER_WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+  var NUMBER_WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight",
+    "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+    "seventeen", "eighteen", "nineteen", "twenty"];
 
   function spell(count) {
     return count < NUMBER_WORDS.length ? NUMBER_WORDS[count] : String(count);
@@ -237,6 +239,102 @@ var QuickFireEngine = (function () {
     return sheet;
   }
 
+  /* ====================================================== picture rounds ===
+     A picture round asks for one missing word per drawing, shown as blanks with
+     a couple of letters already filled in. Everything below is pure: given an
+     item and the set of letters the player has bought, work out what the blanks
+     look like and what the clue sheet should offer.
+  */
+
+  /**
+   * Which character positions are showing.
+   *
+   * The pack's own prefilled letters, plus one more for each "letter" clue
+   * bought. Extra letters are handed out left to right through the positions
+   * still hidden, so buying two in a row cannot give the same letter twice and
+   * the player can see what their money bought.
+   */
+  function shownPositions(item, lettersBought) {
+    var answer = String(item.answer);
+    var shown = {};
+    (item.prefill || []).forEach(function (index) { shown[index] = true; });
+    // Spaces are never a secret.
+    for (var i = 0; i < answer.length; i += 1) {
+      if (answer.charAt(i) === " ") shown[i] = true;
+    }
+    var remaining = lettersBought || 0;
+    for (var j = 0; j < answer.length && remaining > 0; j += 1) {
+      if (!shown[j]) {
+        shown[j] = true;
+        remaining -= 1;
+      }
+    }
+    return shown;
+  }
+
+  /** The blanks as the player sees them: ["R", null, "B", ...], null being a gap. */
+  function blanks(item, lettersBought) {
+    var answer = String(item.answer);
+    var shown = shownPositions(item, lettersBought);
+    var out = [];
+    for (var i = 0; i < answer.length; i += 1) {
+      var ch = answer.charAt(i);
+      out.push({
+        space: ch === " ",
+        letter: shown[i] && ch !== " " ? ch.toUpperCase() : null
+      });
+    }
+    return out;
+  }
+
+  /** True once nothing is left hidden - at which point selling another letter is theft. */
+  function fullyLettered(item, lettersBought) {
+    var answer = String(item.answer);
+    var shown = shownPositions(item, lettersBought);
+    for (var i = 0; i < answer.length; i += 1) {
+      if (!shown[i]) return false;
+    }
+    return true;
+  }
+
+  function letterCount(answer) {
+    return String(answer).replace(/[^A-Za-z0-9]/g, "").length;
+  }
+
+  /** "Six letters" / "Two words, fourteen letters." */
+  function lengthNote(answer) {
+    var words = wordsOf(answer);
+    var letters = letterCount(answer);
+    if (words.length === 1) return spell(letters) + " letters";
+    return spell(words.length) + " words, " + spell(letters) + " letters";
+  }
+
+  /**
+   * The clue sheet for one item of a picture round, dearest last.
+   *
+   * Two of these only exist because the picture is a drawing the game can reach
+   * into: "where" rings the vignette, "spot" describes it. They are the cheap
+   * end on purpose - they help you find the thing without naming it.
+   */
+  function pictureClues(item, lettersBought) {
+    var sheet = [
+      { key: "category", label: "Which category?", give: item.category, plain: true },
+      { key: "where", label: "Show me where", ring: true },
+      { key: "spot", label: "What am I looking at?", give: item.spot, plain: true }
+    ];
+    if (!fullyLettered(item, lettersBought)) {
+      sheet.splice(1, 0, { key: "letter", label: "Fill in another letter", repeatable: true });
+    }
+    if (item.hint) {
+      sheet.push({ key: "hint", label: "A clue in words", give: item.hint, plain: true });
+    }
+    if (letterCount(item.answer) > 4) {
+      sheet.push({ key: "anagram", label: "An anagram", give: clueAnagram(item) });
+    }
+    sheet.push({ key: "reveal", label: "Just tell me", reveal: true });
+    return sheet;
+  }
+
   return {
     normalize: normalize,
     withoutArticle: withoutArticle,
@@ -250,7 +348,13 @@ var QuickFireEngine = (function () {
     clueInitials: clueInitials,
     clueNoVowels: clueNoVowels,
     clueAnagram: clueAnagram,
-    clueChoices: clueChoices
+    clueChoices: clueChoices,
+    blanks: blanks,
+    shownPositions: shownPositions,
+    fullyLettered: fullyLettered,
+    letterCount: letterCount,
+    lengthNote: lengthNote,
+    pictureClues: pictureClues
   };
 })();
 

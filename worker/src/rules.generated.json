@@ -12,12 +12,24 @@
     "reveal": 0
   },
   "finisherBonus": 250,
-  "packs": {
-    "film-and-tv": 12,
-    "mixed-bag": 12,
-    "tech-and-the-web": 12
+  "picture": {
+    "cleanSweepBonus": 400,
+    "clueCosts": {
+      "anagram": 65,
+      "category": 10,
+      "hint": 45,
+      "letter": 15,
+      "reveal": 0,
+      "spot": 30,
+      "where": 20
+    },
+    "finisherBonus": 400,
+    "pointsPerItem": 100
   },
   "pointsPerQuestion": 100,
   "pointsPerSecondRemaining": 2,
+  "rounds": {
+    "sept-28": 19
+  },
   "secondsOnTheClock": 600
 }

@@ -4,17 +4,17 @@
 //
 //   POST /round/start   a round is beginning - hand back a signed token
 //   POST /round/finish  a round has ended - recalculate it, store it, return the board
-//   GET  /board         the top ten for one pack, and where this player came
-//   GET  /boards        the leader and your own score for every pack at once
+//   GET  /board         the top ten for one round, and where this player came
+//   GET  /boards        the leader and your own score for every round at once
 //
-// The rule the game is built around - a pack counts on your first attempt only - is
-// a primary key on (pack, player), so it holds even if something above it is wrong.
+// The rule the game is built around - a round counts on your first attempt only - is
+// a primary key on (round, player), so it holds even if something above it is wrong.
 //
 // Nothing here trusts the number the browser reports. Every score is recalculated
 // from what the round consisted of, which is the only reason a public board is worth
 // reading.
 
-import { BadRound, RULES, packSize, scoreRound } from "./scoring.js";
+import { BadRound, RULES, roundSize, scoreRound } from "./scoring.js";
 import { BadToken, issue, open } from "./session.js";
 
 const BOARD_SIZE = 10;
@@ -54,13 +54,13 @@ export default {
 
 async function startRound(request, env) {
   const body = await readJson(request);
-  const pack = requireText(body.pack, "pack", 64);
-  if (packSize(pack) === null) throw new BadRound(`unknown pack: ${pack}`);
+  const round = requireText(body.pack ?? body.round, "round", 64);
+  if (roundSize(round) === null) throw new BadRound(`unknown round: ${round}`);
 
   if (!(await underRateLimit(request, env))) {
     return json({ error: "too many rounds from here in the last hour" }, 429);
   }
-  return json({ token: await issue(env.SCORE_SECRET, { pack }) });
+  return json({ token: await issue(env.SCORE_SECRET, { pack: round }) });
 }
 
 async function finishRound(request, env) {
@@ -69,20 +69,20 @@ async function finishRound(request, env) {
   const player = requireText(body.player, "player", 64);
   const name = tidyName(body.name);
 
-  // The clock the player reports has to square with how long they actually held the
-  // token. Without this a ten minute round could be started and finished in the same
-  // second with the full clock still showing, which is where the time bonus lives.
+  // Nobody can have spent longer on the round than they have held the token. This
+  // catches an inflated time; it cannot catch a deflated one, which is why the time
+  // only ever breaks a tie and never earns a point.
   const held = Math.round(claims.age / 1000);
-  const claimedSpend = RULES.secondsOnTheClock - toInt(body.secondsLeft);
-  if (claimedSpend > held + 5) {
-    throw new BadRound("the round ended sooner than it could have been played");
+  const seconds = toInt(body.seconds);
+  if (seconds > held + 5) {
+    throw new BadRound("the round took longer than it has existed");
   }
 
   const result = scoreRound({
-    pack: claims.pack,
-    right: toInt(body.right),
-    questions: body.questions === undefined ? undefined : toInt(body.questions),
-    secondsLeft: toInt(body.secondsLeft),
+    round: claims.pack,
+    found: toInt(body.right ?? body.found),
+    items: body.questions === undefined ? undefined : toInt(body.questions),
+    seconds,
     clues: body.clues,
   });
 
@@ -97,7 +97,7 @@ async function finishRound(request, env) {
 
   const inserted = await env.DB.prepare(
     `INSERT OR IGNORE INTO scores
-       (pack, player, name, score, right_answers, questions, clues, seconds_left, created_at)
+       (pack, player, name, score, found, items, clues, seconds_taken, created_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
@@ -105,10 +105,10 @@ async function finishRound(request, env) {
       player,
       name,
       result.total,
-      result.right,
-      result.questions,
+      result.found,
+      result.items,
       Array.isArray(body.clues) ? body.clues.length : 0,
-      toInt(body.secondsLeft),
+      seconds,
       Date.now()
     )
     .run();
@@ -123,7 +123,7 @@ async function finishRound(request, env) {
     // Says plainly why a second run at the same pack did not move the board, rather
     // than looking like the submission failed.
     counted: Boolean(inserted.meta.changes),
-    reason: inserted.meta.changes ? null : "only your first attempt at a pack counts",
+    reason: inserted.meta.changes ? null : "only your first attempt at a round counts",
   });
 }
 
@@ -141,11 +141,11 @@ async function board(url, env) {
  * score come back, which is all the list shows - the full board is a round away.
  */
 async function boards(url, env) {
-  const wanted = (url.searchParams.get("packs") || "")
+  const wanted = (url.searchParams.get("packs") || url.searchParams.get("rounds") || "")
     .split(",")
     .map((id) => id.trim())
     .filter(Boolean);
-  if (!wanted.length) throw new BadRound("packs is required");
+  if (!wanted.length) throw new BadRound("rounds is required");
   if (wanted.length > MAX_BOARDS) throw new BadRound(`at most ${MAX_BOARDS} boards at a time`);
   const player = url.searchParams.get("player") || null;
 
@@ -187,9 +187,9 @@ async function boards(url, env) {
 
 async function standingsFor(env, pack, player) {
   const top = await env.DB.prepare(
-    `SELECT name, score, right_answers AS correct, questions
+    `SELECT name, score, found, items, seconds_taken
        FROM scores WHERE pack = ?
-       ORDER BY score DESC, created_at ASC LIMIT ?`
+       ORDER BY score DESC, seconds_taken ASC, created_at ASC LIMIT ?`
   )
     .bind(pack, BOARD_SIZE)
     .all();
@@ -201,7 +201,7 @@ async function standingsFor(env, pack, player) {
   let you = null;
   if (player) {
     const own = await env.DB.prepare(
-      "SELECT name, score, right_answers AS correct FROM scores WHERE pack = ? AND player = ?"
+      "SELECT name, score, found, seconds_taken FROM scores WHERE pack = ? AND player = ?"
     )
       .bind(pack, player)
       .first();

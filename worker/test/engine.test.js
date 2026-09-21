@@ -1,183 +1,159 @@
-// The browser half of the game: matching a typed answer, and the clue sheet.
-//
-// These run against app/engine.js directly and against every pack in data/packs,
+// The browser half of the game: matching a typed answer, the blanks, and the clue
+// sheet. These run against app/engine.js directly and against the real round data,
 // which is the point - a clue that cannot be built, or an answer its own alias does
-// not match, is a question that breaks in someone's ten minutes rather than here.
+// not match, is an item that breaks in someone's round rather than here.
 
 import assert from "node:assert/strict";
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import test from "node:test";
 
 const require = createRequire(import.meta.url);
 const engine = require("../../app/engine.js");
 
-const PACK_DIR = new URL("../../data/packs/", import.meta.url);
-const PACKS = readdirSync(PACK_DIR)
-  .filter((name) => name.endsWith(".json"))
-  .map((name) => JSON.parse(readFileSync(new URL(name, PACK_DIR), "utf8")));
-
-const EVERY_QUESTION = PACKS.flatMap((pack) =>
-  pack.questions.map((question) => ({ pack, question }))
-);
-
-test("there are packs to test", () => {
-  assert.ok(PACKS.length >= 1);
-  assert.ok(EVERY_QUESTION.length >= 12);
-});
+const ROUND = JSON.parse(readFileSync(new URL("../../data/rounds/sept-28.json", import.meta.url), "utf8"));
+const SCENE = readFileSync(new URL("../../app/scenes/sept-28.svg", import.meta.url), "utf8");
+const ITEMS = ROUND.items;
 
 /* ------------------------------------------------------------------ matching -- */
 
-test("every answer in every pack is matched by typing it out", () => {
-  for (const { question } of EVERY_QUESTION) {
-    assert.ok(engine.answers(question.answer, question), `${question.answer} does not match itself`);
+test("every answer is matched by typing it out", () => {
+  for (const item of ITEMS) {
+    assert.ok(engine.answers(item.answer, item), `${item.answer} does not match itself`);
   }
 });
 
-test("every curated alias matches the question it was written for", () => {
-  for (const { question } of EVERY_QUESTION) {
-    for (const alias of question.accept || []) {
-      assert.ok(engine.answers(alias, question), `${alias} does not match ${question.answer}`);
+test("every curated alias matches the item it was written for", () => {
+  for (const item of ITEMS) {
+    for (const alias of item.accept || []) {
+      assert.ok(engine.answers(alias, item), `${alias} does not match ${item.answer}`);
     }
   }
 });
 
-test("no answer is matched by another question's answer in the same pack", () => {
-  // Two questions one guess can satisfy would light up the wrong tile, and the
-  // generous matching makes that easier to do by accident than it sounds.
-  for (const pack of PACKS) {
-    for (const question of pack.questions) {
-      for (const other of pack.questions) {
-        if (other === question) continue;
-        assert.equal(
-          engine.answers(other.answer, question),
-          false,
-          `in ${pack.id}, "${other.answer}" also answers "${question.prompt}"`
-        );
-      }
+test("no answer is matched by another item's answer", () => {
+  // Two items one guess can satisfy would fill in the wrong row, and the generous
+  // matching makes that easier to do by accident than it sounds.
+  for (const item of ITEMS) {
+    for (const other of ITEMS) {
+      if (other === item) continue;
+      assert.equal(engine.answers(other.answer, item), false,
+        `"${other.answer}" also answers "${item.template}"`);
     }
   }
 });
 
-test("no decoy is accepted as the answer it was written to sit beside", () => {
-  // A four-option clue offering two right answers would be worse than no clue.
-  for (const { question } of EVERY_QUESTION) {
-    for (const decoy of question.decoys || []) {
-      assert.equal(
-        engine.answers(decoy, question),
-        false,
-        `"${decoy}" is accepted as "${question.answer}"`
-      );
+test("the spellings people actually type are accepted", () => {
+  const find = (answer) => ITEMS.find((i) => i.answer === answer);
+  assert.ok(engine.answers("neighbour", find("Neighbor")), "the British spelling");
+  assert.ok(engine.answers("Succot", find("Sukkot")), "a different transliteration");
+  assert.ok(engine.answers("mother's", find("Mothers")), "with the apostrophe");
+  assert.ok(engine.answers("north carolina", find("North Carolina")), "all lower case");
+  assert.ok(engine.answers("stawberry", find("Strawberry")), "a typo in a long word");
+});
+
+/* -------------------------------------------------------------------- blanks -- */
+
+test("the blanks start partly filled and never start with the first letter", () => {
+  for (const item of ITEMS) {
+    const cells = engine.blanks(item, 0);
+    assert.equal(cells.length, item.answer.length);
+    const shown = cells.filter((c) => c.letter).length;
+    assert.ok(shown >= 1, `${item.answer}: nothing filled in`);
+    assert.ok(shown < engine.letterCount(item.answer), `${item.answer}: all of it is filled in`);
+    assert.equal(cells[0].letter, null, `${item.answer}: the first letter is a giveaway`);
+  }
+});
+
+test("spaces show as gaps, not as letters to guess", () => {
+  const nc = ITEMS.find((i) => i.answer === "North Carolina");
+  const cells = engine.blanks(nc, 0);
+  assert.equal(cells[5].space, true);
+  assert.equal(cells[5].letter, null);
+});
+
+test("each letter bought fills exactly one more blank", () => {
+  const item = ITEMS.find((i) => i.answer === "Rabies");
+  const count = (n) => engine.blanks(item, n).filter((c) => c.letter).length;
+  assert.equal(count(1), count(0) + 1);
+  assert.equal(count(2), count(0) + 2);
+});
+
+test("buying enough letters spells the answer out and then stops selling them", () => {
+  const item = ITEMS.find((i) => i.answer === "Know");
+  const spelled = engine.blanks(item, 10).map((c) => c.letter).join("");
+  assert.equal(spelled, "KNOW");
+  assert.ok(engine.fullyLettered(item, 10));
+  assert.equal(engine.pictureClues(item, 10).some((c) => c.key === "letter"), false,
+    "there is nothing left to fill in, so it must not still be on sale");
+});
+
+/* ---------------------------------------------------------------- clue sheet -- */
+
+test("every item builds a full clue sheet", () => {
+  for (const item of ITEMS) {
+    const sheet = engine.pictureClues(item, 0);
+    const keys = sheet.map((c) => c.key);
+    for (const needed of ["category", "letter", "where", "spot", "hint", "reveal"]) {
+      assert.ok(keys.includes(needed), `${item.answer}: no ${needed} clue`);
     }
-  }
-});
-
-test("case, accents, punctuation and a leading 'the' are all forgiven", () => {
-  const question = { answer: "Leonardo da Vinci", accept: ["da Vinci"] };
-  for (const guess of ["leonardo da vinci", "LEONARDO DA VINCI", "Leonardo  da  Vinci", "da vinci"]) {
-    assert.ok(engine.answers(guess, question), guess);
-  }
-  assert.ok(engine.answers("Pique", { answer: "Piqué" }), "an accent left off");
-  assert.ok(engine.answers("etoo", { answer: "Eto'o" }), "an apostrophe left out");
-  assert.ok(engine.answers("the Nile", { answer: "Nile" }), "an article added");
-  assert.ok(engine.answers("Nile", { answer: "The Nile" }), "an article left off");
-});
-
-test("a small typo in a long answer is forgiven, in a short one it is not", () => {
-  assert.ok(engine.answers("canbera", { answer: "Canberra" }), "one letter short of eight");
-  assert.ok(engine.answers("millenium falcon", { answer: "Millennium Falcon" }), "the usual misspelling");
-  // Four letters with one wrong is a different word as often as it is a typo.
-  assert.equal(engine.answers("role", { answer: "Rome" }), false);
-  assert.equal(engine.answers("nile", { answer: "Nice" }), false);
-});
-
-test("a wrong answer is a wrong answer", () => {
-  const question = { answer: "Canberra", accept: [] };
-  for (const guess of ["Sydney", "Melbourne", "", "   ", "x"]) {
-    assert.equal(engine.answers(guess, question), false, JSON.stringify(guess));
-  }
-});
-
-/* --------------------------------------------------------------- clue sheets -- */
-
-test("every question in every pack builds a full clue sheet", () => {
-  for (const { pack, question } of EVERY_QUESTION) {
-    const sheet = engine.clueSheet(question, pack);
-    const keys = sheet.map((clue) => clue.key);
-
-    assert.ok(keys.includes("letters"), `${question.answer}: no length clue`);
-    assert.ok(keys.includes("first"), `${question.answer}: no first letter`);
-    assert.ok(keys.includes("novowels"), `${question.answer}: no vowel clue`);
-    assert.ok(keys.includes("choices"), `${question.answer}: no multiple choice`);
-    assert.ok(keys.includes("reveal"), `${question.answer}: no way out`);
-    assert.equal(new Set(keys).size, keys.length, `${question.answer}: a clue offered twice`);
-
+    assert.equal(new Set(keys).size, keys.length, `${item.answer}: a clue offered twice`);
     for (const clue of sheet) {
-      if (clue.reveal) continue;
-      const given = clue.choices || clue.give;
-      assert.ok(given && String(given).trim(), `${question.answer}: ${clue.key} came back empty`);
+      if (clue.reveal || clue.ring || clue.repeatable) continue;
+      assert.ok(clue.give && String(clue.give).trim(), `${item.answer}: ${clue.key} came back empty`);
     }
   }
 });
 
-test("a clue that would say nothing is not offered", () => {
-  // Initials on a single word are the first letter again, at thirty points more.
-  const oneWord = { answer: "Canberra" };
-  const keys = engine.clueSheet(oneWord, { questions: [oneWord] }).map((c) => c.key);
-  assert.equal(keys.includes("initials"), false);
-
-  const twoWords = { answer: "Blue whale" };
-  assert.ok(engine.clueSheet(twoWords, { questions: [twoWords] }).map((c) => c.key).includes("initials"));
-
-  // No written hint means no hint to sell.
-  assert.equal(keys.includes("hint"), false);
-  const hinted = { answer: "Canberra", hint: "Not the biggest city." };
-  assert.ok(engine.clueSheet(hinted, { questions: [hinted] }).map((c) => c.key).includes("hint"));
-});
-
-test("no clue hands over the answer it is a clue to", () => {
-  for (const { question } of EVERY_QUESTION) {
-    const plain = question.answer.toUpperCase().replace(/[^A-Z0-9]/g, "");
-    assert.notEqual(
-      engine.clueAnagram(question).replace(/ /g, ""),
-      plain,
-      `${question.answer}: the anagram is the answer`
-    );
-    assert.ok(
-      engine.clueNoVowels(question).includes("–") || !/[aeiou]/i.test(question.answer),
-      `${question.answer}: nothing was blanked out`
-    );
+test("no clue simply hands over the answer", () => {
+  // The trap this catches: a "first word" style clue on a one-word answer, which
+  // would be a reveal sold at full price.
+  for (const item of ITEMS) {
+    for (const clue of engine.pictureClues(item, 0)) {
+      if (!clue.give) continue;
+      assert.notEqual(String(clue.give).toLowerCase(), item.answer.toLowerCase(),
+        `${item.answer}: the ${clue.key} clue is the answer`);
+    }
   }
 });
 
-test("an anagram is the same one every time", () => {
-  // It is recomputed on every render, so a fresh shuffle each time would look like
-  // the game changing its mind while the player stared at it.
-  const question = { answer: "Millennium Falcon" };
-  assert.equal(engine.clueAnagram(question), engine.clueAnagram(question));
-});
-
-test("four options include the answer and no duplicates", () => {
-  for (const { pack, question } of EVERY_QUESTION) {
-    const choices = engine.clueChoices(question, pack);
-    assert.equal(choices.length, 4, `${question.answer}: ${choices.length} options`);
-    assert.ok(choices.includes(question.answer), `${question.answer} is not among its own options`);
-    assert.equal(new Set(choices).size, 4, `${question.answer}: an option appears twice`);
+test("the anagram is stable, and is never the answer in order", () => {
+  for (const item of ITEMS) {
+    const sheet = engine.pictureClues(item, 0);
+    const anagram = sheet.find((c) => c.key === "anagram");
+    if (!anagram) continue;
+    assert.equal(anagram.give, engine.clueAnagram(item), "it changed between renders");
+    assert.notEqual(anagram.give.replace(/ /g, ""),
+      item.answer.toUpperCase().replace(/[^A-Z0-9]/g, ""), `${item.answer}: the anagram is the answer`);
   }
 });
 
-test("a pack with no decoys still gets four options, from its own answers", () => {
-  const pack = {
-    questions: [{ answer: "Alpha" }, { answer: "Bravo" }, { answer: "Charlie" }, { answer: "Delta" }],
-  };
-  const choices = engine.clueChoices(pack.questions[0], pack);
-  assert.equal(choices.length, 4);
-  assert.ok(choices.includes("Alpha"));
+test("the length note counts letters, not spaces", () => {
+  assert.equal(engine.lengthNote("Rabies"), "six letters");
+  assert.equal(engine.lengthNote("North Carolina"), "two words, thirteen letters");
 });
 
-test("the length clue counts letters, not spaces or punctuation", () => {
-  assert.match(engine.clueLetters({ answer: "Canberra" }), /^8 letters, one word\.$/);
-  assert.match(engine.clueLetters({ answer: "Blue whale" }), /^9 letters across two words \(4, 5\)\.$/);
-  assert.equal(engine.clueInitials({ answer: "Central Processing Unit" }), "C. P. U.");
-  assert.equal(engine.clueFirst({ answer: "jpeg" }), "Begins with J.");
+/* ------------------------------------------------------------------- picture -- */
+
+test("every item is actually in the picture", () => {
+  // "Show me where" charges 20 points to ring a vignette. If the group or its ring
+  // is missing the player pays for nothing at all.
+  for (const item of ITEMS) {
+    assert.ok(SCENE.includes(`id="vig-${item.n}"`), `no drawing for item ${item.n} (${item.answer})`);
+    assert.ok(SCENE.includes(`id="ring-${item.n}"`), `no ring for item ${item.n} (${item.answer})`);
+  }
+});
+
+test("the picture gives nothing away for free", () => {
+  // No numbered badges: the mapping from drawing to blank is what "show me where"
+  // sells, so printing it on the picture would make that clue worthless.
+  assert.equal(SCENE.includes("badge-no"), false, "the vignettes are numbered again");
+  for (const item of ITEMS) {
+    assert.equal(SCENE.toLowerCase().includes(">" + item.answer.toLowerCase() + "<"), false,
+      `${item.answer} is written on the picture`);
+  }
+});
+
+test("every ring is switched off until it is bought", () => {
+  assert.equal(/class="ring on"/.test(SCENE), false, "a ring ships already lit");
 });

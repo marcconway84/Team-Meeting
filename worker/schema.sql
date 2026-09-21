@@ -3,24 +3,25 @@
 -- beyond the hour they are needed for rate limiting.
 
 CREATE TABLE IF NOT EXISTS scores (
-  pack          TEXT    NOT NULL,
+  pack          TEXT    NOT NULL,   -- the round id
   player        TEXT    NOT NULL,   -- a random id the browser keeps; not a login
   name          TEXT    NOT NULL,   -- the display name typed by the player
   score         INTEGER NOT NULL,
-  right_answers INTEGER NOT NULL,
-  questions     INTEGER NOT NULL,
+  found         INTEGER NOT NULL,
+  items         INTEGER NOT NULL,
   clues         INTEGER NOT NULL,   -- how many were bought, not which
-  seconds_left  INTEGER NOT NULL,
+  seconds_taken INTEGER NOT NULL,   -- elapsed, and only ever a tie-break
   created_at    INTEGER NOT NULL,   -- unix ms
 
   -- The first-attempt rule, enforced here rather than in application code. A second
-  -- run at a pack whose answers you have already seen cannot overwrite the first,
+  -- run at a round whose answers you have already seen cannot overwrite the first,
   -- even if something upstream is wrong.
   PRIMARY KEY (pack, player)
 );
 
--- Ordering the board for one pack is the only read this table does in anger.
-CREATE INDEX IF NOT EXISTS scores_by_pack ON scores (pack, score DESC, created_at ASC);
+-- Ordering the board for one round is the only read this table does in anger.
+CREATE INDEX IF NOT EXISTS scores_by_pack
+  ON scores (pack, score DESC, seconds_taken ASC, created_at ASC);
 
 CREATE TABLE IF NOT EXISTS spent_tokens (
   nonce      TEXT PRIMARY KEY,

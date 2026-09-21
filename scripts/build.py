@@ -24,20 +24,22 @@ import shutil
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+ROUND_FILE = REPO_ROOT / "data" / "rounds" / "sept-28.json"
+SCENE_DIR = REPO_ROOT / "app" / "scenes"
 PACK_DIR = REPO_ROOT / "data" / "packs"
 RULES = REPO_ROOT / "data" / "rules.json"
 LEADERBOARD = REPO_ROOT / "data" / "leaderboard.json"
 SOURCE = REPO_ROOT / "app"
 DEFAULT_OUT = REPO_ROOT / "dist" / "quickfire.html"
 
-TITLE = "Quick Fire &mdash; the ten minute team quiz"
-BLURB = ("Twelve questions, ten minutes, and a clue sheet you pay for out of your own "
-         "score. A competitive ice breaker your team can play whenever suits them.")
+TITLE = "Quick Fire &mdash; the 28th of September"
+BLURB = ("One cartoon, nineteen things people celebrate on the 28th of September, and a "
+         "clue sheet you pay for out of your own score. Play it whenever suits you.")
 SITE_URL = "https://marcconway84.github.io/Team-Meeting/"
 
 #: Every key the game knows how to price. A pack cannot invent a new one, and a
 #: rules file that forgets one would leave a clue the game cannot charge for.
-CLUE_KEYS = {"letters", "first", "initials", "hint", "novowels", "anagram", "choices", "reveal"}
+CLUE_KEYS = {"category", "letter", "where", "spot", "hint", "anagram", "reveal"}
 
 #: Below this the clue sheet stops being a ladder - an anagram of three letters
 #: is the answer with extra steps.
@@ -51,17 +53,82 @@ class BadPack(Exception):
 
 def load_rules() -> dict:
     rules = json.loads(RULES.read_text(encoding="utf-8"))
-    missing = CLUE_KEYS - set(rules.get("clueCosts", {}))
+    picture = rules.get("picture")
+    if not isinstance(picture, dict):
+        raise BadPack(f"{RULES.name} has no picture-round rules")
+
+    missing = CLUE_KEYS - set(picture.get("clueCosts", {}))
     if missing:
         raise BadPack(f"{RULES.name} has no price for: {', '.join(sorted(missing))}")
-    unknown = set(rules["clueCosts"]) - CLUE_KEYS
+    unknown = set(picture["clueCosts"]) - CLUE_KEYS
     if unknown:
         raise BadPack(f"{RULES.name} prices clues the game does not offer: {', '.join(sorted(unknown))}")
-    for key in ("secondsOnTheClock", "pointsPerQuestion", "finisherBonus",
-                "pointsPerSecondRemaining", "cleanSweepBonus"):
-        if not isinstance(rules.get(key), int):
-            raise BadPack(f"{RULES.name} is missing a whole number for {key}")
+    for key in ("pointsPerItem", "finisherBonus", "cleanSweepBonus"):
+        if not isinstance(picture.get(key), int):
+            raise BadPack(f"{RULES.name} is missing a whole number for picture.{key}")
+    # A clue dearer than the thing it helps you win is a clue nobody sane buys.
+    for key, cost in picture["clueCosts"].items():
+        if not isinstance(cost, int) or not 0 <= cost < picture["pointsPerItem"]:
+            raise BadPack(f"{RULES.name}: the {key} clue is priced at {cost}")
     return {key: value for key, value in rules.items() if not key.startswith("_")}
+
+
+def check_round(round_data: dict) -> dict:
+    """Refuse a picture round that would play badly, and say exactly which item."""
+    for field in ("id", "title", "subject", "scene", "items"):
+        if not round_data.get(field):
+            raise BadPack(f"the round is missing {field}")
+
+    scene = SCENE_DIR / f"{round_data['scene']}.svg"
+    if not scene.exists():
+        raise BadPack(f"the round names a picture that does not exist: {scene.name}")
+    drawing = scene.read_text(encoding="utf-8")
+
+    seen_answers: set[str] = set()
+    seen_numbers: set[int] = set()
+    for item in round_data["items"]:
+        at = f"item {item.get('n', '?')}: "
+        for field in ("n", "template", "answer", "category", "spot"):
+            if not item.get(field):
+                raise BadPack(at + f"missing {field}")
+        if "___" not in item["template"]:
+            raise BadPack(at + "the template has no ___ for the answer to go in")
+
+        answer = item["answer"]
+        if answer.lower() in seen_answers:
+            raise BadPack(at + f"{answer!r} is already the answer to another item")
+        seen_answers.add(answer.lower())
+        if item["n"] in seen_numbers:
+            raise BadPack(at + "two items share a number")
+        seen_numbers.add(item["n"])
+
+        # Every item must be findable in the picture, or "show me where" sells
+        # a clue that does nothing at all.
+        for needed in (f'id="vig-{item["n"]}"', f'id="ring-{item["n"]}"'):
+            if needed not in drawing:
+                raise BadPack(at + f"the picture has no {needed}")
+
+        prefill = item.get("prefill") or []
+        if not prefill:
+            raise BadPack(at + "no letters are filled in to start with")
+        for index in prefill:
+            if not isinstance(index, int) or not 0 <= index < len(answer):
+                raise BadPack(at + f"prefill {index} is outside {answer!r}")
+            if answer[index] == " ":
+                raise BadPack(at + f"prefill {index} points at a space")
+        hidden = [i for i in range(len(answer)) if i not in prefill and answer[i] != " "]
+        if not hidden:
+            raise BadPack(at + "every letter is filled in already")
+
+    return round_data
+
+
+def load_round() -> dict:
+    return check_round(json.loads(ROUND_FILE.read_text(encoding="utf-8")))
+
+
+def load_scene(name: str) -> str:
+    return (SCENE_DIR / f"{name}.svg").read_text(encoding="utf-8")
 
 
 def check_pack(pack: dict, source: str) -> dict:
@@ -159,13 +226,14 @@ def embed(value) -> str:
 
 
 def build() -> str:
-    packs = load_packs()
+    round_data = load_round()
     rules = load_rules()
 
     # The engine goes first: app.js reads the global it publishes.
     engine = (SOURCE / "engine.js").read_text(encoding="utf-8")
     script = engine + "\n" + (SOURCE / "app.js").read_text(encoding="utf-8")
-    script = script.replace("__PACKS__", embed(packs))
+    script = script.replace("__ROUND__", embed(round_data))
+    script = script.replace("__SCENE__", embed(load_scene(round_data["scene"])))
     script = script.replace("__RULES__", embed(rules))
     script = script.replace("__LEADERBOARD__", leaderboard_payload())
 
@@ -186,7 +254,7 @@ def build() -> str:
 <meta name="theme-color" content="#0a0f1a" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Quick Fire" />
-<meta property="og:title" content="Quick Fire &mdash; the ten minute team quiz" />
+<meta property="og:title" content="Quick Fire &mdash; the 28th of September" />
 <meta property="og:description" content="{BLURB}" />
 <meta property="og:url" content="{SITE_URL}" />
 <meta name="twitter:card" content="summary" />

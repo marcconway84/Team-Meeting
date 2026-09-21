@@ -129,15 +129,22 @@ h1, h2, h3 { line-height: 1.2; }
 #gauge-clock.urgent { border-color: var(--wrong); }
 
 /* ------------------------------------------------------------------ home */
-.intro { padding: 1.6rem 0 0.6rem; }
+.intro { padding: 1.8rem 0 0.6rem; }
+.kicker {
+  font: 600 0.68rem/1 var(--body);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin: 0 0 0.5rem;
+}
 .intro h1 {
   font-family: var(--display);
-  font-size: clamp(1.7rem, 7vw, 2.6rem);
+  font-size: clamp(2rem, 8vw, 3rem);
   letter-spacing: 0.01em;
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.7rem;
   text-wrap: balance;
 }
-.lede { color: var(--chalk-dim); margin: 0 0 1.2rem; max-width: 34rem; }
+.lede { color: var(--chalk-dim); margin: 0 0 1.4rem; max-width: 36rem; }
 
 .namefield { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; }
 .namefield > span {
@@ -156,97 +163,115 @@ h1, h2, h3 { line-height: 1.2; }
   font: 600 1rem/1.2 var(--body);
 }
 .namefield input:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
-.namenote { font-size: 0.78rem; color: var(--chalk-dim); margin: 0.5rem 0 0; }
+.namenote { font-size: 0.78rem; color: var(--chalk-dim); margin: 0.5rem 0 1.4rem; }
+.primary.big { width: 100%; min-height: 3.2rem; font-size: 0.9rem; }
+.pace { font-size: 0.82rem; color: var(--chalk-dim); margin: 0.8rem 0 0; text-align: center; }
 
-.packs { list-style: none; padding: 0; margin: 1.4rem 0 0; display: grid; gap: 0.9rem; }
+/* --------------------------------------------------------------- picture */
+.picture { margin: 1rem 0 0.4rem; }
+.picture-frame {
+  border: var(--rule);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: #fdf7ea;
+  line-height: 0;
+}
+.picture-frame svg { width: 100%; height: auto; display: block; }
+.picture figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--chalk-dim);
+}
+.ghost.tiny { padding: 0.35rem 0.6rem; font-size: 0.62rem; white-space: nowrap; }
 
-.pack {
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(10, 15, 26, 0.95);
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 0.7rem;
+  overflow: auto;
+}
+/* The picture is wider than it is tall, so on a phone it is turned on its side
+   and scrolled - far more readable than shrinking it to fit the width. */
+.lightbox-inner { flex: 1; display: flex; align-items: center; justify-content: center; }
+.lightbox-inner svg { width: 100%; height: auto; }
+@media (orientation: portrait) {
+  .lightbox-inner svg { width: auto; height: 92vh; transform: rotate(90deg); transform-origin: center; }
+}
+.lightbox .primary { flex: none; }
+
+/* ----------------------------------------------------------------- items */
+.items { list-style: none; padding: 0; margin: 0.6rem 0 0; display: grid; gap: 0.4rem; }
+
+.item { border: var(--rule); border-radius: 0.45rem; background: var(--panel); overflow: hidden; }
+.item.is-found { border-left: 3px solid var(--right); }
+.item.is-shown { border-left: 3px solid var(--chalk-dim); opacity: 0.75; }
+.item.open { background: var(--panel-2); }
+
+.itemhead {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
   width: 100%;
   text-align: left;
-  display: block;
-  padding: 1rem 1.1rem;
-  border: var(--rule);
-  border-left: 3px solid var(--amber);
-  border-radius: 0.5rem;
-  background: var(--panel);
+  padding: 0.65rem 0.8rem;
+  background: none;
+  border: 0;
   color: var(--chalk);
-  cursor: pointer;
   font: inherit;
-}
-.pack:hover, .pack:focus-visible { background: var(--panel-2); outline: none; border-left-color: var(--chalk); }
-.pack h2 { font-family: var(--display); font-size: 1.4rem; letter-spacing: 0.02em; margin: 0; }
-.pack .subject {
-  font: 600 0.62rem/1 var(--body);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--amber);
-  display: block;
-  margin-bottom: 0.35rem;
-}
-.pack p { color: var(--chalk-dim); font-size: 0.88rem; margin: 0.45rem 0 0; }
-.pack .packmeta {
-  margin-top: 0.7rem;
-  font: 500 0.75rem/1.4 var(--data);
-  color: var(--chalk-dim);
-  display: flex;
-  gap: 0.9rem;
-  flex-wrap: wrap;
-}
-.pack .packmeta .played { color: var(--amber); }
-
-/* ----------------------------------------------------------------- round */
-.progress {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 0.3rem;
-  padding: 0;
-  margin: 1.1rem 0 1.2rem;
-}
-.progress button {
-  width: 100%;
-  aspect-ratio: 1;
-  border: var(--rule);
-  border-radius: 0.3rem;
-  background: var(--panel);
-  color: var(--chalk-dim);
-  font: 700 0.75rem/1 var(--data);
   cursor: pointer;
-  padding: 0;
 }
-.progress button:hover { border-color: var(--chalk-dim); }
-.progress .is-right   { background: var(--right); border-color: var(--right); color: var(--ink-deep); }
-.progress .is-shown   { background: var(--panel-2); border-color: var(--chalk-dim); color: var(--chalk-dim); text-decoration: line-through; }
-.progress .is-hinted  { border-color: var(--amber); color: var(--amber); }
-.progress .is-current { outline: 2px solid var(--amber); outline-offset: 1px; }
-
-.question { border-top: var(--rule); padding-top: 1.1rem; }
-.qnumber {
-  display: flex;
-  justify-content: space-between;
-  font: 600 0.65rem/1 var(--body);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+.itemno {
+  flex: none;
+  width: 1.5rem;
+  font: 700 0.75rem/1.6 var(--data);
   color: var(--chalk-dim);
-  margin: 0 0 0.6rem;
 }
-.qworth { color: var(--amber); }
-.question h2 {
-  font-size: clamp(1.15rem, 4.6vw, 1.5rem);
-  margin: 0 0 1.1rem;
-  text-wrap: pretty;
+.itemmain { flex: 1; min-width: 0; }
+.template { display: block; font-size: 0.95rem; line-height: 1.9; }
+.solved { color: var(--right); }
+.itemmeta {
+  display: block;
+  margin-top: 0.2rem;
+  font: 500 0.72rem/1.4 var(--body);
+  color: var(--chalk-dim);
 }
+.is-found .itemmeta { color: var(--right); }
 
-.answerbar { display: flex; gap: 0.5rem; }
+/* The blanks. Monospaced boxes so a fourteen-letter answer is countable at a glance. */
+.blanks { display: inline-flex; flex-wrap: wrap; gap: 0.15rem; vertical-align: -0.2em; margin: 0 0.2rem; }
+.blanks .box {
+  width: 1.05rem;
+  height: 1.35rem;
+  border-bottom: 2px solid var(--chalk-dim);
+  font: 700 0.9rem/1.35rem var(--data);
+  text-align: center;
+  color: var(--amber);
+}
+.blanks .box.filled { border-bottom-color: var(--amber); }
+.blanks .gap { width: 0.55rem; }
+
+.itembody { padding: 0 0.8rem 0.8rem; }
+.itemnote { margin: 0 0 0.8rem; font-size: 0.84rem; color: var(--chalk-dim); }
+
+.answerbar { display: flex; gap: 0.5rem; margin-bottom: 0.9rem; }
 .answerbar input {
   flex: 1;
   min-width: 0;
-  padding: 0.7rem 0.8rem;
+  padding: 0.65rem 0.75rem;
   border: var(--rule);
   border-radius: 0.4rem;
-  background: var(--panel);
+  background: var(--ink-deep);
   color: var(--chalk);
-  font: 600 1.05rem/1.2 var(--body);
+  font: 600 1rem/1.2 var(--body);
 }
 .answerbar input:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
 
@@ -278,39 +303,22 @@ h1, h2, h3 { line-height: 1.2; }
 .ghost:hover:not(:disabled) { color: var(--chalk); border-color: var(--chalk-dim); }
 .ghost:disabled { opacity: 0.35; cursor: default; }
 
-.verdict { min-height: 1.5rem; margin: 0.6rem 0 0; font-size: 0.9rem; font-weight: 600; }
+.verdict {
+  position: sticky;
+  top: 4.2rem;
+  z-index: 4;
+  min-height: 1.4rem;
+  margin: 0.4rem 0 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  background: var(--ink-deep);
+  padding: 0.2rem 0;
+}
 .verdict.good { color: var(--right); }
 .verdict.bad  { color: var(--wrong); }
 .verdict.soft { color: var(--chalk-dim); font-weight: 500; }
 
-.resolved {
-  margin-top: 1rem;
-  padding: 0.9rem 1rem;
-  border: var(--rule);
-  border-left: 3px solid var(--right);
-  border-radius: 0.4rem;
-  background: var(--panel);
-}
-.resolved.shown { border-left-color: var(--chalk-dim); }
-.resolved-answer { margin: 0; font: 700 1.15rem/1.3 var(--body); }
-.resolved-note { margin: 0.45rem 0 0; color: var(--chalk-dim); font-size: 0.86rem; }
-.resolved-note:empty { display: none; }
-
 /* ------------------------------------------------------------ clue sheet */
-.cluesheet { margin-top: 1.4rem; }
-.cluesheet h3 {
-  font: 600 0.68rem/1 var(--body);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--chalk-dim);
-  margin: 0 0 0.6rem;
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: baseline;
-}
-.cluesheet h3 small { font-size: 0.62rem; letter-spacing: 0.08em; text-transform: none; opacity: 0.8; }
-
 .clues { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem; }
 .clue {
   display: flex;
@@ -321,10 +329,10 @@ h1, h2, h3 { line-height: 1.2; }
   padding: 0.6rem 0.8rem;
   border: var(--rule);
   border-radius: 0.4rem;
-  background: var(--panel);
+  background: var(--ink-deep);
   color: var(--chalk);
   font: inherit;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   cursor: pointer;
 }
 .clue:hover:not(:disabled) { background: var(--panel-2); }
@@ -346,17 +354,6 @@ h1, h2, h3 { line-height: 1.2; }
   overflow-wrap: anywhere;
 }
 .clue .given.plain { font-family: var(--body); letter-spacing: normal; font-weight: 600; }
-
-.choicelist { list-style: none; padding: 0; margin: 0.5rem 0 0; display: grid; gap: 0.35rem; }
-.choicelist li {
-  padding: 0.5rem 0.7rem;
-  border: var(--rule);
-  border-radius: 0.35rem;
-  font: 600 0.92rem/1.3 var(--body);
-  background: var(--panel-2);
-}
-
-.navrow { display: flex; justify-content: space-between; gap: 0.6rem; margin-top: 1.6rem; }
 
 /* ---------------------------------------------------------------- result */
 .result-head { text-align: center; padding: 2rem 0 1.2rem; }

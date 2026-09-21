@@ -1,0 +1,276 @@
+{
+  "id": "sept-28",
+  "title": "The 28th of September",
+  "subject": "One picture, nineteen reasons to celebrate",
+  "blurb": "Every one of these is a real thing somebody celebrates on the 28th of September. They are all in the picture. Name the missing word in each.",
+  "scene": "sept-28",
+  "items": [
+    {
+      "n": 1,
+      "template": "World ___ Day",
+      "answer": "Rabies",
+      "category": "Global & Human Rights",
+      "prefill": [
+        2,
+        5
+      ],
+      "spot": "Bottom left: a vet in a white coat holding a syringe, and one very brave dog.",
+      "hint": "A disease you catch from an animal bite. The date is the anniversary of the death of the man who made the vaccine.",
+      "note": "28 September is the day Louis Pasteur died. He developed the first rabies vaccine in 1885."
+    },
+    {
+      "n": 2,
+      "template": "International Day for Universal Access to ___",
+      "answer": "Information",
+      "category": "Global & Human Rights",
+      "prefill": [
+        4,
+        9
+      ],
+      "spot": "The library desk with the big lowercase i above it, and a wall of open filing drawers.",
+      "hint": "Eleven letters. UNESCO says you have a right to seek it, receive it and pass it on.",
+      "note": "Proclaimed by UNESCO in 2019, though the date had been marked unofficially since 2002."
+    },
+    {
+      "n": 3,
+      "template": "International Right to ___ Day",
+      "answer": "Know",
+      "accept": [
+        "knowledge"
+      ],
+      "category": "Global & Human Rights",
+      "prefill": [
+        1
+      ],
+      "spot": "The glass-fronted town hall with a magnifying glass held up to it.",
+      "hint": "Four letters. The campaign for open government: what the public is entitled to do about what the state is up to.",
+      "note": "Started in Sofia in 2002 by freedom-of-information campaigners, and runs alongside the UNESCO day."
+    },
+    {
+      "n": 4,
+      "template": "Freedom From ___ Day",
+      "answer": "Hunger",
+      "category": "Global & Human Rights",
+      "prefill": [
+        2,
+        5
+      ],
+      "spot": "Two hands passing a loaf of bread over an empty bowl, middle left.",
+      "hint": "What an empty bowl means. The day is about food insecurity and what is being done about it.",
+      "note": null
+    },
+    {
+      "n": 5,
+      "template": "British ___ Child Day",
+      "answer": "Home",
+      "category": "Global & Human Rights",
+      "prefill": [
+        3
+      ],
+      "spot": "The steamship at the top left, with small children carrying suitcases up the gangway.",
+      "hint": "Four letters, and a bitterly ironic one: over 100,000 children were shipped from Britain to the Commonwealth, many told they were orphans when they were not.",
+      "note": "Marked in Canada. The migration ran from 1869 into the late 1940s."
+    },
+    {
+      "n": 6,
+      "template": "National Good ___ Day",
+      "answer": "Neighbor",
+      "accept": [
+        "neighbour"
+      ],
+      "category": "Lifestyle & Community",
+      "prefill": [
+        3,
+        6
+      ],
+      "spot": "Two people leaning over a garden fence with mugs of tea, left of the houses.",
+      "hint": "Eight letters the American way, and the person on the other side of that fence.",
+      "note": "Spelled the American way on the calendar; the game takes the British spelling too."
+    },
+    {
+      "n": 7,
+      "template": "National ___ Day",
+      "answer": "Family",
+      "category": "Lifestyle & Community",
+      "prefill": [
+        2,
+        5
+      ],
+      "spot": "Everyone round the kitchen table with a roast in the middle, centre of the picture.",
+      "hint": "Six letters. The point of the day is that you all sit down and eat a home-cooked meal together.",
+      "note": "Observed on the fourth Monday in September."
+    },
+    {
+      "n": 8,
+      "template": "National ___ Day",
+      "answer": "Sons",
+      "category": "Lifestyle & Community",
+      "prefill": [
+        2
+      ],
+      "spot": "The parent and boy throwing a ball to each other on the grass.",
+      "hint": "Four letters. There is a day for the other one in March.",
+      "note": null
+    },
+    {
+      "n": 9,
+      "template": "Gold Star ___ Day",
+      "answer": "Mothers",
+      "accept": [
+        "mother",
+        "mother's",
+        "mothers'"
+      ],
+      "category": "Lifestyle & Community",
+      "prefill": [
+        1,
+        5
+      ],
+      "spot": "The window with a service banner hanging in it, a single gold star at its centre.",
+      "hint": "Seven letters. The gold star in the window means a child who did not come home from service.",
+      "note": "Observed on the last Sunday in September. The banner tradition dates from the First World War."
+    },
+    {
+      "n": 10,
+      "template": "Gold ___ Day",
+      "answer": "Lining",
+      "category": "Lifestyle & Community",
+      "prefill": [
+        2,
+        5
+      ],
+      "spot": "The rain cloud up in the sky with a bright gold edge, and someone below it grinning anyway.",
+      "hint": "Six letters. The proverb says silver; the day upgrades it.",
+      "note": null
+    },
+    {
+      "n": 11,
+      "template": "The harvest festival of ___",
+      "answer": "Sukkot",
+      "accept": [
+        "succot",
+        "sukkos",
+        "succoth",
+        "sukkoth"
+      ],
+      "category": "Lifestyle & Community",
+      "prefill": [
+        2,
+        5
+      ],
+      "spot": "The open-roofed hut in the garden, palm fronds across the top, a family eating underneath.",
+      "hint": "Six letters. A Jewish festival lasting seven days, during which meals are eaten in a temporary hut built for the purpose.",
+      "note": "The hut is a sukkah; its roof must be loose enough to see the stars through. It falls in the autumn, and can land in late September."
+    },
+    {
+      "n": 12,
+      "template": "National Drink ___ Day",
+      "answer": "Beer",
+      "category": "Food & Beverage",
+      "prefill": [
+        1
+      ],
+      "spot": "The pint glass on the pub table, bottom right of centre, with a good head on it.",
+      "hint": "Four letters. Needs no explanation.",
+      "note": null
+    },
+    {
+      "n": 13,
+      "template": "International ___ Day",
+      "answer": "Poke",
+      "accept": [
+        "poké",
+        "poke bowl"
+      ],
+      "category": "Food & Beverage",
+      "prefill": [
+        2
+      ],
+      "spot": "The bowl of rice topped with pink cubes of raw fish, avocado and seaweed.",
+      "hint": "Four letters, two syllables, and Hawaiian. Raw fish, rice, and a queue outside at lunchtime.",
+      "note": "It means 'to slice' or 'cut crosswise' in Hawaiian, and it rhymes with 'okay' rather than with 'joke'."
+    },
+    {
+      "n": 14,
+      "template": "National ___ Cream Pie Day",
+      "answer": "Strawberry",
+      "category": "Food & Beverage",
+      "prefill": [
+        3,
+        7
+      ],
+      "spot": "The pie on the windowsill, red fruit and a swirl of cream on top.",
+      "hint": "Ten letters. The red one. Not technically a berry, which nobody cares about today.",
+      "note": null
+    },
+    {
+      "n": 15,
+      "template": "Ask a ___ Question Day",
+      "answer": "Stupid",
+      "category": "Quirky & Educational",
+      "prefill": [
+        2,
+        5
+      ],
+      "spot": "The classroom: one hand up, and an enormous question mark on the blackboard.",
+      "hint": "Six letters. Teachers invented the day to get children over the fear of asking one.",
+      "note": "The usual line is that there is no such thing. The day exists because children do not believe it."
+    },
+    {
+      "n": 16,
+      "template": "Fish Tank ___ Night",
+      "answer": "Floorshow",
+      "accept": [
+        "floor show"
+      ],
+      "category": "Quirky & Educational",
+      "prefill": [
+        4,
+        7
+      ],
+      "spot": "The aquarium done up as a theatre: tiny curtains, a spotlight, and fish taking the stage.",
+      "hint": "Nine letters, one word. Turn the lights down and let the fish perform.",
+      "note": null
+    },
+    {
+      "n": 17,
+      "template": "Read a Child a ___ You Like Day",
+      "answer": "Book",
+      "category": "Quirky & Educational",
+      "prefill": [
+        2
+      ],
+      "spot": "The armchair with an adult and a small child sharing something with pictures in it.",
+      "hint": "Four letters. The catch is that it has to be one of your own childhood favourites, not theirs.",
+      "note": null
+    },
+    {
+      "n": 18,
+      "template": "National ___ Trading Day",
+      "answer": "Prop",
+      "accept": [
+        "proprietary"
+      ],
+      "category": "Quirky & Educational",
+      "prefill": [
+        1
+      ],
+      "spot": "The desk of six screens covered in red and green candlesticks, top right.",
+      "hint": "Four letters, short for a longer word. Trading the firm's own money rather than a client's.",
+      "note": "Short for proprietary trading."
+    },
+    {
+      "n": 19,
+      "template": "National ___ Day (the twelfth state)",
+      "answer": "North Carolina",
+      "category": "Quirky & Educational",
+      "prefill": [
+        3,
+        10
+      ],
+      "spot": "The state outline pinned to the wall, with a tiny biplane over it and a red cardinal perched on the frame.",
+      "hint": "Two words, fourteen letters. First in flight, and there is another state directly above it.",
+      "note": "The National Day Calendar works through the states in the order they joined the Union. The biplane is Kitty Hawk, 1903."
+    }
+  ]
+}

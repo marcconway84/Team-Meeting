@@ -14,9 +14,9 @@ export { RULES };
 
 export class BadRound extends Error {}
 
-/** How many questions this pack has, or null if the worker has never heard of it. */
-export function packSize(id) {
-  const size = RULES.packs[String(id || "")];
+/** How many items this round has, or null if the worker has never heard of it. */
+export function roundSize(id) {
+  const size = RULES.rounds[String(id || "")];
   return Number.isInteger(size) ? size : null;
 }
 
@@ -24,7 +24,7 @@ export function packSize(id) {
 export function cluePenalty(clues) {
   let total = 0;
   for (const key of clues) {
-    const cost = RULES.clueCosts[key];
+    const cost = RULES.picture.clueCosts[key];
     if (cost === undefined) throw new BadRound(`unknown clue: ${key}`);
     total += cost;
   }
@@ -34,43 +34,47 @@ export function cluePenalty(clues) {
 /**
  * Score one finished round, refusing anything that could not have been played.
  *
- * The refusals are the point. Thirteen right out of twelve, a clock with more left
- * on it than it ever held, or a clue the game does not sell - none of those came
- * from someone playing the game.
+ * The refusals are the point. Twenty found out of nineteen, or a clue the game does
+ * not sell, did not come from someone playing the game.
+ *
+ * Note what is deliberately NOT policed: how long it took. The round is self-paced,
+ * so the elapsed time is only ever used to separate two people on the same score,
+ * and a browser could under-report it. Checking it against the age of the token
+ * catches someone claiming MORE time than they had; nothing here can catch someone
+ * claiming less. That is an acceptable hole for a tie-break, and not one for the
+ * score itself, which is recalculated here from scratch.
  */
 export function scoreRound(round) {
-  const questions = packSize(round.pack);
-  if (questions === null) throw new BadRound(`unknown pack: ${round.pack}`);
+  const items = roundSize(round.round);
+  if (items === null) throw new BadRound(`unknown round: ${round.round}`);
 
-  const right = asInteger(round.right, "right");
-  const secondsLeft = asInteger(round.secondsLeft, "secondsLeft");
+  const found = asInteger(round.found, "found");
+  const seconds = asInteger(round.seconds, "seconds");
   const clues = Array.isArray(round.clues) ? round.clues : [];
 
-  if (right < 0 || right > questions) {
-    throw new BadRound(`${right} right out of a pack of ${questions}`);
+  if (found < 0 || found > items) {
+    throw new BadRound(`${found} found out of a round of ${items}`);
   }
-  if (secondsLeft < 0 || secondsLeft > RULES.secondsOnTheClock) {
-    throw new BadRound(`${secondsLeft}s left of a ${RULES.secondsOnTheClock}s clock`);
+  if (seconds < 0) throw new BadRound("a round cannot have taken negative time");
+  // Seven kinds of clue, and the letter clue can be bought once per hidden letter.
+  // Forty a piece is far past anything a real round reaches.
+  if (clues.length > items * 40) {
+    throw new BadRound("more clues bought than the round has to sell");
   }
-  // Eight kinds of clue, one question each. Anything past that is not a clue sheet.
-  if (clues.length > questions * Object.keys(RULES.clueCosts).length) {
-    throw new BadRound("more clues bought than the pack has to sell");
-  }
-  if (round.questions !== undefined && asInteger(round.questions, "questions") !== questions) {
-    throw new BadRound("that pack does not have that many questions");
+  if (round.items !== undefined && asInteger(round.items, "items") !== items) {
+    throw new BadRound("that round does not have that many items");
   }
 
-  // Every bonus wants a clean sheet. A revealed answer is never counted right, so
+  // Both bonuses want a clean sheet. A revealed answer is never counted found, so
   // this is also what stops "reveal the lot" buying the finisher bonus.
-  const perfect = right === questions;
-  const base = right * RULES.pointsPerQuestion;
+  const perfect = found === items;
+  const base = found * RULES.picture.pointsPerItem;
   const spent = cluePenalty(clues);
-  const finisher = perfect ? RULES.finisherBonus : 0;
-  const timeBonus = perfect ? secondsLeft * RULES.pointsPerSecondRemaining : 0;
-  const cleanSweep = perfect && clues.length === 0 ? RULES.cleanSweepBonus : 0;
-  const total = Math.max(0, base - spent + finisher + timeBonus + cleanSweep);
+  const finisher = perfect ? RULES.picture.finisherBonus : 0;
+  const cleanSweep = perfect && clues.length === 0 ? RULES.picture.cleanSweepBonus : 0;
+  const total = Math.max(0, base - spent + finisher + cleanSweep);
 
-  return { right, questions, base, spent, finisher, timeBonus, cleanSweep, total };
+  return { found, items, base, spent, finisher, cleanSweep, total };
 }
 
 function asInteger(value, field) {
