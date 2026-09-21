@@ -6,6 +6,11 @@
 # One repository secret is needed, under Settings -> Secrets and variables -> Actions:
 #
 #   CLOUDFLARE_API_TOKEN   a token with Workers Scripts:Edit and D1:Edit
+#
+# Everything else is automatic: this workflow deploys the server, plays a game
+# through it to prove it works, writes the address into data/leaderboard.json,
+# commits that, and asks the publish workflow to rebuild the page. The only thing
+# you have to keep is the host key it prints in the summary.
 #   HOST_KEY               optional; the passphrase that unlocks the start button.
 #                          One is generated on the first deploy if you do not set one,
 #                          and printed to this workflow's summary.
@@ -23,7 +28,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  # write, because the last step commits the deployed address back into the repo
+  # so nobody has to copy it by hand; actions, because a push made with the
+  # built-in token does not trigger other workflows, so the publish is asked for
+  # explicitly.
+  contents: write
+  actions: write
 
 jobs:
   deploy:
@@ -147,24 +157,80 @@ jobs:
           post /host/open "{\"key\":\"$KEY\"}" | jq -e '.players == 0' > /dev/null
           echo "Live service played a full game correctly."
 
-      - name: Say where it went
+      - name: Point the game at the server it just deployed
+        working-directory: .
         run: |
-          url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1 || true)
+          set -euo pipefail
+          url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' worker/deploy.log | head -1)
+          if [ -z "$url" ]; then
+            echo "::error::the deploy log did not contain an address"
+            exit 1
+          fi
+          python3 - "$url" <<'PY'
+          import json, sys
+          from pathlib import Path
+          config = Path("data/leaderboard.json")
+          data = json.loads(config.read_text(encoding="utf-8"))
+          if data.get("url") == sys.argv[1]:
+              print("The game already points there.")
+          else:
+              data["url"] = sys.argv[1]
+              config.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+              print(f"Pointed the game at {sys.argv[1]}")
+          PY
+          if git diff --quiet -- data/leaderboard.json; then
+            echo "changed=no" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Point the game at the deployed server" -- data/leaderboard.json
+          git push
+          echo "changed=yes" >> "$GITHUB_ENV"
+
+      - name: Publish the page with the address in it
+        if: env.changed == 'yes'
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # A push made with the built-in token does not set other workflows off,
+          # so the publish is asked for by name rather than waited for in vain.
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/pages.yml/dispatches" \
+            -d '{"ref":"main"}'
+          echo "Asked the publish workflow to rebuild the page."
+
+      - name: Say where it went
+        working-directory: .
+        run: |
+          url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' worker/deploy.log | head -1 || true)
           {
-            echo "### Game server deployed"
+            echo "### The game server is live"
             echo
             if [ -n "$url" ]; then
               echo "Address: \`$url\`"
               echo
-              echo "Put this in \`data/leaderboard.json\` and push, to switch the live game on."
+              echo "It has been written into \`data/leaderboard.json\` and the page is rebuilding."
             else
               echo "Deployed, but the address was not in the log - check the run above."
             fi
             if [ "${{ steps.hostkey.outputs.made }}" = "yes" ] && [ -n "${{ steps.hostkey.outputs.key }}" ]; then
               echo
-              echo "**Host key: \`${{ steps.hostkey.outputs.key }}\`**"
+              echo "## Your host key"
               echo
-              echo "Open the game at \`?host=THAT_KEY\` to get the start button."
-              echo "Copy it now - this summary is the only place it is printed."
+              echo "\`\`\`"
+              echo "${{ steps.hostkey.outputs.key }}"
+              echo "\`\`\`"
+              echo
+              echo "**Copy this now - it is not printed anywhere else.**"
+              echo
+              echo "To host a game, open:"
+              echo
+              echo "\`https://marcconway84.github.io/Team-Meeting/?host=${{ steps.hostkey.outputs.key }}\`"
+              echo
+              echo "Everyone else just opens \`https://marcconway84.github.io/Team-Meeting/\`."
             fi
           } >> "$GITHUB_STEP_SUMMARY"
