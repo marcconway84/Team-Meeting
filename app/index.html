@@ -18,6 +18,7 @@
       <div class="gauge"><span class="gauge-label">Time</span><strong id="clock">0:00</strong></div>
     </div>
     <nav>
+      <button type="button" class="textlink" id="host-link">Host</button>
       <button type="button" class="textlink" id="rules-link">How to play</button>
       <button type="button" class="textlink" id="quit-link" hidden>Finish</button>
     </nav>
@@ -52,10 +53,27 @@
     <!-- Only ever shown to whoever opened the page with the host key. -->
     <div class="hostbox" id="hostbox" hidden>
       <p class="hostlabel">Host controls</p>
-      <p class="hostnote" id="host-note"></p>
-      <div class="hostbuttons">
-        <button type="button" class="primary" id="start-btn">Start the five minutes</button>
-        <button type="button" class="ghost" id="reset-btn">New game</button>
+
+      <!-- Until the key checks out, the only thing here is somewhere to type it.
+           It used to come from the address bar alone, which left a host with a
+           wrong link no way back. -->
+      <form class="hostunlock" id="host-unlock">
+        <label for="host-key">Host password</label>
+        <div class="hostunlock-row">
+          <input id="host-key" type="password" autocomplete="off" spellcheck="false"
+                 placeholder="The password you set" />
+          <button type="submit" class="primary">Unlock</button>
+        </div>
+        <p class="hostnote" id="unlock-note">Set in the Cloudflare dashboard as <code>HOST_KEY</code>.</p>
+      </form>
+
+      <div class="hostready" id="host-ready" hidden>
+        <p class="hostnote" id="host-note"></p>
+        <div class="hostbuttons">
+          <button type="button" class="primary" id="start-btn">Start the five minutes</button>
+          <button type="button" class="ghost" id="reset-btn">New game</button>
+        </div>
+        <button type="button" class="textlink forget" id="forget-btn">Forget this password</button>
       </div>
     </div>
 

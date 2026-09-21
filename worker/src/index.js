@@ -9,6 +9,7 @@
 //   POST /join         put a name in the room
 //   POST /progress     I have found another one - where does that put me
 //   GET  /board        the final table
+//   POST /host/check   is this the host key? (host only, changes nothing)
 //   POST /host/open    start a fresh game, everybody out (host only)
 //   POST /host/start   go (host only)
 //
@@ -37,6 +38,9 @@ export default {
       }
       if (url.pathname === "/board" && request.method === "GET") {
         return cors(json({ ...(await board(env)), now: Date.now() }));
+      }
+      if (url.pathname === "/host/check" && request.method === "POST") {
+        return cors(await hostCheck(request, env));
       }
       if (url.pathname === "/host/open" && request.method === "POST") {
         return cors(await hostOpen(request, env));
@@ -224,12 +228,27 @@ async function board(env) {
 /* ------------------------------------------------------------------- the host -- */
 
 function checkHost(body, env) {
-  const key = String(body.key || "");
-  const expected = String(env.HOST_KEY || "");
-  if (!expected) throw new BadRequest("no host key is configured on the server", 500);
+  // Trimmed on both sides. A key pasted into the dashboard with a stray newline
+  // on the end would otherwise never match, and the refusal would give no hint why.
+  const key = String(body.key || "").trim();
+  const expected = String(env.HOST_KEY || "").trim();
+  if (!expected) throw new BadRequest("no host key is set on the server", 500);
   if (key.length !== expected.length || !timingSafeEqual(key, expected)) {
     throw new BadRequest("that is not the host key", 403);
   }
+}
+
+/**
+ * Is this the host key?
+ *
+ * Exists so a host can find out before the meeting rather than in front of it.
+ * Every other host route does something - starts the clock, empties the room -
+ * so there was no way to ask the question without also answering it.
+ */
+async function hostCheck(request, env) {
+  const body = await readJson(request);
+  checkHost(body, env);
+  return json({ ok: true, ...(await describe(env, await currentGame(env), null)) });
 }
 
 /** A fresh game: the table is cleared and everybody has to join again. */

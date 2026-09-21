@@ -31,11 +31,12 @@
 
   // Whoever opens the page with ?host=<key> gets the start button. The key is a
   // secret on the server; a player who has not been given it sees nothing.
-  var HOST_KEY = (function () {
-    try {
-      return new URLSearchParams(window.location.search).get("host") || "";
-    } catch (err) { return ""; }
-  })();
+  var STORE_HOST = "quickfire.host";
+
+  // The key can arrive in the address bar or be typed in. Whichever it is, it is
+  // only believed once the server has agreed to it.
+  var HOST_KEY = "";
+  var hostUnlocked = false;
 
   var E = QuickFireEngine;
   var COSTS = RULES.picture.clueCosts;
@@ -598,15 +599,55 @@
       ? "The game is already running \u2014 joining you now\u2026"
       : "Waiting for the host to start\u2026";
 
-    if (HOST_KEY) {
-      $("hostbox").hidden = false;
-      $("host-note").textContent = server.phase === "lobby"
-        ? "Everyone in the room should have joined before you press this."
-        : server.phase === "running"
-          ? "Running. It stops for everybody at the same moment."
-          : "That game is over. Start a new one to play again.";
-      $("start-btn").disabled = server.phase !== "lobby";
+    renderHostBox();
+  }
+
+  /** The host panel: a password to type, or the buttons it unlocks. */
+  function renderHostBox() {
+    $("host-unlock").hidden = hostUnlocked;
+    $("host-ready").hidden = !hostUnlocked;
+    if (!hostUnlocked) return;
+    $("host-note").textContent = server.phase === "lobby"
+      ? "Everyone in the room should have joined before you press this."
+      : server.phase === "running"
+        ? "Running. It stops for everybody at the same moment."
+        : "That game is over. Start a new one to play again.";
+    $("start-btn").disabled = server.phase !== "lobby";
+  }
+
+  /**
+   * Try a host password against the server.
+   *
+   * /host/check exists so this can be answered without also starting the game or
+   * emptying the room - finding out your password is wrong by pressing start in
+   * front of everybody is how this went the first time.
+   */
+  function tryHostKey(key, note) {
+    var candidate = String(key || "").trim();
+    if (!candidate) return Promise.resolve(false);
+    if (!LEADERBOARD) {
+      if (note) note.textContent = "No game server is configured, so there is nothing to unlock.";
+      return Promise.resolve(false);
     }
+    return api("/host/check", { key: candidate }).then(function (data) {
+      absorb(data);
+      HOST_KEY = candidate;
+      hostUnlocked = true;
+      remember(STORE_HOST, candidate);
+      $("hostbox").hidden = false;
+      renderLobby();
+      return true;
+    }).catch(function (err) {
+      hostUnlocked = false;
+      if (note) {
+        note.textContent = err.message === "that is not the host key"
+          ? "That is not the password. It is the HOST_KEY you set in the Cloudflare dashboard."
+          : err.message === "no host key is set on the server"
+            ? "The server has no password set yet. Add HOST_KEY in the Cloudflare dashboard."
+            : "Could not check it: " + err.message;
+      }
+      return false;
+    });
   }
 
   function joinGame() {
@@ -965,6 +1006,28 @@
 
   function wire() {
     $("join-btn").addEventListener("click", joinGame);
+    $("host-link").addEventListener("click", function () {
+      var box = $("hostbox");
+      box.hidden = !box.hidden;
+      if (!box.hidden) {
+        renderHostBox();
+        if (!hostUnlocked) $("host-key").focus();
+      }
+    });
+    $("host-unlock").addEventListener("submit", function (event) {
+      event.preventDefault();
+      $("unlock-note").textContent = "Checking\u2026";
+      tryHostKey($("host-key").value, $("unlock-note")).then(function (ok) {
+        if (ok) $("host-key").value = "";
+      });
+    });
+    $("forget-btn").addEventListener("click", function () {
+      HOST_KEY = "";
+      hostUnlocked = false;
+      try { window.localStorage.removeItem(STORE_HOST); } catch (err) { /* nothing to clear */ }
+      $("unlock-note").textContent = "Forgotten. Type it again to unlock.";
+      renderHostBox();
+    });
     $("start-btn").addEventListener("click", function () {
       $("start-btn").disabled = true;
       api("/host/start", { key: HOST_KEY }).then(function (data) {
@@ -1052,6 +1115,17 @@
     // Ask once straight away so the lobby is right on the first paint, then settle
     // into the slower poll.
     startPolling(RULES.live.lobbyPollMs);
+
+    // A key in the address bar, or one unlocked earlier on this device. Neither is
+    // trusted until the server says so, so a stale or mistyped one just leaves the
+    // password box showing rather than a start button that cannot work.
+    var fromUrl = "";
+    try { fromUrl = new URLSearchParams(window.location.search).get("host") || ""; } catch (err) { fromUrl = ""; }
+    var candidate = fromUrl || remembered(STORE_HOST, "");
+    if (candidate) {
+      $("hostbox").hidden = false;
+      tryHostKey(candidate, fromUrl ? $("unlock-note") : null);
+    }
   }
 
   if (document.readyState === "loading") {

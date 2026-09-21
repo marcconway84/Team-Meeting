@@ -633,3 +633,38 @@ h1, h2, h3 { line-height: 1.2; }
   font-size: 0.85rem;
   color: var(--ink-dim);
 }
+
+/* -------------------------------------------------------- host unlocking */
+.hostunlock label {
+  display: block;
+  font: 700 0.65rem/1 var(--body);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: 0.4rem;
+}
+.hostunlock-row { display: flex; gap: 0.5rem; }
+.hostunlock-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.75rem;
+  border: var(--rule);
+  border-radius: 0.4rem;
+  background: var(--paper);
+  color: var(--ink);
+  font: 600 1rem/1.2 var(--body);
+}
+.hostunlock-row input:focus-visible { outline: 2px solid var(--crimson); outline-offset: 1px; }
+.hostunlock .hostnote { margin: 0.5rem 0 0; }
+.hostunlock code {
+  font: 600 0.85em var(--data);
+  background: var(--panel-2);
+  padding: 0.05em 0.3em;
+  border-radius: 0.2rem;
+}
+.textlink.forget {
+  color: var(--ink-dim);
+  margin-top: 0.7rem;
+  letter-spacing: 0.06em;
+}
+.textlink.forget:hover { color: var(--crimson); border-bottom-color: var(--crimson); }

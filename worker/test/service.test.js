@@ -218,6 +218,34 @@ describe("the live game", { concurrency: false }, () => {
     assert.equal(body.endsAt, null);
   });
 
+  test("a host can check the password without starting anything", async () => {
+    // The whole point of /host/check: every other host route does something, so
+    // there was no way to ask "is this right?" without also answering it.
+    const before = (await get("/game")).body.phase;
+    const good = await post("/host/check", { key: HOST_KEY });
+    assert.equal(good.status, 200);
+    assert.equal(good.body.ok, true);
+    assert.equal((await get("/game")).body.phase, before, "checking must not start the game");
+  });
+
+  test("a wrong password is refused, and says so", async () => {
+    const { status, body } = await post("/host/check", { key: "not-the-key" });
+    assert.equal(status, 403);
+    assert.match(body.error, /not the host key/);
+  });
+
+  test("a password pasted with stray whitespace still works", async () => {
+    // People paste these into a dashboard. A trailing newline should not be the
+    // difference between running the meeting and not.
+    const { status } = await post("/host/check", { key: `  ${HOST_KEY}\n` });
+    assert.equal(status, 200);
+  });
+
+  test("an empty password is refused rather than treated as a match", async () => {
+    assert.equal((await post("/host/check", { key: "" })).status, 403);
+    assert.equal((await post("/host/check", {})).status, 403);
+  });
+
   test("the board is readable from the page, wherever it is served from", async () => {
     const response = await fetch(`${BASE}/board`);
     assert.equal(response.headers.get("access-control-allow-origin"), "*");
