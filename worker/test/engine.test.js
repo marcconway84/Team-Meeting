@@ -11,8 +11,8 @@ import test from "node:test";
 const require = createRequire(import.meta.url);
 const engine = require("../../app/engine.js");
 
-const ROUND = JSON.parse(readFileSync(new URL("../../data/rounds/sept-28.json", import.meta.url), "utf8"));
-const SCENE = readFileSync(new URL("../../app/scenes/sept-28.svg", import.meta.url), "utf8");
+const ROUND = JSON.parse(readFileSync(new URL("../../data/rounds/2026-09-28.json", import.meta.url), "utf8"));
+const SCENE = readFileSync(new URL("../../app/scenes/2026-09-28.svg", import.meta.url), "utf8");
 const ITEMS = ROUND.items;
 
 /* ------------------------------------------------------------------ matching -- */
@@ -94,7 +94,7 @@ test("every item builds a full clue sheet", () => {
   for (const item of ITEMS) {
     const sheet = engine.pictureClues(item, 0);
     const keys = sheet.map((c) => c.key);
-    for (const needed of ["category", "letter", "where", "spot", "hint", "reveal"]) {
+    for (const needed of ["category", "letter", "spot", "hint", "reveal"]) {
       assert.ok(keys.includes(needed), `${item.answer}: no ${needed} clue`);
     }
     assert.equal(new Set(keys).size, keys.length, `${item.answer}: a clue offered twice`);
@@ -140,20 +140,19 @@ test("every item is actually in the picture", () => {
   // is missing the player pays for nothing at all.
   for (const item of ITEMS) {
     assert.ok(SCENE.includes(`id="vig-${item.n}"`), `no drawing for item ${item.n} (${item.answer})`);
-    assert.ok(SCENE.includes(`id="ring-${item.n}"`), `no ring for item ${item.n} (${item.answer})`);
+    assert.ok(SCENE.includes(`class="badge-no">${item.n}<`), `no number for item ${item.n} (${item.answer})`);
   }
 });
 
-test("the picture gives nothing away for free", () => {
-  // No numbered badges: the mapping from drawing to blank is what "show me where"
-  // sells, so printing it on the picture would make that clue worthless.
-  assert.equal(SCENE.includes("badge-no"), false, "the vignettes are numbered again");
+test("the picture numbers its drawings but names none of them", () => {
+  assert.ok(SCENE.includes("badge-no"), "the vignettes must be numbered");
   for (const item of ITEMS) {
     assert.equal(SCENE.toLowerCase().includes(">" + item.answer.toLowerCase() + "<"), false,
       `${item.answer} is written on the picture`);
   }
 });
 
-test("every ring is switched off until it is bought", () => {
-  assert.equal(/class="ring on"/.test(SCENE), false, "a ring ships already lit");
+test("no rings are left over", () => {
+  // They pointed at a vignette for the "show me where" clue, which is gone.
+  assert.equal(SCENE.includes("ring-"), false);
 });

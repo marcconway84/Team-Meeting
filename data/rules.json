@@ -1,6 +1,6 @@
 {
   "_comment": "The scoring, written once. The browser inlines this at build time (scripts/build.py) and the game server gets a copy through scripts/generate_worker_rules.py, so the score you see and the score the board keeps cannot drift apart.",
-  "_picture": "The picture round is self-paced, so there is no clock and no time bonus - the elapsed time is recorded only to break a tie on the leaderboard. Everything else works as the quiz does: points per answer, clues off the top, and bonuses that need a clean sheet.",
+  "_picture": "Priced by how much each gives away. An item is worth 100, so an anagram at 65 still leaves 35 on the table - worth buying when you are stuck, never worth buying on spec.",
   "picture": {
     "pointsPerItem": 100,
     "finisherBonus": 400,
@@ -8,7 +8,6 @@
     "clueCosts": {
       "category": 10,
       "letter": 15,
-      "where": 20,
       "spot": 30,
       "hint": 45,
       "anagram": 65,

@@ -1,4 +1,7 @@
-# Quick Fire — the 28th of September
+# Red Letter Day
+
+*A red-letter day is one worth marking. Every answer in this game is one - and the
+letters filled in for you are red.*
 
 A competitive ice breaker for a team meeting. One cartoon, nineteen things people
 actually celebrate on the 28th of September, and a clue sheet you pay for out of
@@ -21,7 +24,7 @@ World  _ _ B _ _ S  Day                          six letters
 ## Playing it
 
 ```bash
-python scripts/build.py     # writes dist/quickfire.html
+python scripts/build.py     # writes dist/red-letter-day.html
 ```
 
 One file, no server, no dependencies — open it from disk, mail it round, or put it
@@ -51,10 +54,11 @@ anywhere static. Pushing to `main` publishes it to GitHub Pages.
   first, which would make two of the clues worthless.
 - **100 points an answer.** Spelling is forgiven on longer words, accents and
   punctuation are optional, and both `neighbour` and `neighbor` count.
-- **Clues cost points**, priced by how much they give away. Two of them only exist
-  because the picture is a drawing the game can reach into: *show me where* rings
-  the vignette, *what am I looking at* describes it. *Fill in another letter* can be
-  bought as often as you like, and stops being offered once nothing is left hidden.
+- **The numbers match.** Each drawing carries a number, and it is the number of the
+  blank it answers. They were not numbered once, and the round was too hard for it.
+- **Clues cost points**, priced by how much they give away. *What am I looking at*
+  describes the drawing in words. *Fill in another letter* can be bought as often as
+  you like, and stops being offered once nothing is left hidden.
 - **Giving up on one is free.** Revealing an answer costs nothing, but that one
   scores nothing — and it ends any hope of the bonuses.
 - **The bonuses need a clean sheet.** All nineteen earns 400, and doing it without
@@ -62,17 +66,28 @@ anywhere static. Pushing to `main` publishes it to GitHub Pages.
 - **Interruptions are survivable.** Progress is saved as you go and posted to the
   server on every answer, so a closed tab or a dead battery keeps its score.
 
+## Installing it
+
+The page declares a manifest and registers a service worker, so on a phone it can be
+added to the home screen and opens without browser furniture. The worker caches the
+page and its icons and nothing else - the game server is never cached, because a
+leaderboard served from yesterday is worse than none and a shared clock read from a
+cache is not a clock. The cache name carries a hash of the built page, so an
+installed copy picks up a new round rather than serving the old one for ever.
+
 ## The picture
 
-`app/scenes/sept-28.svg`, hand-drawn as flat vector cartoon. SVG rather than a
+`app/scenes/<round>.svg`, hand-drawn as flat vector cartoon. SVG rather than a
 bitmap for three reasons: it stays inside the one self-contained HTML file, it stays
 sharp at any size, and every vignette is a group the game can reach — which is the
 only reason *show me where* can exist.
 
-It is deliberately **not** numbered. Working out which drawing goes with which blank
-is most of the puzzle, and printing the mapping on the picture would give away the
-clue that sells it. `tests/test_round.py` fails the build if a badge ever creeps
-back, if an answer gets written on the picture, or if an item has no drawing to ring.
+Every vignette is numbered, and the number is the number of the blank it answers.
+It was not, at first: working out which drawing went with which blank was meant to be
+part of the puzzle, and in practice it made the round too hard. The clue that sold
+you the mapping went with the change. `tests/test_round.py` fails the build if an
+item has no drawing, if a drawing is not numbered, or if an answer gets written on
+the picture.
 
 ## Writing another round
 

@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
-   Quick Fire - the picture round.
+   Red Letter Day - the picture round.
 
    One drawing, nineteen missing words, and a clue sheet you pay for out of your
    own score. Self-paced: there is no clock, and the timer that does run is only
@@ -20,25 +20,69 @@
   "use strict";
 
   // Filled in by scripts/build.py.
-  var ROUND = __ROUND__;
+  var ROUNDS = __ROUNDS__;
+  var SCENES = __SCENES__;
   var RULES = __RULES__;
   var LEADERBOARD = __LEADERBOARD__;
-  var SCENE = __SCENE__;
 
-  var STORE_PLAYER = "quickfire.player";
-  var STORE_NAME = "quickfire.name";
-  var STORE_ROUND = "quickfire.picture";
+  /* ============================================================== today ===
+     A round belongs to a date, and the date is its id. Today's is whichever
+     round carries today's date; failing that, the most recent one that is not
+     in the future, so a gap in the calendar shows yesterday's rather than
+     nothing at all.
+  */
+
+  function todayISO() {
+    var now = new Date();
+    // Local date, not UTC: "today" is the day the player is having, and an hour
+    // either side of midnight should not show them the wrong round.
+    return now.getFullYear() + "-"
+      + String(now.getMonth() + 1).padStart(2, "0") + "-"
+      + String(now.getDate()).padStart(2, "0");
+  }
+
+  function roundFor(id) {
+    for (var i = 0; i < ROUNDS.length; i += 1) {
+      if (ROUNDS[i].id === id) return ROUNDS[i];
+    }
+    return null;
+  }
+
+  function roundForToday() {
+    var today = todayISO();
+    var best = null;
+    for (var i = 0; i < ROUNDS.length; i += 1) {
+      if (ROUNDS[i].date === today) return ROUNDS[i];
+      if (ROUNDS[i].date < today && (!best || ROUNDS[i].date > best.date)) best = ROUNDS[i];
+    }
+    // Before the first round's date there is nothing behind us, so show the first.
+    return best || ROUNDS[0];
+  }
+
+  /** Playable now: today's and everything before it, newest first. */
+  function playableRounds() {
+    var today = todayISO();
+    return ROUNDS.filter(function (r) { return r.date <= today; })
+      .sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+  }
+
+  var ROUND = roundForToday();
+  var SCENE = SCENES[ROUND.scene];
+
+  var STORE_PLAYER = "redletter.player";
+  var STORE_NAME = "redletter.name";
+  var STORE_ROUND = "redletter.round";
 
   // Whoever opens the page with ?host=<key> gets the start button. The key is a
   // secret on the server; a player who has not been given it sees nothing.
-  var STORE_HOST = "quickfire.host";
+  var STORE_HOST = "redletter.host";
 
   // The key can arrive in the address bar or be typed in. Whichever it is, it is
   // only believed once the server has agreed to it.
   var HOST_KEY = "";
   var hostUnlocked = false;
 
-  var E = QuickFireEngine;
+  var E = RedLetterEngine;
   var COSTS = RULES.picture.clueCosts;
 
   var $ = function (id) { return document.getElementById(id); };
@@ -61,11 +105,12 @@
        + " minutes. When it stops it stops for everybody, and the table goes up."],
     ["100 points an answer.",
      "Spelling is forgiven on the longer ones, and accents and punctuation are optional."],
+    ["The numbers match.",
+     "Each drawing carries a number, and it is the number of the blank it answers."],
     ["Clues cost points.",
      "The category is " + COSTS.category + ", another letter " + COSTS.letter
-       + ", pointing it out in the picture " + COSTS.where + ", describing the drawing "
-       + COSTS.spot + ", a hint in words " + COSTS.hint + ", an anagram " + COSTS.anagram
-       + ". Buy what you need and no more."],
+       + ", describing the drawing " + COSTS.spot + ", a hint in words " + COSTS.hint
+       + ", an anagram " + COSTS.anagram + ". Buy what you need and no more."],
     ["Giving up on one is free.",
      "Revealing an answer costs nothing, but that one scores nothing \u2014 and it ends any hope of the bonuses."],
     ["The bonuses need a clean sheet.",
@@ -165,25 +210,25 @@
     $("picture-frame").innerHTML = SCENE;
   }
 
-  /** Switch on the ring around one vignette, and take any other ring off. */
-  function ringOn(n) {
-    ["picture-frame", "lightbox-inner"].forEach(function (host) {
-      var root = $(host);
-      if (!root) return;
-      Array.prototype.forEach.call(root.querySelectorAll(".ring"), function (ring) {
-        ring.classList.toggle("on", ring.id === "ring-" + n);
-      });
-    });
+  /** Move to another day's round, carrying nothing from the last one. */
+  function chooseRound(id) {
+    var next = roundFor(id);
+    if (!next) return;
+    stopTicking();
+    ROUND = next;
+    SCENE = SCENES[ROUND.scene];
+    state = null;
+    clearSaved();
+    $("tally").textContent = "0/" + ROUND.items.length;
+    describeRound();
+    goHome();
   }
 
-  function ringsOff() {
-    ["picture-frame", "lightbox-inner"].forEach(function (host) {
-      var root = $(host);
-      if (!root) return;
-      Array.prototype.forEach.call(root.querySelectorAll(".ring"), function (ring) {
-        ring.classList.remove("on");
-      });
-    });
+  /** Put the chosen round's name and blurb on the screen. */
+  function describeRound() {
+    $("home-subject").textContent = ROUND.subject;
+    $("home-title").textContent = ROUND.title;
+    $("home-blurb").textContent = ROUND.blurb;
   }
 
   /* ============================================================ rendering === */
@@ -290,7 +335,7 @@
 
     var num = document.createElement("span");
     num.className = "itemno";
-    num.textContent = String(index + 1);
+    num.textContent = String(item.n);
 
     var main = document.createElement("span");
     main.className = "itemmain";
@@ -403,7 +448,6 @@
     stash();
     var previous = state.open;
     state.open = previous === index ? null : index;
-    ringsOff();
     save();
     if (previous !== null && previous !== index) refreshItem(previous);
     refreshItem(index);
@@ -440,7 +484,6 @@
       entry.status = "found";
       entry.typed = "";
       state.open = null;
-      ringsOff();
       save();
       refreshItem(index);
       pushProgress(true);
@@ -480,12 +523,7 @@
     save();
     refreshItem(index);
 
-    if (clue.key === "where") {
-      ringOn(ROUND.items[index].n);
-      say(index, "−" + COSTS[clue.key] + " points — ringed in the picture above.", "soft");
-    } else {
-      say(index, "−" + COSTS[clue.key] + " points.", "soft");
-    }
+    say(index, "−" + COSTS[clue.key] + " points.", "soft");
     pushProgress(false);
   }
 
@@ -541,6 +579,7 @@
     phase: "offline",
     endsAt: null,
     players: 0,
+    waiting: 0,
     you: null,
     board: null,
     reachable: Boolean(LEADERBOARD)
@@ -568,6 +607,7 @@
     if (data.phase) server.phase = data.phase;
     if ("endsAt" in data) server.endsAt = data.endsAt;
     if (typeof data.players === "number") server.players = data.players;
+    if (typeof data.waiting === "number") server.waiting = data.waiting;
     if (data.you) server.you = data.you;
     if (data.board) server.board = data.board;
     server.reachable = true;
@@ -592,9 +632,9 @@
     // have been read by then, and the briefing says everything they did.
     $("joinbox").hidden = joined;
     $("waiting").hidden = !joined;
-    $("wait-count").textContent = server.players === 1
-      ? "1 player in so far."
-      : server.players + " players in so far.";
+    $("wait-count").textContent = server.waiting === 1
+      ? "1 player waiting."
+      : server.waiting + " players waiting.";
     $("wait-text").textContent = server.phase === "running"
       ? "The game is already running \u2014 joining you now\u2026"
       : "Waiting for the host to start\u2026";
@@ -669,7 +709,7 @@
       return;
     }
 
-    api("/join", { player: playerId(), name: name }).then(function (data) {
+    api("/join", { player: playerId(), name: name, round: ROUND.id }).then(function (data) {
       absorb(data);
       state = state || freshRound();
       save();
@@ -679,6 +719,86 @@
       offline("Could not reach the game server (" + err.message + "). Playing on your own instead.");
       beginSolo();
     });
+  }
+
+  /** The list of days you can still play, with today's marked. */
+  function renderRoundPicker() {
+    var list = $("round-list");
+    if (!list) return;
+    var playable = playableRounds();
+    $("past-rounds").hidden = playable.length < 2;
+    list.innerHTML = "";
+    playable.forEach(function (round) {
+      var li = document.createElement("li");
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "roundpick" + (round.id === ROUND.id ? " current" : "");
+      var when = document.createElement("span");
+      when.className = "when";
+      when.textContent = round.id === roundForToday().id ? "Today" : longDate(round.date);
+      var what = document.createElement("span");
+      what.className = "what";
+      what.textContent = round.title;
+      button.appendChild(when);
+      button.appendChild(what);
+      button.addEventListener("click", function () { chooseRound(round.id); });
+      li.appendChild(button);
+      list.appendChild(li);
+    });
+  }
+
+  var MONTHS = ["January", "February", "March", "April", "May", "June", "July",
+    "August", "September", "October", "November", "December"];
+
+  function longDate(iso) {
+    var parts = String(iso).split("-");
+    return Number(parts[2]) + " " + MONTHS[Number(parts[1]) - 1];
+  }
+
+  /**
+   * Play it alone, right now.
+   *
+   * The clock is still the server's - it hands back an end time the same way it
+   * does for a hosted game - so a solo score and a hosted one are the same five
+   * minutes and belong on the same table.
+   */
+  function playSolo() {
+    var name = $("player-name").value.trim();
+    if (!name) {
+      $("name-note").textContent = "Put a name in first \u2014 it is how you will show up on the board.";
+      $("name-note").style.color = "var(--crimson)";
+      $("player-name").focus();
+      return;
+    }
+    remember(STORE_NAME, name);
+
+    if (!LEADERBOARD) {
+      offline("No game server is configured, so there is no table to join. Playing on your own.");
+      beginSolo();
+      return;
+    }
+
+    $("solo-btn").disabled = true;
+    api("/solo/start", { player: playerId(), name: name, round: ROUND.id })
+      .then(function (data) {
+        absorb(data);
+        $("solo-btn").disabled = false;
+        if (data.played) {
+          $("name-note").textContent = "You have already played " + ROUND.title
+            + ". Only your first go counts \u2014 try another day.";
+          $("name-note").style.color = "var(--crimson)";
+          renderRoundPicker();
+          return;
+        }
+        state = freshRound();
+        save();
+        enterRound();
+      })
+      .catch(function (err) {
+        $("solo-btn").disabled = false;
+        offline("Could not reach the game server (" + err.message + "). Playing on your own instead.");
+        beginSolo();
+      });
   }
 
   function offline(message) {
@@ -745,7 +865,7 @@
 
   function pollOnce() {
     if (!LEADERBOARD) return;
-    api("/game?player=" + encodeURIComponent(playerId())).then(function (data) {
+    api("/game?player=" + encodeURIComponent(playerId()) + "&round=" + encodeURIComponent(ROUND.id)).then(function (data) {
       var was = server.phase;
       absorb(data);
       if (was !== "running" && server.phase === "running" && state) {
@@ -772,6 +892,7 @@
     var scores = tally();
     api("/progress", {
       player: playerId(),
+      round: ROUND.id,
       found: scores.found,
       clues: scores.clues
     }).then(function (data) {
@@ -825,10 +946,12 @@
     };
 
     if (!LEADERBOARD || !server.reachable) { done(); return; }
-    api("/progress", { player: playerId(), found: scores.found, clues: scores.clues })
+    api("/progress", { player: playerId(), round: ROUND.id, found: scores.found, clues: scores.clues })
       .then(absorb)
       .catch(function () { /* the board will show what it last heard */ })
-      .then(function () { return api("/board").then(absorb).catch(function () {}); })
+      .then(function () {
+        return api("/board?round=" + encodeURIComponent(ROUND.id)).then(absorb).catch(function () {});
+      })
       .then(done);
   }
 
@@ -949,7 +1072,7 @@
     var rows = [];
     for (var i = 0; i < squares.length; i += 10) rows.push(squares.slice(i, i + 10).join(""));
     var lines = [
-      "Quick Fire — " + ROUND.title,
+      "Red Letter Day — " + ROUND.title,
       scores.total.toLocaleString() + " points · " + scores.found + "/" + scores.of
         + " · " + formatClock(scores.seconds)
     ].concat(rows);
@@ -1005,6 +1128,7 @@
   }
 
   function wire() {
+    $("solo-btn").addEventListener("click", playSolo);
     $("join-btn").addEventListener("click", joinGame);
     $("host-link").addEventListener("click", function () {
       var box = $("hostbox");
@@ -1065,12 +1189,6 @@
     });
     $("zoom-btn").addEventListener("click", function () {
       $("lightbox-inner").innerHTML = SCENE;
-      // Carry any ring that is currently lit through to the big copy.
-      var lit = $("picture-frame").querySelector(".ring.on");
-      if (lit) {
-        var twin = $("lightbox-inner").querySelector("#" + lit.id);
-        if (twin) twin.classList.add("on");
-      }
       $("lightbox").hidden = false;
     });
     $("lightbox-close").addEventListener("click", function () {
@@ -1097,12 +1215,18 @@
     wire();
     renderBriefing();
     measureMasthead();
-    $("home-subject").textContent = ROUND.subject;
-    $("home-title").textContent = ROUND.title;
-    $("home-blurb").textContent = ROUND.blurb;
+    describeRound();
+    renderRoundPicker();
     $("tally").textContent = "0/" + ROUND.items.length;
     $("player-name").value = remembered(STORE_NAME, "");
     state = resume();
+    if (state && state.round !== ROUND.id) {
+      // A round saved from another day. Put them back on the day they were
+      // playing rather than silently scoring it against today's picture.
+      var saved = roundFor(state.round);
+      if (saved) { ROUND = saved; SCENE = SCENES[ROUND.scene]; }
+      else { state = null; clearSaved(); }
+    }
 
     show("screen-home");
     renderLobby();

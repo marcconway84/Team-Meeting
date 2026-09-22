@@ -9,7 +9,7 @@
 
   <header class="masthead">
     <button type="button" class="wordmark" id="home-link" title="Back to the start">
-      Quick<span>Fire</span>
+      Red<span>Letter</span>
     </button>
     <div class="scoreboard" id="scoreboard" hidden>
       <div class="gauge"><span class="gauge-label">Score</span><strong id="score">0</strong></div>
@@ -38,8 +38,18 @@
         <span>Play as</span>
         <input id="player-name" type="text" maxlength="24" placeholder="Your name" autocomplete="nickname" />
       </label>
-      <p class="namenote" id="name-note">Everyone plays the same five minutes. Put your name in and wait for the off.</p>
-      <button type="button" class="primary big" id="join-btn">Join the game</button>
+      <p class="namenote" id="name-note">Five minutes, however you play it. Put a name in first.</p>
+
+      <div class="modes">
+        <button type="button" class="primary big" id="solo-btn">Play it now, on my own</button>
+        <button type="button" class="ghost big" id="join-btn">Join the hosted game</button>
+      </div>
+      <p class="modenote">Either way your score goes on the same table for the day. One go each.</p>
+
+      <details class="pastrounds" id="past-rounds">
+        <summary>Other days</summary>
+        <ul id="round-list"></ul>
+      </details>
     </div>
 
     <div class="waiting" id="waiting" hidden>
@@ -90,7 +100,7 @@
       <div class="picturebar">
         <button type="button" class="ghost tiny" id="zoom-btn">Full screen</button>
         <label class="hidefound">
-          <input type="checkbox" id="hide-found" />
+          <input type="checkbox" id="hide-found" checked />
           <span>Hide the ones I have</span>
         </label>
       </div>

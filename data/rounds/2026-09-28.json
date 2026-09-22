@@ -1,9 +1,10 @@
 {
-  "id": "sept-28",
+  "id": "2026-09-28",
+  "date": "2026-09-28",
   "title": "The 28th of September",
   "subject": "One picture, nineteen reasons to celebrate",
-  "blurb": "Every one of these is a real thing somebody celebrates on the 28th of September. They are all in the picture. Name the missing word in each.",
-  "scene": "sept-28",
+  "blurb": "Every one of these is a real thing somebody celebrates on the 28th of September - and one of them is a birthday. They are all in the picture. Name the missing word in each.",
+  "scene": "2026-09-28",
   "items": [
     {
       "n": 1,
@@ -271,6 +272,19 @@
       "spot": "The state outline pinned to the wall, with a tiny biplane over it and a red cardinal perched on the frame.",
       "hint": "Two words, fourteen letters. First in flight, and there is another state directly above it.",
       "note": "The National Day Calendar works through the states in the order they joined the Union. The biplane is Kitty Hawk, 1903."
+    },
+    {
+      "n": 20,
+      "template": "Born this day in 1934: Brigitte ___",
+      "answer": "Bardot",
+      "category": "Born on this day",
+      "prefill": [
+        2,
+        5
+      ],
+      "spot": "Bottom right: a film star with a great deal of hair and a pair of dark glasses, beside a clapperboard.",
+      "hint": "A French actress of the fifties and sixties who walked away from it at 39 and has spent the fifty years since campaigning for animals.",
+      "note": "Born in Paris in 1934. She made her last film in 1973 and founded her animal welfare foundation in 1986."
     }
   ]
 }

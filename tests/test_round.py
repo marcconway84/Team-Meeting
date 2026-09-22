@@ -20,8 +20,8 @@ from pathlib import Path
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-ROUND_FILE = REPO_ROOT / "data" / "rounds" / "sept-28.json"
-SCENE_FILE = REPO_ROOT / "app" / "scenes" / "sept-28.svg"
+ROUND_FILE = REPO_ROOT / "data" / "rounds" / "2026-09-28.json"
+SCENE_FILE = REPO_ROOT / "app" / "scenes" / "2026-09-28.svg"
 RULES_FILE = REPO_ROOT / "data" / "rules.json"
 GENERATED = REPO_ROOT / "worker" / "src" / "rules.generated.json"
 
@@ -53,12 +53,17 @@ def _round(**overrides) -> dict:
     """A minimal round that passes, so each test can break exactly one thing."""
     base = {
         "id": "test-round",
+        "date": "2026-01-01",
         "title": "Test",
         "subject": "Testing",
-        "scene": "sept-28",
+        "scene": "2026-09-28",
+        # Six, because a round shorter than that is refused before the checks
+        # these tests are actually about get a look in.
         "items": [
-            {"n": 1, "template": "World ___ Day", "answer": "Rabies",
-             "category": "Global & Human Rights", "spot": "A dog.", "prefill": [2]},
+            {"n": n, "template": "World ___ Day", "answer": answer,
+             "category": "Global & Human Rights", "spot": "A drawing.", "prefill": [2]}
+            for n, answer in [(1, "Rabies"), (4, "Hunger"), (6, "Neighbor"),
+                              (7, "Family"), (11, "Sukkot"), (12, "Beer")]
         ],
     }
     base.update(overrides)
@@ -69,8 +74,9 @@ class TestTheRound:
     def test_it_is_well_formed(self, build, round_data):
         build.check_round(round_data)
 
-    def test_nineteen_items(self, round_data):
-        assert len(round_data["items"]) == 19
+    def test_it_is_long_enough_to_be_a_round(self, round_data):
+        # Rounds vary now - some days have more going on than others.
+        assert len(round_data["items"]) >= 6
 
     def test_every_item_has_somewhere_to_put_the_answer(self, round_data):
         for item in round_data["items"]:
@@ -91,7 +97,7 @@ class TestTheRound:
 
     def test_the_categories_are_the_four_advertised(self, round_data):
         allowed = {"Global & Human Rights", "Lifestyle & Community",
-                   "Food & Beverage", "Quirky & Educational"}
+                   "Food & Beverage", "Quirky & Educational", "Born on this day"}
         for item in round_data["items"]:
             assert item["category"] in allowed, item["category"]
 
@@ -142,15 +148,22 @@ class TestABadRoundFailsTheBuild:
 
     def test_two_items_sharing_a_number_are_refused(self, build):
         bad = _round()
-        bad["items"].append(dict(bad["items"][0], answer="Hunger"))
+        bad["items"].append(dict(bad["items"][0], answer="Lining"))
         with pytest.raises(build.BadPack, match="share a number"):
             build.check_round(bad)
 
     def test_an_item_missing_from_the_picture_is_refused(self, build):
-        # It would sell "show me where" for 20 points and then ring nothing.
         bad = _round()
         bad["items"][0]["n"] = 99
-        with pytest.raises(build.BadPack, match="no id=\"vig-99\""):
+        with pytest.raises(build.BadPack, match="no id=.vig-99."):
+            build.check_round(bad)
+
+    def test_an_item_the_picture_does_not_number_is_refused(self, build):
+        # Unnumbered, it is a drawing nobody can match to a blank.
+        bad = _round()
+        bad["items"][0]["n"] = 13   # drawn, and numbered 13 - so renumber the data
+        bad["items"][1]["n"] = 13
+        with pytest.raises(build.BadPack, match="share a number"):
             build.check_round(bad)
 
     def test_a_picture_that_does_not_exist_is_refused(self, build):
@@ -182,26 +195,30 @@ class TestThePicture:
         import xml.etree.ElementTree as ET
         ET.fromstring(scene)
 
-    def test_there_is_a_drawing_and_a_ring_for_every_item(self, scene, round_data):
+    def test_there_is_a_drawing_and_a_number_for_every_item(self, scene, round_data):
         for item in round_data["items"]:
             assert f'id="vig-{item["n"]}"' in scene, item["answer"]
-            assert f'id="ring-{item["n"]}"' in scene, item["answer"]
+            # The number on the drawing is what tells you which blank it answers,
+            # so a missing one leaves an item nobody can place.
+            assert f'class="badge-no">{item["n"]}<' in scene, item["answer"]
 
     def test_nothing_extra_is_drawn(self, scene, round_data):
         drawn = {int(n) for n in re.findall(r'id="vig-(\d+)"', scene)}
         assert drawn == {item["n"] for item in round_data["items"]}
 
-    def test_the_vignettes_are_not_numbered(self, scene):
-        # The mapping from drawing to blank is what "show me where" sells.
-        assert "badge-no" not in scene
+    def test_every_vignette_is_numbered(self, scene):
+        # Unnumbered, the round was too hard: you could recognise a drawing and
+        # still not know which blank it belonged to.
+        assert "badge-no" in scene
 
     def test_no_answer_is_written_on_it(self, scene, round_data):
         lowered = scene.lower()
         for item in round_data["items"]:
             assert f">{item['answer'].lower()}<" not in lowered, item["answer"]
 
-    def test_every_ring_starts_switched_off(self, scene):
-        assert 'class="ring on"' not in scene
+    def test_no_rings_are_left_over(self, scene):
+        # They pointed at a vignette for a clue that no longer exists.
+        assert "ring-" not in scene
 
     def test_it_scales_rather_than_being_a_fixed_size(self, scene):
         assert "viewBox" in scene
@@ -227,7 +244,7 @@ class TestThePageThatIsBuilt:
     def test_the_engine_is_loaded_before_the_game_that_reads_it(self, page):
         # app.js grabs the global on its first line; loaded the other way round the
         # page throws before it draws anything.
-        assert page.index("var QuickFireEngine") < page.index("var E = QuickFireEngine")
+        assert page.index("var RedLetterEngine") < page.index("var E = RedLetterEngine")
 
     def test_a_script_tag_cannot_be_closed_early_by_the_data(self, build):
         embedded = build.embed([{"spot": "What about </script> then?"}])
@@ -279,7 +296,7 @@ class TestTheWorkersCopyOfTheRules:
 
     def test_the_clue_ladder_rises(self, source):
         # A dearer clue that tells you less than a cheaper one is a trap for the player.
-        order = ["category", "letter", "where", "spot", "hint", "anagram"]
+        order = ["category", "letter", "spot", "hint", "anagram"]
         costs = [source["picture"]["clueCosts"][key] for key in order]
         assert costs == sorted(costs), dict(zip(order, costs))
 
@@ -322,3 +339,56 @@ class TestTheLiveGame:
         # minutes fast would get a three minute shorter game.
         assert "server.offset" in page
         assert "data.now - Date.now()" in page
+
+
+class TestItInstallsAsAnApp:
+    """Added to a home screen it should open as an app, and work without a signal."""
+
+    @staticmethod
+    @pytest.fixture(scope="class")
+    def site(tmp_path_factory):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("build", REPO_ROOT / "scripts" / "build.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        out = tmp_path_factory.mktemp("site")
+        module.build_site(out)
+        return out
+
+    def test_the_manifest_ships_with_the_page(self, site):
+        assert (site / "manifest.webmanifest").exists()
+        manifest = json.loads((site / "manifest.webmanifest").read_text(encoding="utf-8"))
+        assert manifest["display"] == "standalone", "otherwise it opens in a browser tab"
+        assert manifest["name"] and manifest["short_name"]
+
+    def test_there_are_icons_at_the_sizes_a_phone_asks_for(self, site):
+        for icon in ("icon-192.png", "icon-512.png", "icon-180.png", "icon.svg"):
+            assert (site / icon).exists(), icon
+            assert (site / icon).stat().st_size > 400, f"{icon} looks empty"
+
+    def test_every_icon_the_manifest_names_is_actually_there(self, site):
+        manifest = json.loads((site / "manifest.webmanifest").read_text(encoding="utf-8"))
+        for icon in manifest["icons"]:
+            assert (site / icon["src"]).exists(), icon["src"]
+
+    def test_the_page_asks_for_the_manifest_and_a_worker(self, site):
+        page = (site / "index.html").read_text(encoding="utf-8")
+        assert 'rel="manifest"' in page
+        assert "serviceWorker" in page
+        assert 'rel="apple-touch-icon"' in page, "iOS needs its own, and ignores the manifest's"
+
+    def test_the_cache_name_changes_with_the_page(self, site):
+        # The worker serves from its cache when offline. A fixed name would leave
+        # an installed copy showing an old round for ever.
+        worker = (site / "sw.js").read_text(encoding="utf-8")
+        assert "redletter-v1" not in worker, "the cache name was never stamped"
+        assert re.search(r'redletter-[0-9a-f]{12}', worker)
+
+    def test_the_game_server_is_never_served_from_a_cache(self, site):
+        # A leaderboard out of a cache is worse than none, and a shared clock read
+        # from one is not a clock.
+        worker = (site / "sw.js").read_text(encoding="utf-8")
+        assert "url.origin !== self.location.origin" in worker
+
+    def test_jekyll_is_kept_out_of_it(self, site):
+        assert (site / ".nojekyll").exists()

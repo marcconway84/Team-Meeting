@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Quick Fire: the packs, the rules and the client in one HTML file.
+"""Build Red Letter Day: the rounds, the rules and the client in one HTML file.
 
 The game has no server of its own. A pack is data, the rules are data, and the
 game is a few hundred lines of browser JavaScript - so the build is one step:
@@ -7,7 +7,7 @@ read app/index.html, app/styles.css, app/engine.js and app/app.js, drop the pack
 and the rules into the script, and write a single file that can be opened from
 disk, mailed round, or served from GitHub Pages.
 
-    python scripts/build.py                 -> dist/quickfire.html
+    python scripts/build.py                 -> dist/red-letter-day.html
     python scripts/build.py --site          -> dist/site/ for Pages
 
 Validation happens here rather than at run time: a malformed pack fails the
@@ -21,30 +21,32 @@ import argparse
 import hashlib
 import json
 import shutil
+from datetime import date
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-ROUND_FILE = REPO_ROOT / "data" / "rounds" / "sept-28.json"
+ROUND_DIR = REPO_ROOT / "data" / "rounds"
 SCENE_DIR = REPO_ROOT / "app" / "scenes"
 PACK_DIR = REPO_ROOT / "data" / "packs"
 RULES = REPO_ROOT / "data" / "rules.json"
 LEADERBOARD = REPO_ROOT / "data" / "leaderboard.json"
 SOURCE = REPO_ROOT / "app"
-DEFAULT_OUT = REPO_ROOT / "dist" / "quickfire.html"
+WEB = REPO_ROOT / "web"
+DEFAULT_OUT = REPO_ROOT / "dist" / "red-letter-day.html"
 
-TITLE = "Quick Fire &mdash; the 28th of September"
-BLURB = ("One cartoon, nineteen things people celebrate on the 28th of September, and a "
-         "clue sheet you pay for out of your own score. Play it whenever suits you.")
+TITLE = "Red Letter Day &mdash; the quiz of what today is for"
+BLURB = ("One cartoon, every reason today is somebody's red letter day, and a clue sheet "
+         "you pay for out of your own score. Play it with the room or on your own.")
 SITE_URL = "https://marcconway84.github.io/Team-Meeting/"
 
 #: Every key the game knows how to price. A pack cannot invent a new one, and a
 #: rules file that forgets one would leave a clue the game cannot charge for.
-CLUE_KEYS = {"category", "letter", "where", "spot", "hint", "anagram", "reveal"}
+CLUE_KEYS = {"category", "letter", "spot", "hint", "anagram", "reveal"}
 
 #: Below this the clue sheet stops being a ladder - an anagram of three letters
 #: is the answer with extra steps.
 MIN_ANSWER_LETTERS = 3
-MIN_QUESTIONS = 4
+MIN_ITEMS = 6
 
 
 class BadPack(Exception):
@@ -75,9 +77,20 @@ def load_rules() -> dict:
 
 def check_round(round_data: dict) -> dict:
     """Refuse a picture round that would play badly, and say exactly which item."""
-    for field in ("id", "title", "subject", "scene", "items"):
+    for field in ("id", "date", "title", "subject", "scene", "items"):
         if not round_data.get(field):
             raise BadPack(f"the round is missing {field}")
+
+    try:
+        date.fromisoformat(round_data["date"])
+    except ValueError as err:
+        raise BadPack(f"{round_data['id']}: {round_data['date']!r} is not a date") from err
+
+    # Rounds vary in length - some days simply have more going on than others -
+    # but one or two items is not a round, and the picture would be mostly empty.
+    if len(round_data["items"]) < MIN_ITEMS:
+        raise BadPack(f"{round_data['id']}: only {len(round_data['items'])} items; "
+                      f"{MIN_ITEMS} is the fewest worth playing")
 
     scene = SCENE_DIR / f"{round_data['scene']}.svg"
     if not scene.exists():
@@ -102,11 +115,12 @@ def check_round(round_data: dict) -> dict:
             raise BadPack(at + "two items share a number")
         seen_numbers.add(item["n"])
 
-        # Every item must be findable in the picture, or "show me where" sells
-        # a clue that does nothing at all.
-        for needed in (f'id="vig-{item["n"]}"', f'id="ring-{item["n"]}"'):
-            if needed not in drawing:
-                raise BadPack(at + f"the picture has no {needed}")
+        # Every item needs a drawing and, on it, the number that says which blank
+        # it answers. Without the number it is an item nobody can place.
+        if f'id="vig-{item["n"]}"' not in drawing:
+            raise BadPack(at + f'the picture has no id="vig-{item["n"]}"')
+        if f'class="badge-no">{item["n"]}<' not in drawing:
+            raise BadPack(at + f"the picture does not number this one {item['n']}")
 
         prefill = item.get("prefill") or []
         if not prefill:
@@ -123,12 +137,43 @@ def check_round(round_data: dict) -> dict:
     return round_data
 
 
-def load_round() -> dict:
-    return check_round(json.loads(ROUND_FILE.read_text(encoding="utf-8")))
+def load_rounds() -> list[dict]:
+    """Every round, oldest first, each checked before it can reach anybody.
+
+    Keyed by date, because the date is the theme: a round is the things people
+    celebrate on that day. Today's is picked in the browser from this list, and
+    the rest stay playable so somebody who missed a day can still catch up.
+    """
+    if not ROUND_DIR.is_dir():
+        raise BadPack(f"no rounds: {ROUND_DIR} does not exist")
+
+    rounds: list[dict] = []
+    ids: set[str] = set()
+    dates: set[str] = set()
+    for path in sorted(ROUND_DIR.glob("*.json")):
+        data = check_round(json.loads(path.read_text(encoding="utf-8")))
+        if data["id"] in ids:
+            raise BadPack(f"{path.name}: the id {data['id']!r} is used by another round")
+        if data["date"] in dates:
+            raise BadPack(f"{path.name}: {data['date']} already has a round")
+        ids.add(data["id"])
+        dates.add(data["date"])
+        rounds.append(data)
+    if not rounds:
+        raise BadPack(f"no rounds found in {ROUND_DIR}")
+    return sorted(rounds, key=lambda r: r["date"])
 
 
-def load_scene(name: str) -> str:
-    return (SCENE_DIR / f"{name}.svg").read_text(encoding="utf-8")
+def load_scenes(rounds: list[dict]) -> dict[str, str]:
+    """The pictures, keyed by the name the rounds ask for them by.
+
+    One copy each even when two rounds share a picture, because the whole lot is
+    inlined into a single file and a duplicated drawing is a duplicated 60KB.
+    """
+    return {
+        name: (SCENE_DIR / f"{name}.svg").read_text(encoding="utf-8")
+        for name in sorted({r["scene"] for r in rounds})
+    }
 
 
 def check_pack(pack: dict, source: str) -> dict:
@@ -228,14 +273,14 @@ def embed(value) -> str:
 
 
 def build() -> str:
-    round_data = load_round()
+    rounds = load_rounds()
     rules = load_rules()
 
     # The engine goes first: app.js reads the global it publishes.
     engine = (SOURCE / "engine.js").read_text(encoding="utf-8")
     script = engine + "\n" + (SOURCE / "app.js").read_text(encoding="utf-8")
-    script = script.replace("__ROUND__", embed(round_data))
-    script = script.replace("__SCENE__", embed(load_scene(round_data["scene"])))
+    script = script.replace("__ROUNDS__", embed(rounds))
+    script = script.replace("__SCENES__", embed(load_scenes(rounds)))
     script = script.replace("__RULES__", embed(rules))
     script = script.replace("__LEADERBOARD__", leaderboard_payload())
 
@@ -255,11 +300,18 @@ def build() -> str:
 <meta name="description" content="{BLURB}" />
 <meta name="theme-color" content="#0a0f1a" />
 <meta property="og:type" content="website" />
-<meta property="og:site_name" content="Quick Fire" />
-<meta property="og:title" content="Quick Fire &mdash; the 28th of September" />
+<meta property="og:site_name" content="Red Letter Day" />
+<meta property="og:title" content="Red Letter Day" />
 <meta property="og:description" content="{BLURB}" />
 <meta property="og:url" content="{SITE_URL}" />
 <meta name="twitter:card" content="summary" />
+<!-- Installable: added to a home screen it opens without browser furniture. -->
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Red Letter" />
 <title>{TITLE}</title>
 <style>
 {styles}
@@ -270,15 +322,40 @@ def build() -> str:
 <script>
 {script}
 </script>
+<script>
+if ("serviceWorker" in navigator) {{
+  window.addEventListener("load", function () {{
+    navigator.serviceWorker.register("sw.js").catch(function () {{ /* offline play unavailable */ }});
+  }});
+}}
+</script>
 </body>
 </html>
 """
 
 
 def build_site(out_dir: Path) -> None:
+    """The page plus what makes it installable: a manifest, icons, a worker."""
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "index.html").write_text(build(), encoding="utf-8")
-    print(f"Wrote {out_dir}/index.html")
+    page = build()
+    (out_dir / "index.html").write_text(page, encoding="utf-8")
+
+    for asset in sorted(WEB.iterdir()):
+        if asset.is_file():
+            shutil.copy2(asset, out_dir / asset.name)
+
+    # Stamp the service worker with a hash of the page. It serves from its cache
+    # when offline, so without a new cache name an installed copy would go on
+    # showing an old round after every update.
+    digest = hashlib.sha256(page.encode("utf-8")).hexdigest()[:12]
+    worker = out_dir / "sw.js"
+    worker.write_text(
+        worker.read_text(encoding="utf-8").replace('"redletter-v1"', f'"redletter-{digest}"'),
+        encoding="utf-8",
+    )
+    # Pages otherwise runs the upload through Jekyll, which ignores some files.
+    (out_dir / ".nojekyll").write_text("", encoding="utf-8")
+    print(f"Wrote {out_dir}/ ({sum(1 for _ in out_dir.iterdir())} files), cache redletter-{digest}")
 
 
 def main() -> int:

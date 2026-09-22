@@ -6,9 +6,10 @@
 // on a room full of laptops is wrong by a surprising amount.
 //
 //   GET  /game         where are we: waiting, playing (with the end time), or over
-//   POST /join         put a name in the room
+//   POST /solo/start   I am playing today's on my own, starting now
+//   POST /join         put a name in the room for the hosted game
 //   POST /progress     I have found another one - where does that put me
-//   GET  /board        the final table
+//   GET  /board        one day's table
 //   POST /host/check   is this the host key? (host only, changes nothing)
 //   POST /host/open    start a fresh game, everybody out (host only)
 //   POST /host/start   go (host only)
@@ -16,7 +17,7 @@
 // Every reply carries `now`, the server's own clock, so a client can work out how
 // far its own is out and count down against ours instead of its own.
 
-import { BadScore, RULES, scoreFrom } from "./scoring.js";
+import { BadScore, RULES, roundSize, scoreFrom } from "./scoring.js";
 
 const MAX_NAME = 24;
 const REQUESTS_PER_HOUR = 4000;
@@ -30,6 +31,9 @@ export default {
       if (url.pathname === "/game" && request.method === "GET") {
         return cors(await gameState(url, env));
       }
+      if (url.pathname === "/solo/start" && request.method === "POST") {
+        return cors(await soloStart(request, env));
+      }
       if (url.pathname === "/join" && request.method === "POST") {
         return cors(await join(request, env));
       }
@@ -37,7 +41,8 @@ export default {
         return cors(await progress(request, env));
       }
       if (url.pathname === "/board" && request.method === "GET") {
-        return cors(json({ ...(await board(env)), now: Date.now() }));
+        const round = url.searchParams.get("round") || (await currentGame(env)).round;
+        return cors(json({ ...(await board(env, round)), now: Date.now() }));
       }
       if (url.pathname === "/host/check" && request.method === "POST") {
         return cors(await hostCheck(request, env));
@@ -78,39 +83,56 @@ async function currentGame(env) {
   await env.DB.prepare(
     "INSERT OR IGNORE INTO game (id, round, opened_at) VALUES (1, ?, ?)"
   )
-    .bind("sept-28", Date.now())
+    .bind(defaultRound(), Date.now())
     .run();
   return env.DB.prepare("SELECT * FROM game WHERE id = 1").first();
 }
 
+/** Whichever round the server knows about, latest first. */
+function defaultRound() {
+  const ids = Object.keys(RULES.rounds).sort();
+  return ids[ids.length - 1] || "unknown";
+}
+
 /**
- * Which of the three states we are in.
+ * Which of the three states the hosted game is in.
  *
- * Worked out from the stored end time rather than stored as a word, so a game
- * ends on time whether or not anybody happens to be asking.
+ * Worked out from the stored end time rather than kept as a word, so a game ends
+ * on time whether or not anybody happens to be asking.
  */
 function phaseOf(game, now) {
   if (!game.started_at) return "lobby";
   return now < game.ends_at ? "running" : "over";
 }
 
-async function describe(env, game, player) {
+async function describe(env, game, player, round) {
   const now = Date.now();
   const phase = phaseOf(game, now);
-  const count = await env.DB.prepare("SELECT COUNT(*) AS n FROM players").first();
+  const on = round || game.round;
+  const playing = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM sessions WHERE round = ?"
+  )
+    .bind(game.round)
+    .first();
+  const waiting = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM sessions WHERE round = ? AND mode = 'live' AND ends_at IS NULL"
+  )
+    .bind(game.round)
+    .first();
 
   const out = {
     phase,
     now,
     round: game.round,
-    players: count.n,
+    players: playing.n,
+    waiting: waiting.n,
     startsAt: game.started_at || null,
     endsAt: game.ends_at || null,
     seconds: RULES.live.seconds,
   };
-  if (phase === "over") out.board = (await board(env)).top;
+  if (phase === "over") out.board = (await board(env, game.round)).top;
   if (player) {
-    const you = await standing(env, player);
+    const you = await standing(env, on, player);
     if (you) out.you = you;
   }
   return out;
@@ -119,7 +141,49 @@ async function describe(env, game, player) {
 async function gameState(url, env) {
   await rateLimit(url, env);
   const game = await currentGame(env);
-  return json(await describe(env, game, url.searchParams.get("player")));
+  return json(await describe(env, game, url.searchParams.get("player"),
+    url.searchParams.get("round")));
+}
+
+/**
+ * Start a round on your own, now.
+ *
+ * The end time still comes from here, so a solo five minutes is the same five
+ * minutes the room gets and the two belong on one table. A day already played is
+ * reported as played rather than handed a second clock - the row is the record,
+ * and its primary key is what makes first-attempt-only true rather than hoped for.
+ */
+async function soloStart(request, env) {
+  const body = await readJson(request);
+  const player = requireText(body.player, "player", 64);
+  const name = tidyName(body.name);
+  const round = requireText(body.round, "round", 64);
+  if (!roundSize(round)) throw new BadRequest(`unknown round: ${round}`);
+
+  const now = Date.now();
+  const inserted = await env.DB.prepare(
+    `INSERT OR IGNORE INTO sessions
+       (round, player, name, mode, started_at, ends_at, updated_at)
+     VALUES (?, ?, ?, 'solo', ?, ?, ?)`
+  )
+    .bind(round, player, name, now, now + RULES.live.seconds * 1000, now)
+    .run();
+
+  const own = await env.DB.prepare(
+    "SELECT started_at, ends_at FROM sessions WHERE round = ? AND player = ?"
+  )
+    .bind(round, player)
+    .first();
+
+  const game = await currentGame(env);
+  return json({
+    ...(await describe(env, game, player, round)),
+    played: !inserted.meta.changes,
+    phase: "running",
+    endsAt: own.ends_at,
+    startsAt: own.started_at,
+    round,
+  });
 }
 
 async function join(request, env) {
@@ -129,26 +193,34 @@ async function join(request, env) {
   const game = await currentGame(env);
   const now = Date.now();
 
-  // Joining once the clock has stopped would add a name to a finished table.
-  if (phaseOf(game, now) === "over") {
-    throw new BadRequest("that game has finished");
-  }
+  if (phaseOf(game, now) === "over") throw new BadRequest("that game has finished");
 
+  // A live player waits with no clock of their own until the host starts one.
   await env.DB.prepare(
-    `INSERT INTO players (player, name, joined_at, updated_at) VALUES (?, ?, ?, ?)
-     ON CONFLICT(player) DO UPDATE SET name = excluded.name, updated_at = excluded.updated_at`
+    `INSERT INTO sessions (round, player, name, mode, updated_at) VALUES (?, ?, ?, 'live', ?)
+     ON CONFLICT(round, player) DO UPDATE SET name = excluded.name, updated_at = excluded.updated_at`
   )
-    .bind(player, name, now, now)
+    .bind(game.round, player, name, now)
     .run();
 
-  return json(await describe(env, game, player));
+  // Joining after the off should not cost you the minutes already gone.
+  if (phaseOf(game, now) === "running") {
+    await env.DB.prepare(
+      `UPDATE sessions SET started_at = COALESCE(started_at, ?), ends_at = COALESCE(ends_at, ?)
+       WHERE round = ? AND player = ?`
+    )
+      .bind(game.started_at, game.ends_at, game.round, player)
+      .run();
+  }
+
+  return json(await describe(env, game, player, game.round));
 }
 
 /**
  * A player has found another one.
  *
  * The client says how many it has found and which clues it bought; the score is
- * worked out here from those, so the number on the board is always this service's
+ * worked out here from those, so the number on the table is always this service's
  * arithmetic and never a total the browser posted.
  *
  * What is taken on trust is the count of answers found. Checking that properly
@@ -161,68 +233,70 @@ async function progress(request, env) {
   const player = requireText(body.player, "player", 64);
   const game = await currentGame(env);
   const now = Date.now();
-  const phase = phaseOf(game, now);
+  const round = String(body.round || game.round);
 
-  if (phase === "lobby") throw new BadRequest("the game has not started");
-
-  const known = await env.DB.prepare("SELECT player FROM players WHERE player = ?")
-    .bind(player)
+  const own = await env.DB.prepare(
+    "SELECT started_at, ends_at FROM sessions WHERE round = ? AND player = ?"
+  )
+    .bind(round, player)
     .first();
-  if (!known) throw new BadRequest("you are not in this game");
+  if (!own) throw new BadRequest("you have not started that round");
+  if (!own.ends_at) throw new BadRequest("the game has not started");
 
-  const result = scoreFrom({
-    round: game.round,
-    found: toInt(body.found),
-    clues: body.clues,
-  });
+  const result = scoreFrom({ round, found: toInt(body.found), clues: body.clues });
 
-  // Once time is up the table is closed. A late arrival is scored as whatever it
-  // had when the whistle went, not as whatever it kept typing afterwards.
-  if (phase === "running") {
+  // Once the clock has stopped the row is closed. A late arrival is scored as
+  // whatever it had when the whistle went, not as whatever it kept typing after.
+  if (now < own.ends_at) {
     await env.DB.prepare(
-      `UPDATE players SET found = ?, clues = ?, score = ?, updated_at = ?
-       WHERE player = ? AND found <= ?`
+      `UPDATE sessions SET found = ?, clues = ?, score = ?, updated_at = ?
+       WHERE round = ? AND player = ? AND found <= ?`
     )
-      .bind(result.found, result.clueCount, result.total, now, player, result.found)
+      .bind(result.found, result.clueCount, result.total, now, round, player, result.found)
       .run();
   }
 
-  const you = await standing(env, player);
+  const table = await board(env, round);
   return json({
-    phase,
+    phase: now < own.ends_at ? "running" : "over",
     now,
-    endsAt: game.ends_at,
-    you,
-    players: (await env.DB.prepare("SELECT COUNT(*) AS n FROM players").first()).n,
-    leader: (await board(env)).top[0] || null,
+    round,
+    endsAt: own.ends_at,
+    you: await standing(env, round, player),
+    players: table.players,
+    leader: table.top[0] || null,
   });
 }
 
-/** Where one player stands: their score, and how many are ahead of them. */
-async function standing(env, player) {
+/** Where one player stands on one day: their score, and how many are ahead. */
+async function standing(env, round, player) {
   const own = await env.DB.prepare(
-    "SELECT name, score, found, clues FROM players WHERE player = ?"
+    "SELECT name, score, found, clues FROM sessions WHERE round = ? AND player = ?"
   )
-    .bind(player)
+    .bind(round, player)
     .first();
   if (!own) return null;
   // Rank by how many beat you, so equal scores share a place rather than being
   // ordered by who happened to submit first.
-  const ahead = await env.DB.prepare("SELECT COUNT(*) AS n FROM players WHERE score > ?")
-    .bind(own.score)
+  const ahead = await env.DB.prepare(
+    "SELECT COUNT(*) AS n FROM sessions WHERE round = ? AND score > ?"
+  )
+    .bind(round, own.score)
     .first();
   return { ...own, rank: ahead.n + 1 };
 }
 
-async function board(env) {
+async function board(env, round) {
   const top = await env.DB.prepare(
-    `SELECT name, score, found, clues FROM players
+    `SELECT name, score, found, clues FROM sessions WHERE round = ?
      ORDER BY score DESC, updated_at ASC LIMIT ?`
   )
-    .bind(RULES.live.boardSize)
+    .bind(round, RULES.live.boardSize)
     .all();
-  const count = await env.DB.prepare("SELECT COUNT(*) AS n FROM players").first();
-  return { top: top.results || [], players: count.n };
+  const count = await env.DB.prepare("SELECT COUNT(*) AS n FROM sessions WHERE round = ?")
+    .bind(round)
+    .first();
+  return { top: top.results || [], players: count.n, round };
 }
 
 /* ------------------------------------------------------------------- the host -- */
@@ -251,12 +325,18 @@ async function hostCheck(request, env) {
   return json({ ok: true, ...(await describe(env, await currentGame(env), null)) });
 }
 
-/** A fresh game: the table is cleared and everybody has to join again. */
+/**
+ * A fresh game: the clock is cleared and the lobby emptied.
+ *
+ * Scores are deliberately left alone. They are the day's table now, not this
+ * session's, and a first attempt is a first attempt however the host feels about
+ * it. To give people something new to play, open a different round.
+ */
 async function hostOpen(request, env) {
   const body = await readJson(request);
   checkHost(body, env);
   const now = Date.now();
-  await env.DB.prepare("DELETE FROM players").run();
+  await env.DB.prepare("DELETE FROM sessions WHERE mode = 'live' AND score = 0").run();
   await env.DB.prepare(
     `INSERT INTO game (id, round, opened_at, started_at, ends_at) VALUES (1, ?, ?, NULL, NULL)
      ON CONFLICT(id) DO UPDATE SET round = excluded.round, opened_at = excluded.opened_at,
@@ -283,6 +363,13 @@ async function hostStart(request, env) {
   const ends = now + RULES.live.seconds * 1000;
   await env.DB.prepare("UPDATE game SET started_at = ?, ends_at = ? WHERE id = 1")
     .bind(now, ends)
+    .run();
+  // Everyone already waiting gets that same window. Nobody's clock is their own.
+  await env.DB.prepare(
+    `UPDATE sessions SET started_at = ?, ends_at = ?, updated_at = ?
+     WHERE round = ? AND mode = 'live' AND ends_at IS NULL`
+  )
+    .bind(now, ends, now, game.round)
     .run();
   return json(await describe(env, await currentGame(env), null));
 }

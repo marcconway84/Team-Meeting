@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Leaderboard for Quick Fire: best score per pack, first attempt only.",
+  "description": "Game server for Red Letter Day: one clock, one table a day.",
   "scripts": {
     "dev": "wrangler dev --local --port 8787",
     "test": "node --test 'test/scoring.test.js' 'test/engine.test.js'",

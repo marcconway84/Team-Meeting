@@ -9,7 +9,7 @@
    Loaded as a plain script before app.js and inlined ahead of it by
    scripts/build_quiz.py. It publishes one global and reads nothing else.
    --------------------------------------------------------------------------- */
-var QuickFireEngine = (function () {
+var RedLetterEngine = (function () {
   "use strict";
 
   /* =========================================================== matching ===
@@ -312,14 +312,12 @@ var QuickFireEngine = (function () {
   /**
    * The clue sheet for one item of a picture round, dearest last.
    *
-   * Two of these only exist because the picture is a drawing the game can reach
-   * into: "where" rings the vignette, "spot" describes it. They are the cheap
-   * end on purpose - they help you find the thing without naming it.
+   * "spot" describes the drawing in words. It is at the cheap end on purpose:
+   * it helps you work out what you are looking at without naming it.
    */
   function pictureClues(item, lettersBought) {
     var sheet = [
       { key: "category", label: "Which category?", give: item.category, plain: true },
-      { key: "where", label: "Show me where", ring: true },
       { key: "spot", label: "What am I looking at?", give: item.spot, plain: true }
     ];
     if (!fullyLettered(item, lettersBought)) {
@@ -359,4 +357,4 @@ var QuickFireEngine = (function () {
 })();
 
 // So the same file can be pulled into a node test without a browser around it.
-if (typeof module !== "undefined" && module.exports) module.exports = QuickFireEngine;
+if (typeof module !== "undefined" && module.exports) module.exports = RedLetterEngine;

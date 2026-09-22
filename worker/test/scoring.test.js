@@ -6,7 +6,7 @@ import test from "node:test";
 
 import { BadScore, RULES, cluePenalty, roundSize, scoreFrom } from "../src/scoring.js";
 
-const ROUND = "sept-28";
+const ROUND = "2026-09-28";
 const SIZE = roundSize(ROUND);
 
 function round(overrides = {}) {
@@ -14,16 +14,16 @@ function round(overrides = {}) {
 }
 
 test("the round came across from data/rounds", () => {
-  assert.equal(SIZE, 19);
+  assert.equal(SIZE, 20);
   assert.equal(roundSize("no-such-round"), null);
 });
 
 test("a clean sweep collects everything there is", () => {
   const result = scoreFrom(round());
-  assert.equal(result.base, 1900);
+  assert.equal(result.base, SIZE * 100);
   assert.equal(result.finisher, RULES.picture.finisherBonus);
   assert.equal(result.cleanSweep, RULES.picture.cleanSweepBonus);
-  assert.equal(result.total, 1900 + 400 + 400);
+  assert.equal(result.total, SIZE * 100 + 400 + 400);
 });
 
 test("the clock is not part of the score", () => {
@@ -38,7 +38,7 @@ test("clues are taken off, and cost the clean sweep as well as their price", () 
   assert.equal(helped.spent, 10);
   assert.equal(helped.cleanSweep, 0, "one clue is still a clue");
   assert.equal(helped.finisher, RULES.picture.finisherBonus, "but the finisher survives it");
-  assert.equal(helped.total, 1900 - 10 + 400);
+  assert.equal(helped.total, SIZE * 100 - 10 + 400);
 });
 
 test("the letter clue can be bought over and over and charges every time", () => {
@@ -49,14 +49,14 @@ test("the letter clue can be bought over and over and charges every time", () =>
 
 test("one short and both bonuses are gone", () => {
   const result = scoreFrom(round({ found: SIZE - 1 }));
-  assert.equal(result.base, 1800);
+  assert.equal(result.base, (SIZE - 1) * 100);
   assert.deepEqual([result.finisher, result.cleanSweep], [0, 0],
     "the bonuses want a clean sheet, which is what makes reveal safe to give away free");
-  assert.equal(result.total, 1800);
+  assert.equal(result.total, (SIZE - 1) * 100);
 });
 
 test("revealing everything earns nothing at all", () => {
-  // The exploit this rules out: reveal all nineteen and collect the finisher bonus
+  // The exploit this rules out: reveal the lot and collect the finisher bonus
   // for a round you did not play. A revealed item is never counted found, so
   // `found` is zero and so is the lot.
   const reveals = Array.from({ length: SIZE }, () => "reveal");

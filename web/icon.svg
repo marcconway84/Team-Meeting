@@ -1,0 +1,11 @@
+<!-- The app icon: a calendar leaf with a red letter on it. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#4a0d68"/>
+  <rect x="96" y="112" width="320" height="320" rx="28" fill="#ffffff"/>
+  <rect x="96" y="112" width="320" height="72" rx="28" fill="#e4003b"/>
+  <rect x="96" y="156" width="320" height="28" fill="#e4003b"/>
+  <circle cx="176" cy="104" r="20" fill="#4a0d68"/>
+  <circle cx="336" cy="104" r="20" fill="#4a0d68"/>
+  <text x="256" y="376" text-anchor="middle" fill="#e4003b"
+        font-family="ui-monospace, Menlo, Consolas, monospace" font-size="190" font-weight="700">R</text>
+</svg>

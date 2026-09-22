@@ -44,10 +44,13 @@ async function get(path) {
   return { status: response.status, body: await response.json() };
 }
 
-const openGame = () => post("/host/open", { key: HOST_KEY, round: "sept-28" });
+const ROUND = "2026-09-28";
+
+const openGame = () => post("/host/open", { key: HOST_KEY, round: ROUND });
 const startGame = () => post("/host/start", { key: HOST_KEY });
 const join = (player, name) => post("/join", { player, name });
-const report = (player, found, clues = []) => post("/progress", { player, found, clues });
+const report = (player, found, clues = []) =>
+  post("/progress", { player, round: ROUND, found, clues });
 
 describe("the live game", { concurrency: false }, () => {
   before(async () => {
@@ -132,48 +135,49 @@ describe("the live game", { concurrency: false }, () => {
     // Posting a made-up total must change nothing: the worker recalculates from
     // what was found and what was bought.
     const { body } = await post("/progress", {
-      player: "p2", found: 6, clues: ["where", "hint"], score: 9_999_999, total: 9_999_999,
+      player: "p2", round: ROUND, found: 6, clues: ["spot", "hint"],
+      score: 9_999_999, total: 9_999_999,
     });
-    assert.equal(body.you.score, 600 - 20 - 45);
+    assert.equal(body.you.score, 600 - 30 - 45);
   });
 
   test("overtaking someone changes both their positions", async () => {
-    assert.equal((await report("p1", 4)).body.you.rank, 2, "Ben is ahead on 535");
+    assert.equal((await report("p1", 4)).body.you.rank, 2, "Ben is ahead on 525");
     const ada = await report("p1", 9);
     assert.equal(ada.body.you.score, 900);
     assert.equal(ada.body.you.rank, 1);
-    assert.equal((await report("p2", 6, ["where", "hint"])).body.you.rank, 2);
+    assert.equal((await report("p2", 6, ["spot", "hint"])).body.you.rank, 2);
   });
 
   test("an impossible score is refused rather than ranked", async () => {
-    const tooMany = await report("p1", 20);
+    const tooMany = await report("p1", 99);
     assert.equal(tooMany.status, 400);
-    assert.match(tooMany.body.error, /20 found out of a round of 19/);
+    assert.match(tooMany.body.error, /found out of a round of/);
 
-    const invented = await post("/progress", { player: "p1", found: 2, clues: ["freebie"] });
+    const invented = await post("/progress", { player: "p1", round: ROUND, found: 2, clues: ["freebie"] });
     assert.equal(invented.status, 400);
   });
 
   test("somebody who never joined cannot post a score", async () => {
     const { status, body } = await report("gatecrasher", 19);
     assert.equal(status, 400);
-    assert.match(body.error, /not in this game/);
+    assert.match(body.error, /have not started that round/);
   });
 
   test("a name cannot smuggle markup onto the board", async () => {
     await join("p3", "<script>alert(1)</script>Cal");
-    const { body } = await get("/board");
+    const { body } = await get(`/board?round=${ROUND}`);
     assert.equal(body.top.some((row) => row.name.includes("<")), false);
   });
 
   test("a blank name becomes Anonymous rather than an empty row", async () => {
     await join("p4", "   ");
-    const { body } = await get("/board");
+    const { body } = await get(`/board?round=${ROUND}`);
     assert.ok(body.top.some((row) => row.name === "Anonymous"));
   });
 
   test("the board is ordered best first and counts everyone in the room", async () => {
-    const { body } = await get("/board");
+    const { body } = await get(`/board?round=${ROUND}`);
     const scores = body.top.map((row) => row.score);
     assert.deepEqual(scores, [...scores].sort((a, b) => b - a));
     assert.equal(body.top[0].name, "Ada");
@@ -183,10 +187,15 @@ describe("the live game", { concurrency: false }, () => {
   test("the game ends on its own, and then it is over for everybody", async () => {
     // Wind the clock back rather than waiting five minutes: the phase is worked
     // out from the stored end time, so a game in the past is simply over.
+    // Both clocks: the game's, and the one each session carries of its own. The
+    // session's is what actually governs whether a score still counts, which is
+    // the point - a player's five minutes is theirs, not a shared variable.
+    const past = Date.now() - 1000;
     const setup = spawn(
       `${ROOT}node_modules/.bin/wrangler`,
       ["d1", "execute", "quickfire-scores", "--local",
-       "--command", `UPDATE game SET ends_at = ${Date.now() - 1000} WHERE id = 1`],
+       "--command", `UPDATE game SET ends_at = ${past} WHERE id = 1;`
+         + ` UPDATE sessions SET ends_at = ${past} WHERE ends_at IS NOT NULL`],
       { cwd: ROOT, stdio: "ignore" }
     );
     await new Promise((resolve) => setup.on("exit", resolve));
@@ -198,10 +207,10 @@ describe("the live game", { concurrency: false }, () => {
   });
 
   test("a score posted after the whistle does not change the table", async () => {
-    const before = (await get("/board")).body.top.find((row) => row.name === "Ada").score;
+    const before = (await get(`/board?round=${ROUND}`)).body.top.find((r) => r.name === "Ada").score;
     const late = await report("p1", 19);
     assert.equal(late.status, 200, "it is answered, not rejected - you just gain nothing");
-    const after = (await get("/board")).body.top.find((row) => row.name === "Ada").score;
+    const after = (await get(`/board?round=${ROUND}`)).body.top.find((r) => r.name === "Ada").score;
     assert.equal(after, before);
   });
 
@@ -211,11 +220,17 @@ describe("the live game", { concurrency: false }, () => {
     assert.match(body.error, /finished/);
   });
 
-  test("a new game empties the room and stops the clock", async () => {
+  test("a new game empties the lobby and stops the clock, but keeps the scores", async () => {
+    // The scores are the day's table now, not this session's. A first attempt is
+    // a first attempt however the host feels about it.
+    const scored = (rows) => rows.filter((row) => row.score > 0).map((row) => row.name).sort();
+    const before = scored((await get(`/board?round=${ROUND}`)).body.top);
     const { body } = await openGame();
     assert.equal(body.phase, "lobby");
-    assert.equal(body.players, 0);
     assert.equal(body.endsAt, null);
+    assert.equal(body.waiting, 0, "nobody is left standing in the lobby");
+    // Joiners who never scored are cleared out; anyone who played is not.
+    assert.deepEqual(scored((await get(`/board?round=${ROUND}`)).body.top), before);
   });
 
   test("a host can check the password without starting anything", async () => {
@@ -247,7 +262,7 @@ describe("the live game", { concurrency: false }, () => {
   });
 
   test("the board is readable from the page, wherever it is served from", async () => {
-    const response = await fetch(`${BASE}/board`);
+    const response = await fetch(`${BASE}/board?round=${ROUND}`);
     assert.equal(response.headers.get("access-control-allow-origin"), "*");
   });
 });
