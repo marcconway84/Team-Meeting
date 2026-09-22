@@ -261,6 +261,37 @@ describe("the live game", { concurrency: false }, () => {
     assert.equal((await post("/host/check", {})).status, 403);
   });
 
+  test("a host can free one name to play the day again", async () => {
+    const round = "2026-09-28";
+    await post("/solo/start", { player: "clear-one", name: "Mabel", round });
+    await post("/progress", { player: "clear-one", round, found: 3, clues: [] });
+    assert.equal((await post("/solo/start", { player: "clear-one", name: "Mabel", round })).body.played,
+      true, "a second go is refused while the row is there");
+
+    const cleared = await post("/host/clear", { key: HOST_KEY, round, name: "mabel" });
+    assert.equal(cleared.status, 200);
+    assert.equal(cleared.body.cleared, 1, "case should not decide whether a name matches");
+
+    const again = await post("/solo/start", { player: "clear-one", name: "Mabel", round });
+    assert.equal(again.body.played, false, "with the row gone, the day is playable again");
+  });
+
+  test("clearing with no name tears up the whole day", async () => {
+    const round = "2026-09-28";
+    await post("/solo/start", { player: "wipe-a", name: "Ada", round });
+    await post("/solo/start", { player: "wipe-b", name: "Bea", round });
+    assert.ok((await get(`/board?round=${round}`)).body.players > 0);
+
+    const cleared = await post("/host/clear", { key: HOST_KEY, round });
+    assert.equal(cleared.status, 200);
+    assert.equal((await get(`/board?round=${round}`)).body.players, 0);
+  });
+
+  test("clearing is host-only", async () => {
+    const { status } = await post("/host/clear", { key: "not-the-key", round: "2026-09-28" });
+    assert.equal(status, 403);
+  });
+
   test("the board is readable from the page, wherever it is served from", async () => {
     const response = await fetch(`${BASE}/board?round=${ROUND}`);
     assert.equal(response.headers.get("access-control-allow-origin"), "*");

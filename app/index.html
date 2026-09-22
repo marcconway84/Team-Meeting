@@ -83,6 +83,20 @@
           <button type="button" class="primary" id="start-btn">Start the five minutes</button>
           <button type="button" class="ghost" id="reset-btn">New game</button>
         </div>
+
+        <!-- One go per person per day is the rule, so the only way to give
+             somebody another go is to take their row away. A name frees that
+             person; blank tears up the whole day. -->
+        <div class="hostclear">
+          <label for="clear-name">Let someone play today again</label>
+          <div class="hostunlock-row">
+            <input id="clear-name" type="text" autocomplete="off" spellcheck="false"
+                   placeholder="Their name, or blank for everyone" />
+            <button type="button" class="ghost" id="clear-btn">Clear</button>
+          </div>
+          <p class="hostnote" id="clear-note">Wipes today's score so it can be played from scratch.</p>
+        </div>
+
         <button type="button" class="textlink forget" id="forget-btn">Forget this password</button>
       </div>
     </div>

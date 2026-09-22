@@ -662,6 +662,23 @@ h1, h2, h3 { line-height: 1.2; }
   padding: 0.05em 0.3em;
   border-radius: 0.2rem;
 }
+/* Clearing a score is destructive, so it sits below a rule rather than beside
+   the button that starts the game. */
+.hostclear {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: var(--rule);
+}
+.hostclear label {
+  display: block;
+  font: 700 0.65rem/1 var(--body);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: 0.4rem;
+}
+.hostclear .hostnote { margin: 0.5rem 0 0; }
+
 .textlink.forget {
   color: var(--ink-dim);
   margin-top: 0.7rem;

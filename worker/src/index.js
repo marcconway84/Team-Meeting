@@ -13,6 +13,7 @@
 //   POST /host/check   is this the host key? (host only, changes nothing)
 //   POST /host/open    start a fresh game, everybody out (host only)
 //   POST /host/start   go (host only)
+//   POST /host/clear   tear up a day's table, or one name on it (host only)
 //
 // Every reply carries `now`, the server's own clock, so a client can work out how
 // far its own is out and count down against ours instead of its own.
@@ -52,6 +53,9 @@ export default {
       }
       if (url.pathname === "/host/start" && request.method === "POST") {
         return cors(await hostStart(request, env));
+      }
+      if (url.pathname === "/host/clear" && request.method === "POST") {
+        return cors(await hostClear(request, env));
       }
       if (url.pathname === "/health") return cors(json({ ok: true }));
       return cors(json({ error: "no such route" }, 404));
@@ -372,6 +376,41 @@ async function hostStart(request, env) {
     .bind(now, ends, now, game.round)
     .run();
   return json(await describe(env, await currentGame(env), null));
+}
+
+/**
+ * Tear up a day's table.
+ *
+ * One go per person per day is the rule, and the row is what enforces it, so the
+ * only honest way to give somebody another go is to take the row away. With a
+ * name, that person's row for that day goes and they can play it again; without
+ * one, the whole day goes.
+ *
+ * It is host-only because it is destructive, not because the rule is a security
+ * boundary - the player id lives in the browser, so anyone willing to clear their
+ * own storage was always going to get a second go. This is the sanctioned way,
+ * and the one that does not leave a stranger on the board.
+ */
+async function hostClear(request, env) {
+  const body = await readJson(request);
+  checkHost(body, env);
+  const round = requireText(body.round, "round", 64);
+  const name = String(body.name || "").trim();
+
+  const gone = name
+    ? await env.DB.prepare(
+        "DELETE FROM sessions WHERE round = ? AND lower(name) = lower(?)"
+      )
+        .bind(round, name)
+        .run()
+    : await env.DB.prepare("DELETE FROM sessions WHERE round = ?").bind(round).run();
+
+  return json({
+    cleared: gone.meta.changes,
+    who: name || null,
+    ...(await describe(env, await currentGame(env), null, round)),
+    round,
+  });
 }
 
 /* ----------------------------------------------------------------- plumbing -- */

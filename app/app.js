@@ -195,6 +195,11 @@
     try { window.localStorage.setItem(key, value); } catch (err) { /* not essential */ }
   }
 
+  /** Two names are the same person if they match once case and padding are gone. */
+  function sameName(a, b) {
+    return String(a).trim().toLowerCase() === String(b || "").trim().toLowerCase();
+  }
+
   function playerId() {
     var id = remembered(STORE_PLAYER, "");
     if (!id) {
@@ -1214,6 +1219,31 @@
         absorb(data);
         goHome();
       }).catch(function (err) { $("host-note").textContent = "Could not reset: " + err.message; });
+    });
+    $("clear-btn").addEventListener("click", function () {
+      var who = $("clear-name").value.trim();
+      var asking = who
+        ? "Clear " + who + "'s score for " + ROUND.title + "? They can then play it again."
+        : "Clear every score for " + ROUND.title + "? The whole day starts over.";
+      if (!window.confirm(asking)) return;
+      $("clear-note").textContent = "Clearing\u2026";
+      api("/host/clear", { key: HOST_KEY, round: ROUND.id, name: who }).then(function (data) {
+        $("clear-name").value = "";
+        $("clear-note").textContent = data.cleared
+          ? "Cleared " + data.cleared + (data.cleared === 1 ? " score." : " scores.")
+          : "Nothing to clear \u2014 no score by that name today.";
+        // If the host cleared themselves, the copy of the round kept in this
+        // browser would still refuse a second go. Drop it so the server's word
+        // is the only one that counts.
+        if (data.cleared && (!who || sameName(who, $("player-name").value))) {
+          state = null;
+          clearSaved();
+        }
+        absorb(data);
+        renderLobby();
+      }).catch(function (err) {
+        $("clear-note").textContent = "Could not clear it: " + err.message;
+      });
     });
     $("home-link").addEventListener("click", function () {
       if (!state || window.confirm("Leave this round? Your score stands as it is.")) goHome();
