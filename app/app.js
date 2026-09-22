@@ -76,6 +76,7 @@
   // Whoever opens the page with ?host=<key> gets the start button. The key is a
   // secret on the server; a player who has not been given it sees nothing.
   var STORE_HOST = "redletter.host";
+  var STORE_INSTALL = "redletter.install";
 
   // The key can arrive in the address bar or be typed in. Whichever it is, it is
   // only believed once the server has agreed to it.
@@ -1177,7 +1178,67 @@
     document.documentElement.style.setProperty("--stick", stuck + "px");
   }
 
+  /* ============================================== putting it on a phone === */
+
+  /*
+   * Two entirely different jobs wearing one name.
+   *
+   * Chrome fires `beforeinstallprompt`, which can be caught and re-fired from a
+   * button of our own, so Android gets a real one-tap install.
+   *
+   * Safari fires nothing. Apple has never implemented that event, and there is
+   * no way for a page to ask, so on an iPhone the prompt everyone else sees is
+   * simply never coming. All a page can honestly do is point at the menu item,
+   * which is why the two branches look so unalike.
+   */
+  var installEvent = null;
+
+  /** iPhones and iPads, including an iPad claiming to be a Mac since iPadOS 13. */
+  function isApplePhone() {
+    var ua = window.navigator.userAgent || "";
+    if (/iPhone|iPad|iPod/.test(ua)) return true;
+    return window.navigator.platform === "MacIntel" && window.navigator.maxTouchPoints > 1;
+  }
+
+  /** Already on the home screen? Then there is nothing to offer. */
+  function alreadyInstalled() {
+    if (window.navigator.standalone === true) return true;
+    return Boolean(window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  }
+
+  function setUpInstall() {
+    var box = $("install-box");
+    if (!box) return;
+    if (alreadyInstalled() || remembered(STORE_INSTALL, "") === "no") return;
+
+    window.addEventListener("beforeinstallprompt", function (event) {
+      // Chrome's own banner is suppressed by this, so having caught it we owe
+      // the user a button that does the same thing.
+      event.preventDefault();
+      installEvent = event;
+      box.hidden = false;
+      $("install-btn").hidden = false;
+    });
+
+    if (isApplePhone()) {
+      box.hidden = false;
+      $("install-note").hidden = false;
+    }
+  }
+
   function wire() {
+    $("install-btn").addEventListener("click", function () {
+      if (!installEvent) return;
+      installEvent.prompt();
+      installEvent.userChoice.then(function () {
+        installEvent = null;
+        $("install-box").hidden = true;
+      });
+    });
+    $("install-dismiss").addEventListener("click", function () {
+      $("install-box").hidden = true;
+      remember(STORE_INSTALL, "no");
+    });
     $("solo-btn").addEventListener("click", playSolo);
     $("join-btn").addEventListener("click", joinGame);
     $("host-link").addEventListener("click", function () {
@@ -1288,6 +1349,7 @@
 
   function boot() {
     wire();
+    setUpInstall();
     renderBriefing();
     measureMasthead();
     describeRound();

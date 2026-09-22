@@ -634,6 +634,33 @@ h1, h2, h3 { line-height: 1.2; }
   color: var(--ink-dim);
 }
 
+/* ------------------------------------------------------ home screen offer */
+.install {
+  margin-top: 1rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px dashed var(--purple-line);
+  border-radius: 0.5rem;
+  background: var(--panel-2);
+  text-align: center;
+}
+.install .ghost { width: 100%; }
+.installnote {
+  margin: 0;
+  font: 400 0.85rem/1.5 var(--body);
+  color: var(--ink-dim);
+}
+.installnote strong { color: var(--ink); font-weight: 700; }
+/* Standing in for the iOS share glyph without borrowing Apple's artwork. */
+.sharemark {
+  display: inline-block;
+  border: 1.5px solid currentColor;
+  border-radius: 0.2rem;
+  padding: 0 0.28em;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.install .textlink { margin-top: 0.6rem; font-size: 0.75rem; }
+
 /* -------------------------------------------------------- host unlocking */
 .hostunlock label {
   display: block;

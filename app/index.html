@@ -46,6 +46,19 @@
       </div>
       <p class="modenote">Either way your score goes on the same table for the day. One go each.</p>
 
+      <!-- Android fires beforeinstallprompt and we can offer a real button.
+           iOS never fires anything - Safari has no such event - so there the
+           only honest thing to do is say where the menu item lives. -->
+      <div class="install" id="install-box" hidden>
+        <button type="button" class="ghost" id="install-btn" hidden>Add to my home screen</button>
+        <p class="installnote" id="install-note" hidden>
+          To keep this on your home screen: tap
+          <span class="sharemark" aria-hidden="true">&#x2191;</span> <strong>Share</strong>
+          at the bottom of Safari, then <strong>Add to Home Screen</strong>.
+        </p>
+        <button type="button" class="textlink" id="install-dismiss">No thanks</button>
+      </div>
+
       <details class="pastrounds" id="past-rounds">
         <summary>Other days</summary>
         <ul id="round-list"></ul>
