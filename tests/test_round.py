@@ -429,3 +429,26 @@ class TestItInstallsAsAnApp:
 
     def test_jekyll_is_kept_out_of_it(self, site):
         assert (site / ".nojekyll").exists()
+
+
+class TestTheDrawingIsWhereYouNeedIt:
+    """The scene stays whole to be scanned; the row shows its own drawing so that
+    nobody has to hunt for it on a phone."""
+
+    def test_the_page_crops_the_scene_rather_than_shipping_it_twice(self, page):
+        # A second copy of every drawing would double a 60KB picture twenty times
+        # over. The crop is the same artwork with a different window onto it.
+        assert "croppedScene" in page
+        assert 'viewBox="' in page
+
+    def test_every_item_has_a_window_to_crop_to(self, round_data):
+        for item in round_data["items"]:
+            x, y, w, h = item["box"]
+            assert 0 <= x < 1200 and 0 <= y < 820, item["answer"]
+            assert x + w <= 1400 and y + h <= 1000, f"{item['answer']}: {item['box']} runs off the canvas"
+
+    def test_a_crop_is_a_crop_and_not_the_whole_thing(self, round_data):
+        # If a box covered the canvas the row would show the scene again, which
+        # is the problem this solves rather than a solution to it.
+        for item in round_data["items"]:
+            assert item["box"][2] * item["box"][3] < 1200 * 820 * 0.2, item["answer"]

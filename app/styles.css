@@ -669,11 +669,20 @@ h1, h2, h3 { line-height: 1.2; }
 }
 .textlink.forget:hover { color: var(--crimson); border-bottom-color: var(--crimson); }
 
-/* A zoomed picture gets more of the screen, because one drawing filling a third
-   of a phone is the whole point of zooming to it. */
-.picture-frame svg { transition: none; }
-.picture.zoomed .picture-frame { border-color: var(--crimson); }
-.picture.zoomed .picture-frame svg { max-height: 40vh; }
-.picturebar { flex-wrap: wrap; }
-#showall-btn { display: none; }
-.picture.zoomed #showall-btn { display: inline-block; border-color: var(--crimson); color: var(--crimson); }
+/* The drawing for the row you have open, cropped out of the scene above. The
+   scene stays whole so it can still be scanned; this is so nobody has to hunt. */
+.rowpic {
+  position: relative;
+  margin: 0 0 0.9rem;
+  border: 1px solid var(--purple-line);
+  border-radius: 0.45rem;
+  overflow: hidden;
+  background: #fff;
+  line-height: 0;
+}
+.rowpic svg { width: 100%; height: auto; display: block; max-height: 30vh; }
+@media (min-width: 64rem) {
+  /* Beside a full-height scene there is less need for it, but it still saves
+     the eye a trip across the page. */
+  .rowpic svg { max-height: 22vh; }
+}

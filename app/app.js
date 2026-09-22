@@ -206,32 +206,21 @@
 
   /* ========================================================== the picture === */
 
-  var fullViewBox = null;
-
   function paintPicture() {
     $("picture-frame").innerHTML = SCENE;
-    var svg = $("picture-frame").querySelector("svg");
-    if (svg) fullViewBox = svg.getAttribute("viewBox");
   }
 
   /**
-   * Zoom the picture to one drawing, or back out to all of them.
+   * One drawing on its own, cropped out of the scene.
    *
-   * On a phone the whole scene is about a third of the screen, which makes a
-   * single vignette perhaps a centimetre across - too small to read, and the
-   * reason the round was hard to play on a handset. Opening a row now fills that
-   * space with the one drawing it is about.
+   * The same picture with a different viewBox, so there is no second copy of the
+   * artwork to keep in step - just a window onto part of the one there is. Shown
+   * inside the row it belongs to, which is what stops anybody hunting for it: the
+   * scene stays up top to be scanned, and the drawing you are actually answering
+   * is directly above the box you type into.
    */
-  function zoomTo(item) {
-    var svg = $("picture-frame").querySelector("svg");
-    if (!svg || !fullViewBox) return;
-    if (!item || !item.box) {
-      svg.setAttribute("viewBox", fullViewBox);
-      $("picture").classList.remove("zoomed");
-      return;
-    }
-    svg.setAttribute("viewBox", item.box.join(" "));
-    $("picture").classList.add("zoomed");
+  function croppedScene(box) {
+    return SCENE.replace(/viewBox="[^"]*"/, 'viewBox="' + box.join(" ") + '"');
   }
 
   /** Move to another day's round, carrying nothing from the last one. */
@@ -397,6 +386,15 @@
       var body = document.createElement("div");
       body.className = "itembody";
 
+      if (item.box) {
+        var pic = document.createElement("div");
+        pic.className = "rowpic";
+        // No number of its own: the crop already contains the badge the scene
+        // draws on that vignette, and two of them side by side read as an error.
+        pic.innerHTML = croppedScene(item.box);
+        body.appendChild(pic);
+      }
+
       var verdict = document.createElement("p");
       verdict.className = "verdict";
       verdict.setAttribute("role", "status");
@@ -475,8 +473,6 @@
     save();
     if (previous !== null && previous !== index) refreshItem(previous);
     refreshItem(index);
-    zoomTo(state.open === index ? ROUND.items[index] : null);
-    measureMasthead();
     if (state.open === index) {
       scrollRowIntoView(index);
       var input = document.querySelector("#item-" + index + " input");
@@ -525,7 +521,6 @@
       entry.status = "found";
       entry.typed = "";
       state.open = null;
-      zoomTo(null);
       save();
       refreshItem(index);
       pushProgress(true);
@@ -1237,12 +1232,8 @@
     $("player-name").addEventListener("change", function () {
       remember(STORE_NAME, $("player-name").value.trim());
     });
-    $("showall-btn").addEventListener("click", function () { zoomTo(null); });
     $("zoom-btn").addEventListener("click", function () {
       $("lightbox-inner").innerHTML = SCENE;
-      var inline = $("picture-frame").querySelector("svg");
-      var big = $("lightbox-inner").querySelector("svg");
-      if (inline && big) big.setAttribute("viewBox", inline.getAttribute("viewBox"));
       $("lightbox").hidden = false;
     });
     $("lightbox-close").addEventListener("click", function () {

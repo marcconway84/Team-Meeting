@@ -89,9 +89,11 @@ read 5, 10, 9, 18, 19, which was worse than not numbering them at all.
 `tests/test_round.py` now re-derives the order from where the drawings actually
 sit and fails if it is not 1, 2, 3.
 
-Each item also carries a `box`, the drawing's bounding box. Opening a row zooms the
-picture to it, which is what makes the round playable on a phone: the whole scene at
-a third of a handset's height leaves a single vignette about a centimetre across.
+Each item also carries a `box`, the drawing's bounding box. Opening a row shows that
+one drawing inside the row, cropped out of the scene - the same artwork with a
+different window onto it, never a second copy. The scene stays whole above it, so it
+can still be scanned and still be put on a meeting-room screen; the crop is what
+stops anybody hunting for a vignette that is a centimetre across on a handset.
 It was not, at first: working out which drawing went with which blank was meant to be
 part of the puzzle, and in practice it made the round too hard. The clue that sold
 you the mapping went with the change. `tests/test_round.py` fails the build if an
