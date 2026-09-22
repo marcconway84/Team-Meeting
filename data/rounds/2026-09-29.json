@@ -1,0 +1,238 @@
+{
+  "id": "2026-09-29",
+  "date": "2026-09-29",
+  "title": "The 29th of September",
+  "subject": "One picture, every reason to celebrate",
+  "blurb": "Every one of these is a real thing somebody celebrates on the 29th of September - and some of them are birthdays. They are all in the picture. Name the missing word in each.",
+  "scene": "2026-09-29",
+  "items": [
+    {
+      "n": 1,
+      "template": "World ___ Day",
+      "answer": "Heart",
+      "category": "Health",
+      "prefill": [
+        1,
+        3
+      ],
+      "spot": "A red heart with a hospital trace running across it.",
+      "hint": "Five letters. Cardiovascular disease is the world's leading cause of death, and this day exists to say so.",
+      "note": "Run by the World Heart Federation. Often confused with the 27th; it is the 29th.",
+      "box": [
+        12,
+        12,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 2,
+      "template": "International Day of Awareness of Food Loss and Food ___",
+      "answer": "Waste",
+      "category": "Food & Drink",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A bin with perfectly good food going into it - an orange, a wedge of cheese, bread.",
+      "hint": "Five letters. Roughly a third of all the food the world grows never gets eaten.",
+      "note": "Declared by the UN General Assembly in 2019.",
+      "box": [
+        312,
+        12,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 3,
+      "template": "___mas, the feast of St Michael and All Angels",
+      "answer": "Michael",
+      "category": "Tradition",
+      "prefill": [
+        2,
+        5
+      ],
+      "spot": "An angel with spread wings holding a sword, a dragon under the point of it.",
+      "hint": "Seven letters. The archangel who threw the dragon out of heaven, and the name the feast is built from.",
+      "note": "One of the four English quarter days, when rents fell due and the harvest was in.",
+      "box": [
+        612,
+        12,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 4,
+      "template": "National ___ Day",
+      "answer": "Coffee",
+      "category": "Food & Drink",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A steaming mug, seen from the side.",
+      "hint": "Six letters. The American one is today; the international one is two days later, on the 1st of October.",
+      "note": "Which does mean you can reasonably celebrate it twice in a week.",
+      "box": [
+        912,
+        12,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 5,
+      "template": "Born today in 1547: Miguel de ___, who wrote Don Quixote",
+      "answer": "Cervantes",
+      "category": "Birthdays",
+      "prefill": [
+        2,
+        6
+      ],
+      "spot": "A windmill, with a small lance pointed at it.",
+      "hint": "Nine letters. Spain's greatest novelist, and the man who sent a knight to fight farm machinery.",
+      "note": "The date is traditional rather than certain; he was baptised on the 9th of October.",
+      "box": [
+        12,
+        312,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 6,
+      "template": "Born today in 1571: ___, the painter of violent light and shadow",
+      "answer": "Caravaggio",
+      "category": "Birthdays",
+      "prefill": [
+        3,
+        7
+      ],
+      "spot": "A dark canvas with a face half lit, and a shaft of light falling across it.",
+      "hint": "Ten letters. An Italian painter who killed a man over a tennis match and painted the best lighting in art history.",
+      "note": "Born Michelangelo Merisi; known by the town he came from.",
+      "box": [
+        312,
+        312,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 7,
+      "template": "Born today in 1901: Enrico ___, Nobel laureate and builder of the first nuclear reactor",
+      "answer": "Fermi",
+      "category": "Birthdays",
+      "prefill": [
+        1,
+        3
+      ],
+      "spot": "An atom, a red nucleus with three electron orbits around it.",
+      "hint": "Five letters. An Italian physicist. The question named after him asks where all the aliens are.",
+      "note": "He built the first reactor under a Chicago squash court in 1942.",
+      "box": [
+        612,
+        312,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 8,
+      "template": "Born today in 1935: Jerry Lee ___, who played the piano standing up",
+      "answer": "Lewis",
+      "category": "Birthdays",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A piano keyboard with flames coming off the top of it.",
+      "hint": "Five letters. They called him the Killer, and his signature song set a great ball of fire.",
+      "note": "His career survived rather more scandal than most.",
+      "box": [
+        912,
+        312,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 9,
+      "template": "Born today in 1988: Kevin ___, one of the great scorers in basketball",
+      "answer": "Durant",
+      "category": "Birthdays",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A basketball under a hoop and net.",
+      "hint": "Six letters. Nicknamed the Slim Reaper, and about as hard to guard as the name suggests.",
+      "note": null,
+      "box": [
+        12,
+        612,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 10,
+      "template": "Born today in 1907: Gene ___, the singing cowboy",
+      "answer": "Autry",
+      "category": "Birthdays",
+      "prefill": [
+        1,
+        3
+      ],
+      "spot": "A cowboy hat with a sheriff's star above it and a guitar neck below.",
+      "hint": "Five letters. He sang about a red-nosed reindeer long before anyone animated it.",
+      "note": "He is the only person with stars in all five Hollywood Walk of Fame categories.",
+      "box": [
+        312,
+        612,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 11,
+      "template": "National ___ Remembrance Day, in Australia",
+      "answer": "Police",
+      "category": "Around the World",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A badge shield with a star in the middle of it.",
+      "hint": "Six letters. Australia remembers the officers who died in the line of duty.",
+      "note": "Marked on the feast of St Michael, their patron saint - which is why it is today.",
+      "box": [
+        612,
+        612,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 12,
+      "template": "___ Day, for the Chinese philosopher who taught the golden rule",
+      "answer": "Confucius",
+      "category": "Around the World",
+      "prefill": [
+        2,
+        6
+      ],
+      "spot": "An open scroll or book under a tiled roof.",
+      "hint": "Nine letters. Do not do to others what you would not want done to you - he got there first.",
+      "note": "Taiwan keeps it as Teachers' Day.",
+      "box": [
+        912,
+        612,
+        316,
+        316
+      ]
+    }
+  ]
+}

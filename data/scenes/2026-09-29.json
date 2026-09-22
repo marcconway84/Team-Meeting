@@ -1,0 +1,66 @@
+{
+  "title": "the 29th of September",
+  "alt": "A cartoon collage of twelve things celebrated on the 29th of September",
+  "drawings": [
+    {
+      "n": 1,
+      "of": "World Heart Day",
+      "svg": "<path d=\"M150 215 C90 165 62 132 62 104 C62 78 82 60 106 60 C124 60 140 70 150 86 C160 70 176 60 194 60 C218 60 238 78 238 104 C238 132 210 165 150 215 Z\" class=\"fill\" fill=\"#e2574c\"/><path d=\"M78 140 h34 l14 -30 l20 62 l18 -44 l12 22 h40\" class=\"ink\" stroke=\"#ffffff\" style=\"stroke-width:7\"/>"
+    },
+    {
+      "n": 2,
+      "of": "Food waste",
+      "svg": "<path d=\"M96 112 h108 l-12 116 a14 14 0 0 1 -14 13 h-56 a14 14 0 0 1 -14 -13 Z\" class=\"fill\" fill=\"#8ab06a\"/><path d=\"M86 112 h128\" class=\"ink\" style=\"stroke-width:8\"/><path d=\"M126 96 h48 v16 h-48 Z\" class=\"fill\" fill=\"#cfc0dd\"/><circle cx=\"122\" cy=\"150\" r=\"17\" class=\"fill\" fill=\"#e8a33d\"/><path d=\"M160 142 l24 -12 l10 22 l-26 10 Z\" class=\"fill\" fill=\"#f0e4b8\"/><path d=\"M118 196 q14 -14 30 0 q14 14 30 0\" class=\"thin\"/>"
+    },
+    {
+      "n": 3,
+      "of": "Michaelmas",
+      "svg": "<path d=\"M142 108 C96 74 56 72 40 82 C56 122 92 156 140 160 Z\" class=\"fill\" fill=\"#efe7f5\"/><path d=\"M158 108 C204 74 244 72 260 82 C244 122 208 156 160 160 Z\" class=\"fill\" fill=\"#efe7f5\"/><path d=\"M70 96 C92 112 114 128 136 138 M84 84 C104 104 122 120 140 130\" class=\"thin\" opacity=\"0.7\"/><path d=\"M230 96 C208 112 186 128 164 138 M216 84 C196 104 178 120 160 130\" class=\"thin\" opacity=\"0.7\"/><path d=\"M150 44 v176\" class=\"ink\" style=\"stroke-width:14\"/><path d=\"M150 220 l-14 -26 h28 Z\" class=\"fill\" fill=\"#c0c6cf\"/><path d=\"M112 112 h76\" class=\"ink\" style=\"stroke-width:12\"/><circle cx=\"150\" cy=\"34\" r=\"11\" class=\"fill\" fill=\"#f0d878\"/>"
+    },
+    {
+      "n": 4,
+      "of": "National Coffee Day",
+      "svg": "<path d=\"M76 118 h116 v70 a40 40 0 0 1 -40 40 h-36 a40 40 0 0 1 -40 -40 Z\" class=\"fill\" fill=\"#ffffff\"/><path d=\"M192 134 h22 a24 24 0 0 1 0 48 h-22\" class=\"ink\" style=\"stroke-width:7\"/><path d=\"M70 228 h130\" class=\"ink\" style=\"stroke-width:7\"/><path d=\"M112 98 q10 -16 0 -30 M150 98 q10 -16 0 -30 M188 98 q10 -16 0 -30\" class=\"thin\"/><path d=\"M92 150 h84\" class=\"thin\" opacity=\"0.6\"/>"
+    },
+    {
+      "n": 5,
+      "of": "Cervantes",
+      "svg": "<path d=\"M116 246 l16 -110 h36 l16 110 Z\" class=\"fill\" fill=\"#f0e4b8\"/><path d=\"M126 136 l24 -26 l24 26 Z\" class=\"fill\" fill=\"#c98a2e\"/><circle cx=\"150\" cy=\"128\" r=\"9\" class=\"fill\" fill=\"#2e1338\"/><path d=\"M150 128 L80 58 M150 128 L220 58 M150 128 L80 198 M150 128 L220 198\" class=\"ink\" style=\"stroke-width:5\"/><path d=\"M150 128 L80 58 l-14 28 l56 56 Z\" class=\"fill\" fill=\"#ffffff\" opacity=\"0.95\"/><path d=\"M150 128 L220 58 l14 28 l-56 56 Z\" class=\"fill\" fill=\"#ffffff\" opacity=\"0.95\"/><path d=\"M150 128 L80 198 l-14 -28 l56 -56 Z\" class=\"fill\" fill=\"#ffffff\" opacity=\"0.95\"/><path d=\"M150 128 L220 198 l14 -28 l-56 -56 Z\" class=\"fill\" fill=\"#ffffff\" opacity=\"0.95\"/><path d=\"M104 246 h92\" class=\"ink\" style=\"stroke-width:6\"/>"
+    },
+    {
+      "n": 6,
+      "of": "Caravaggio",
+      "svg": "<rect x=\"82\" y=\"56\" width=\"136\" height=\"128\" class=\"fill\" fill=\"#2e1338\"/><path d=\"M150 80 a38 44 0 0 1 38 44 a38 44 0 0 1 -38 44 a38 44 0 0 1 -38 -44 a38 44 0 0 1 38 -44 Z\" fill=\"#f3e2c8\" stroke=\"none\"/><path d=\"M150 80 a38 44 0 0 0 -38 44 a38 44 0 0 0 38 44 Z\" fill=\"#4a0d68\" stroke=\"none\" opacity=\"0.7\"/><path d=\"M150 184 v40\" class=\"ink\" style=\"stroke-width:6\"/><path d=\"M110 250 l40 -66 l40 66\" class=\"ink\" style=\"stroke-width:6\"/><path d=\"M74 60 l-16 -16 M62 84 l-22 -10 M78 40 l-8 -22\" class=\"ink\" stroke=\"#e8a33d\" style=\"stroke-width:5\"/>"
+    },
+    {
+      "n": 7,
+      "of": "Enrico Fermi",
+      "svg": "<circle cx=\"150\" cy=\"150\" r=\"16\" class=\"fill\" fill=\"#e2574c\"/><ellipse cx=\"150\" cy=\"150\" rx=\"86\" ry=\"34\" class=\"thin\"/><ellipse cx=\"150\" cy=\"150\" rx=\"86\" ry=\"34\" class=\"thin\" transform=\"rotate(60 150 150)\"/><ellipse cx=\"150\" cy=\"150\" rx=\"86\" ry=\"34\" class=\"thin\" transform=\"rotate(-60 150 150)\"/><circle cx=\"236\" cy=\"150\" r=\"8\" class=\"fill\" fill=\"#4a0d68\"/><circle cx=\"107\" cy=\"76\" r=\"8\" class=\"fill\" fill=\"#4a0d68\"/><circle cx=\"107\" cy=\"224\" r=\"8\" class=\"fill\" fill=\"#4a0d68\"/>"
+    },
+    {
+      "n": 8,
+      "of": "Jerry Lee Lewis",
+      "svg": "<rect x=\"58\" y=\"120\" width=\"184\" height=\"56\" class=\"fill\" fill=\"#ffffff\"/><path d=\"M84 120 v56 M110 120 v56 M136 120 v56 M162 120 v56 M188 120 v56 M214 120 v56\" class=\"thin\"/><rect x=\"74\" y=\"120\" width=\"14\" height=\"34\" fill=\"#2e1338\" stroke=\"none\"/><rect x=\"100\" y=\"120\" width=\"14\" height=\"34\" fill=\"#2e1338\" stroke=\"none\"/><rect x=\"152\" y=\"120\" width=\"14\" height=\"34\" fill=\"#2e1338\" stroke=\"none\"/><rect x=\"178\" y=\"120\" width=\"14\" height=\"34\" fill=\"#2e1338\" stroke=\"none\"/><rect x=\"204\" y=\"120\" width=\"14\" height=\"34\" fill=\"#2e1338\" stroke=\"none\"/><path d=\"M58 176 h184 v16 h-184 Z\" class=\"fill\" fill=\"#e8a33d\"/><path d=\"M96 96 q22 -30 48 -8 q26 -26 48 4\" class=\"ink\" stroke=\"#e2574c\" style=\"stroke-width:6\"/><path d=\"M170 74 l14 -20 l10 24\" class=\"thin\" stroke=\"#e8a33d\"/>"
+    },
+    {
+      "n": 9,
+      "of": "Kevin Durant",
+      "svg": "<circle cx=\"150\" cy=\"150\" r=\"62\" class=\"fill\" fill=\"#e8a33d\"/><path d=\"M88 150 h124 M150 88 v124\" class=\"thin\"/><path d=\"M104 106 q46 44 0 88 M196 106 q-46 44 0 88\" class=\"thin\"/><path d=\"M62 74 h176\" class=\"ink\" style=\"stroke-width:7\"/><path d=\"M96 74 v-16 h108 v16\" class=\"ink\" style=\"stroke-width:5\"/><path d=\"M118 74 h64 v26 a32 32 0 0 1 -64 0 Z\" class=\"fill\" fill=\"#ffffff\" opacity=\"0.9\"/>"
+    },
+    {
+      "n": 10,
+      "of": "Gene Autry",
+      "svg": "<circle cx=\"140\" cy=\"176\" r=\"62\" class=\"fill\" fill=\"#c98a2e\"/><circle cx=\"140\" cy=\"118\" r=\"42\" class=\"fill\" fill=\"#c98a2e\"/><circle cx=\"140\" cy=\"164\" r=\"18\" class=\"fill\" fill=\"#2e1338\"/><path d=\"M140 92 v-52\" class=\"ink\" style=\"stroke-width:12\"/><path d=\"M128 40 h24 v20 h-24 Z\" class=\"fill\" fill=\"#f0e4b8\"/><path d=\"M132 60 v76 M148 60 v76\" class=\"thin\" stroke=\"#f0e4b8\"/><path d=\"M222 54 l9 26 h28 l-22 17 l8 27 l-23 -16 l-23 16 l8 -27 l-22 -17 h28 Z\" class=\"fill\" fill=\"#f0d878\"/>"
+    },
+    {
+      "n": 11,
+      "of": "Police Remembrance Day",
+      "svg": "<path d=\"M150 58 l72 26 v66 c0 48 -34 76 -72 92 c-38 -16 -72 -44 -72 -92 V84 Z\" class=\"fill\" fill=\"#3a5a8c\"/><path d=\"M150 96 l11 30 h32 l-26 20 l10 31 l-27 -19 l-27 19 l10 -31 l-26 -20 h32 Z\" class=\"fill\" fill=\"#f0d878\"/><path d=\"M112 210 q38 18 76 0\" class=\"thin\" stroke=\"#ffffff\"/>"
+    },
+    {
+      "n": 12,
+      "of": "Confucius",
+      "svg": "<path d=\"M150 96 q-40 -22 -76 -12 v130 q36 -10 76 12 Z\" class=\"fill\" fill=\"#f0e4b8\"/><path d=\"M150 96 q40 -22 76 -12 v130 q-36 -10 -76 12 Z\" class=\"fill\" fill=\"#ffffff\"/><path d=\"M150 96 v130\" class=\"ink\" style=\"stroke-width:5\"/><path d=\"M96 116 v66 M118 112 v70 M182 112 v70 M204 116 v66\" class=\"thin\" opacity=\"0.8\"/><path d=\"M150 62 l7 20 h21 l-17 13 l6 20 l-17 -12 l-17 12 l6 -20 l-17 -13 h21 Z\" class=\"fill\" fill=\"#f0d878\"/>"
+    }
+  ]
+}

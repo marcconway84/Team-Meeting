@@ -322,7 +322,11 @@ class TestTheWorkersCopyOfTheRules:
     def test_the_worker_knows_how_big_the_round_is(self, generated, round_data):
         # Without this the board has nothing to measure "twenty found out of nineteen"
         # against, and an impossible score walks straight onto it.
-        assert generated["rounds"] == {round_data["id"]: len(round_data["items"])}
+        # Every round, not just one: the board has to measure any day's score.
+        assert generated["rounds"][round_data["id"]] == len(round_data["items"])
+        for path in sorted((REPO_ROOT / "data" / "rounds").glob("*.json")):
+            other = json.loads(path.read_text(encoding="utf-8"))
+            assert generated["rounds"][other["id"]] == len(other["items"]), other["id"]
 
     def test_no_clue_costs_more_than_an_item_is_worth(self, source):
         for key, cost in source["picture"]["clueCosts"].items():
