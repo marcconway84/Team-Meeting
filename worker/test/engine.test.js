@@ -156,3 +156,68 @@ test("no rings are left over", () => {
   // They pointed at a vignette for the "show me where" clue, which is gone.
   assert.equal(SCENE.includes("ring-"), false);
 });
+
+/* ------------------------------------------------------------------ the day -- */
+
+// The series is announced before it opens and people follow the link early, so
+// what a date before the first round shows is a real question, not a corner case.
+const SERIES = [
+  { id: "2026-09-28", date: "2026-09-28" },
+  { id: "2026-09-29", date: "2026-09-29" },
+  { id: "2026-10-01", date: "2026-10-01" },
+];
+
+test("before the series opens, the opening round is the one on show", () => {
+  assert.equal(engine.roundForDate(SERIES, "2026-09-22").date, "2026-09-28");
+  assert.equal(engine.roundForDate(SERIES, "2026-09-27").date, "2026-09-28");
+});
+
+test("once it has opened, the date decides", () => {
+  assert.equal(engine.roundForDate(SERIES, "2026-09-28").date, "2026-09-28");
+  assert.equal(engine.roundForDate(SERIES, "2026-09-29").date, "2026-09-29");
+  assert.equal(engine.roundForDate(SERIES, "2026-10-01").date, "2026-10-01");
+});
+
+test("a gap holds on the last round rather than showing nothing", () => {
+  // The 30th has no round of its own; the 29th is still the current one.
+  assert.equal(engine.roundForDate(SERIES, "2026-09-30").date, "2026-09-29");
+  // And after the series ends it stays on the final round.
+  assert.equal(engine.roundForDate(SERIES, "2026-12-25").date, "2026-10-01");
+});
+
+test("the order rounds are listed in does not decide which one is shown", () => {
+  const shuffled = [SERIES[2], SERIES[0], SERIES[1]];
+  assert.equal(engine.roundForDate(shuffled, "2026-09-22").date, "2026-09-28");
+  assert.equal(engine.roundForDate(shuffled, "2026-09-29").date, "2026-09-29");
+});
+
+test("the picker is never empty, and never offers a day that has not happened", () => {
+  // Before the off it still lists the round being shown; a picker missing the
+  // round in front of you reads like a bug.
+  assert.deepEqual(engine.playableOn(SERIES, "2026-09-22").map((r) => r.date), ["2026-09-28"]);
+  // Afterwards, newest first, and nothing from the future.
+  assert.deepEqual(engine.playableOn(SERIES, "2026-09-29").map((r) => r.date),
+    ["2026-09-29", "2026-09-28"]);
+  assert.deepEqual(engine.playableOn(SERIES, "2026-10-01").map((r) => r.date),
+    ["2026-10-01", "2026-09-29", "2026-09-28"]);
+});
+
+test("an empty series does not throw", () => {
+  assert.equal(engine.roundForDate([], "2026-09-22"), null);
+  assert.deepEqual(engine.playableOn([], "2026-09-22"), []);
+});
+
+/* ---------------------------------------------------------------- wording -- */
+
+test("no round writes its own size into its prose", () => {
+  // The briefing used to say "nineteen" while the count worked out from the
+  // round said twenty. The round was right; the sentence was not. Counts belong
+  // in the tally, which cannot disagree with the round it is counting.
+  const words = /\b(one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\b\s+(answers|reasons|things|items|blanks|words)/i;
+  for (const field of ["title", "subject", "blurb"]) {
+    const text = String(ROUND[field] || "");
+    assert.equal(words.test(text), false, `${field} states a count: ${text}`);
+    assert.equal(/\b\d+\s+(answers|reasons|things|items|blanks|words)\b/i.test(text), false,
+      `${field} states a count: ${text}`);
+  }
+});

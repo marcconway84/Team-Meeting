@@ -333,7 +333,59 @@ var RedLetterEngine = (function () {
     return sheet;
   }
 
+  /* ========================================================= which day ===
+     Which round a given date should be shown, and which are open to play.
+
+     Both answer the same question - what has the calendar reached? - so they
+     live together and are tested together. The rule that matters is the one
+     for a date before the series begins: the season is announced in advance,
+     people open the link early, and the honest answer then is the opening
+     round rather than nothing at all.
+  */
+
+  /** Sorted oldest first, so "first" and "latest" mean what they say. */
+  function byDate(rounds) {
+    return rounds.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+  }
+
+  /**
+   * The round for a date: that day's if there is one, otherwise the most
+   * recent one behind it, otherwise the first in the series.
+   *
+   * A gap in the calendar therefore holds on the last round published rather
+   * than showing an empty page, and a date before the series opens shows the
+   * opening round.
+   */
+  function roundForDate(rounds, iso) {
+    var all = byDate(rounds);
+    if (!all.length) return null;
+    var best = null;
+    for (var i = 0; i < all.length; i += 1) {
+      if (all[i].date === iso) return all[i];
+      if (all[i].date < iso) best = all[i];
+    }
+    return best || all[0];
+  }
+
+  /**
+   * Everything open to play on a date, newest first.
+   *
+   * Never empty while the series has any round at all: before it opens, the
+   * opening round is listed, because that is the one being shown and a picker
+   * that omits the round you are looking at is just confusing.
+   */
+  function playableOn(rounds, iso) {
+    var open = byDate(rounds).filter(function (r) { return r.date <= iso; });
+    if (!open.length) {
+      var first = roundForDate(rounds, iso);
+      return first ? [first] : [];
+    }
+    return open.reverse();
+  }
+
   return {
+    roundForDate: roundForDate,
+    playableOn: playableOn,
     normalize: normalize,
     withoutArticle: withoutArticle,
     answerKeys: answerKeys,

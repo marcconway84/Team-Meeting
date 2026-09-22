@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------------------
    Red Letter Day - the picture round.
 
-   One drawing, nineteen missing words, and a clue sheet you pay for out of your
+   One drawing, a list of missing words, and a clue sheet you pay for out of your
    own score. Self-paced: there is no clock, and the timer that does run is only
    ever used to separate two people who finished on the same number.
 
@@ -48,22 +48,15 @@
     return null;
   }
 
+  // Both live in the engine, where they can be tested against a fixed date
+  // rather than against whatever day the test happens to run on.
   function roundForToday() {
-    var today = todayISO();
-    var best = null;
-    for (var i = 0; i < ROUNDS.length; i += 1) {
-      if (ROUNDS[i].date === today) return ROUNDS[i];
-      if (ROUNDS[i].date < today && (!best || ROUNDS[i].date > best.date)) best = ROUNDS[i];
-    }
-    // Before the first round's date there is nothing behind us, so show the first.
-    return best || ROUNDS[0];
+    return RedLetterEngine.roundForDate(ROUNDS, todayISO());
   }
 
   /** Playable now: today's and everything before it, newest first. */
   function playableRounds() {
-    var today = todayISO();
-    return ROUNDS.filter(function (r) { return r.date <= today; })
-      .sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+    return RedLetterEngine.playableOn(ROUNDS, todayISO());
   }
 
   var ROUND = roundForToday();
@@ -95,12 +88,20 @@
      come from the rules rather than being typed out again beside them.
   */
 
+  /** A title dropped into the middle of a sentence should not shout. */
+  function midSentence(title) {
+    return /^The\s/.test(title) ? "t" + title.slice(1) : title;
+  }
+
   var BRIEFING = [
-    ["One picture, nineteen answers.",
-     "Every one is a real thing somebody celebrates on the 28th of September, and every one is drawn in the picture somewhere."],
+    // No counts in the wording. Rounds are not all the same size, and a number
+    // written into a sentence here was contradicting the one worked out from the
+    // round itself. The tally in the masthead says how many there are.
+    ["One picture, every answer in it.",
+     "Each one is a real thing somebody celebrates on " + midSentence(ROUND.title)
+       + ", and each one is drawn in the picture somewhere."],
     ["Name the missing word.",
-     "Not the whole day \u2014 just the blank. " + ROUND.items.length
-       + " of them, each with a couple of letters filled in to start you off."],
+     "Not the whole day \u2014 just the blank. Each has a couple of letters filled in to start you off."],
     ["Everyone plays at once.",
      "The host starts the clock and you all get the same " + Math.round(RULES.live.seconds / 60)
        + " minutes. When it stops it stops for everybody, and the table goes up."],
@@ -115,7 +116,7 @@
     ["Giving up on one is free.",
      "Revealing an answer costs nothing, but that one scores nothing \u2014 and it ends any hope of the bonuses."],
     ["The bonuses need a clean sheet.",
-     "All " + ROUND.items.length + " right earns " + RULES.picture.finisherBonus
+     "Every one of them right earns " + RULES.picture.finisherBonus
        + ", and doing it without buying a single clue is another " + RULES.picture.cleanSweepBonus
        + ". In " + Math.round(RULES.live.seconds / 60) + " minutes, good luck."],
     ["The board is live.",
