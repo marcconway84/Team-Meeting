@@ -1,0 +1,66 @@
+{
+  "title": "the 1st of October",
+  "alt": "A cartoon collage of twelve things celebrated on the 1st of October",
+  "drawings": [
+    {
+      "n": 1,
+      "of": "Older Persons",
+      "svg": "<circle cx=\"128\" cy=\"76\" r=\"26\" class=\"fill\" fill=\"#f3e2c8\"/><path d=\"M128 50 a26 26 0 0 0 -26 26 q26 -8 26 -26 Z\" class=\"fill\" fill=\"#c0c6cf\"/><path d=\"M104 108 h48 l14 66 h-20 l-6 64 h-24 l-6 -64 h-20 Z\" class=\"fill\" fill=\"#6b4a7a\"/><path d=\"M166 124 l34 22\" class=\"ink\" style=\"stroke-width:6\"/><path d=\"M200 146 v92\" class=\"ink\" style=\"stroke-width:9\"/><path d=\"M200 146 q18 -2 18 -16\" class=\"ink\" style=\"stroke-width:9\"/><path d=\"M84 246 h140\" class=\"thin\"/>"
+    },
+    {
+      "n": 2,
+      "of": "International Coffee Day",
+      "svg": "<ellipse cx=\"110\" cy=\"128\" rx=\"38\" ry=\"48\" class=\"fill\" fill=\"#7a4a24\" transform=\"rotate(-20 110 128)\"/><path d=\"M110 82 q-16 46 0 92\" class=\"ink\" stroke=\"#f0e4b8\" style=\"stroke-width:5\" transform=\"rotate(-20 110 128)\"/><ellipse cx=\"186\" cy=\"172\" rx=\"38\" ry=\"48\" class=\"fill\" fill=\"#5c3518\" transform=\"rotate(24 186 172)\"/><path d=\"M186 126 q-16 46 0 92\" class=\"ink\" stroke=\"#f0e4b8\" style=\"stroke-width:5\" transform=\"rotate(24 186 172)\"/><ellipse cx=\"98\" cy=\"212\" rx=\"30\" ry=\"38\" class=\"fill\" fill=\"#7a4a24\" transform=\"rotate(40 98 212)\"/><path d=\"M98 176 q-14 36 0 72\" class=\"ink\" stroke=\"#f0e4b8\" style=\"stroke-width:4\" transform=\"rotate(40 98 212)\"/>"
+    },
+    {
+      "n": 3,
+      "of": "World Vegetarian Day",
+      "svg": "<path d=\"M150 118 l40 16 l-34 104 q-6 16 -12 0 l-34 -104 Z\" class=\"fill\" fill=\"#e8853d\"/><path d=\"M128 156 l34 10 M136 186 l30 8 M144 214 l22 6\" class=\"thin\" stroke=\"#a8541f\"/><path d=\"M150 118 q-38 -34 -66 -26 q10 34 50 40 Z\" class=\"fill\" fill=\"#4d7a3a\"/><path d=\"M150 118 q6 -46 36 -54 q10 34 -18 58 Z\" class=\"fill\" fill=\"#6d9150\"/><path d=\"M150 118 q34 -26 62 -16 q-14 30 -50 32 Z\" class=\"fill\" fill=\"#4d7a3a\"/>"
+    },
+    {
+      "n": 4,
+      "of": "National Day of China",
+      "svg": "<rect x=\"56\" y=\"84\" width=\"188\" height=\"126\" class=\"fill\" fill=\"#e2574c\"/><path d=\"M92 108 l9 26 h27 l-22 17 l8 26 l-22 -16 l-22 16 l8 -26 l-22 -17 h27 Z\" class=\"fill\" fill=\"#f0d878\"/><path d=\"M148 98 l12 10 l-15 4 Z M164 120 l14 6 l-13 8 Z M164 148 l15 4 l-11 11 Z M148 170 l14 -2 l-7 13 Z\" class=\"fill\" fill=\"#f0d878\"/><path d=\"M44 84 v148\" class=\"ink\" style=\"stroke-width:7\"/>"
+    },
+    {
+      "n": 5,
+      "of": "Nigeria Independence Day",
+      "svg": "<rect x=\"56\" y=\"84\" width=\"188\" height=\"126\" class=\"fill\" fill=\"#ffffff\"/><rect x=\"56\" y=\"84\" width=\"63\" height=\"126\" fill=\"#4d8a3a\" stroke=\"none\"/><rect x=\"181\" y=\"84\" width=\"63\" height=\"126\" fill=\"#4d8a3a\" stroke=\"none\"/><rect x=\"56\" y=\"84\" width=\"188\" height=\"126\" class=\"ink\" fill=\"none\" style=\"stroke-width:4\"/><path d=\"M44 84 v148\" class=\"ink\" style=\"stroke-width:7\"/>"
+    },
+    {
+      "n": 6,
+      "of": "Julie Andrews",
+      "svg": "<path d=\"M52 132 a98 98 0 0 1 196 0 Z\" class=\"fill\" fill=\"#2e1338\"/><path d=\"M52 132 q24 22 49 0 q24 22 49 0 q24 22 49 0 q24 22 49 0\" class=\"fill\" fill=\"#2e1338\"/><path d=\"M150 34 v-16\" class=\"ink\" style=\"stroke-width:6\"/><path d=\"M150 132 v92\" class=\"ink\" style=\"stroke-width:7\"/><path d=\"M150 224 q-22 0 -22 -18\" class=\"ink\" style=\"stroke-width:7\"/><path d=\"M96 176 l-22 -26 M204 176 l22 -26\" class=\"thin\" opacity=\"0.6\"/>"
+    },
+    {
+      "n": 7,
+      "of": "Richard Harris as Dumbledore",
+      "svg": "<path d=\"M150 42 L84 174 h132 Z\" class=\"fill\" fill=\"#4a0d68\"/><path d=\"M66 178 h168 v18 h-168 Z\" class=\"fill\" fill=\"#4a0d68\"/><path d=\"M112 96 l8 18 l18 6 l-18 8 l-8 18 l-8 -18 l-18 -8 l18 -6 Z\" class=\"fill\" fill=\"#f0d878\"/><path d=\"M188 130 l6 12 l12 4 l-12 6 l-6 12 l-6 -12 l-12 -6 l12 -4 Z\" class=\"fill\" fill=\"#f0d878\"/><path d=\"M118 204 q32 44 64 0\" class=\"fill\" fill=\"#e8e4ea\"/><path d=\"M132 204 q18 30 36 0\" class=\"thin\"/>"
+    },
+    {
+      "n": 8,
+      "of": "National Black Dog Day",
+      "svg": "<path d=\"M96 230 v-58 q-26 -12 -26 -44 q0 -38 40 -38 h80 q40 0 40 38 q0 32 -26 44 v58 Z\" class=\"fill\" fill=\"#3a3340\"/><path d=\"M74 104 q-18 -40 6 -52 q22 18 22 46 Z\" class=\"fill\" fill=\"#2e1338\"/><path d=\"M226 104 q18 -40 -6 -52 q-22 18 -22 46 Z\" class=\"fill\" fill=\"#2e1338\"/><circle cx=\"126\" cy=\"126\" r=\"8\" fill=\"#f0e4b8\" stroke=\"none\"/><circle cx=\"174\" cy=\"126\" r=\"8\" fill=\"#f0e4b8\" stroke=\"none\"/><ellipse cx=\"150\" cy=\"156\" rx=\"15\" ry=\"11\" fill=\"#6b4a7a\" stroke=\"none\"/><path d=\"M150 167 v10 M132 186 q18 14 36 0\" class=\"thin\" stroke=\"#f0e4b8\"/><path d=\"M222 206 q34 -6 30 -40\" class=\"ink\" stroke=\"#3a3340\" style=\"stroke-width:12\"/>"
+    },
+    {
+      "n": 9,
+      "of": "Brie Larson",
+      "svg": "<path d=\"M150 44 l22 60 l62 8 l-46 44 l12 62 l-50 -32 l-50 32 l12 -62 l-46 -44 l62 -8 Z\" class=\"fill\" fill=\"#e2574c\"/><path d=\"M150 84 l12 34 l35 5 l-26 25 l7 35 l-28 -18 l-28 18 l7 -35 l-26 -25 l35 -5 Z\" class=\"fill\" fill=\"#f0d878\"/><path d=\"M86 236 h128\" class=\"ink\" style=\"stroke-width:6\"/>"
+    },
+    {
+      "n": 10,
+      "of": "International Music Day",
+      "svg": "<path d=\"M126 194 V72 l86 -20 v122\" class=\"ink\" style=\"stroke-width:8\"/><path d=\"M126 100 l86 -20\" class=\"ink\" style=\"stroke-width:8\"/><ellipse cx=\"106\" cy=\"198\" rx=\"26\" ry=\"20\" class=\"fill\" fill=\"#4a0d68\" transform=\"rotate(-18 106 198)\"/><ellipse cx=\"192\" cy=\"178\" rx=\"26\" ry=\"20\" class=\"fill\" fill=\"#4a0d68\" transform=\"rotate(-18 192 178)\"/>"
+    },
+    {
+      "n": 11,
+      "of": "National Pumpkin Spice Day",
+      "svg": "<ellipse cx=\"150\" cy=\"166\" rx=\"88\" ry=\"70\" class=\"fill\" fill=\"#e8853d\"/><path d=\"M150 96 v140 M108 100 q-14 66 0 132 M192 100 q14 66 0 132\" class=\"thin\" stroke=\"#a8541f\"/><path d=\"M142 96 h16 v-30 h-16 Z\" class=\"fill\" fill=\"#4d7a3a\"/><path d=\"M158 72 q34 -20 46 6\" class=\"ink\" stroke=\"#4d7a3a\" style=\"stroke-width:5\"/>"
+    },
+    {
+      "n": 12,
+      "of": "Jimmy Carter the peanut farmer",
+      "svg": "<path d=\"M150 42 q46 0 46 44 q0 26 -18 40 q18 14 18 40 q0 44 -46 44 q-46 0 -46 -44 q0 -26 18 -40 q-18 -14 -18 -40 q0 -44 46 -44 Z\" class=\"fill\" fill=\"#d8a860\"/><path d=\"M118 78 q32 14 64 0 M118 110 q32 12 64 0 M118 150 q32 14 64 0 M118 182 q32 12 64 0\" class=\"thin\" stroke=\"#8a6224\" opacity=\"0.8\"/><path d=\"M110 240 h80\" class=\"ink\" style=\"stroke-width:6\"/><path d=\"M150 210 v30\" class=\"thin\"/>"
+    }
+  ]
+}

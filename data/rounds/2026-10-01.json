@@ -1,0 +1,237 @@
+{
+  "id": "2026-10-01",
+  "date": "2026-10-01",
+  "title": "The 1st of October",
+  "subject": "One picture, every reason to celebrate",
+  "blurb": "Every one of these is a real thing somebody celebrates on the 1st of October - and some of them are birthdays. They are all in the picture. Name the missing word in each.",
+  "scene": "2026-10-01",
+  "items": [
+    {
+      "n": 1,
+      "template": "International Day of Older ___",
+      "answer": "Persons",
+      "category": "Global & Human Rights",
+      "prefill": [
+        1,
+        5
+      ],
+      "spot": "An older figure with white hair, leaning on a walking stick.",
+      "hint": "Seven letters. The UN's careful word for people, used here to avoid saying the other thing.",
+      "note": "Marked by the UN since 1991.",
+      "box": [
+        12,
+        12,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 2,
+      "template": "International ___ Day",
+      "answer": "Coffee",
+      "category": "Food & Drink",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "Three roasted beans, each with a split down the middle.",
+      "hint": "Six letters. The Americans had theirs two days ago; this is everyone else's.",
+      "note": "Set by the International Coffee Organization in 2015.",
+      "box": [
+        312,
+        12,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 3,
+      "template": "World ___ Day",
+      "answer": "Vegetarian",
+      "category": "Food & Drink",
+      "prefill": [
+        2,
+        7
+      ],
+      "spot": "A large green cabbage or lettuce, with a tomato and an orange beside it.",
+      "hint": "Ten letters. No meat. It opens a whole month of the same.",
+      "note": "Started in 1977 by the North American Vegetarian Society.",
+      "box": [
+        612,
+        12,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 4,
+      "template": "National Day of the People's Republic of ___",
+      "answer": "China",
+      "category": "Around the World",
+      "prefill": [
+        1,
+        3
+      ],
+      "spot": "A red flag with one large gold star and four small ones.",
+      "hint": "Five letters. The republic was proclaimed in Tiananmen Square in 1949, and the holiday runs a whole week.",
+      "note": "Known as Golden Week.",
+      "box": [
+        912,
+        12,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 5,
+      "template": "Independence Day in ___, free from Britain since 1960",
+      "answer": "Nigeria",
+      "category": "Around the World",
+      "prefill": [
+        1,
+        5
+      ],
+      "spot": "A flag in three vertical bands, green, white, green.",
+      "hint": "Seven letters. Africa's most populous country.",
+      "note": "The green is for its farmland, the white for peace.",
+      "box": [
+        12,
+        312,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 6,
+      "template": "Born today in 1935: Julie ___, who came in on an umbrella",
+      "answer": "Andrews",
+      "category": "Birthdays",
+      "prefill": [
+        1,
+        5
+      ],
+      "spot": "An open umbrella with a curved handle.",
+      "hint": "Seven letters. Mary Poppins and Maria von Trapp were both her.",
+      "note": "She won the Oscar for Mary Poppins in her first film role.",
+      "box": [
+        312,
+        312,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 7,
+      "template": "Born today in 1930: Richard ___, the first Dumbledore",
+      "answer": "Harris",
+      "category": "Birthdays",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A tall pointed wizard's hat with stars on it, and a white beard below.",
+      "hint": "Six letters. An Irish actor who played the headmaster in the first two Potter films, and sang MacArthur Park.",
+      "note": "He took the part because his granddaughter threatened never to speak to him again.",
+      "box": [
+        612,
+        312,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 8,
+      "template": "National Black ___ Day",
+      "answer": "Dog",
+      "category": "Animals",
+      "prefill": [
+        1
+      ],
+      "spot": "A black dog with floppy ears and a wagging tail.",
+      "hint": "Three letters. Black ones wait longest in rescue centres, which is what the day is about.",
+      "note": "Sometimes called black dog syndrome.",
+      "box": [
+        912,
+        312,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 9,
+      "template": "Born today in 1989: Brie ___, who played Captain Marvel",
+      "answer": "Larson",
+      "category": "Birthdays",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A large red star with a gold star inside it.",
+      "hint": "Six letters. She won an Oscar for Room before she put the suit on.",
+      "note": null,
+      "box": [
+        12,
+        612,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 10,
+      "template": "International ___ Day",
+      "answer": "Music",
+      "category": "Arts & Culture",
+      "prefill": [
+        1,
+        3
+      ],
+      "spot": "Two joined musical notes.",
+      "hint": "Five letters. Yehudi Menuhin set this one up through the International Music Council.",
+      "note": null,
+      "box": [
+        312,
+        612,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 11,
+      "template": "National ___ Spice Day",
+      "answer": "Pumpkin",
+      "category": "Food & Drink",
+      "prefill": [
+        1,
+        5
+      ],
+      "spot": "A fat orange gourd with a green stalk and a curling vine.",
+      "hint": "Seven letters. The flavour that takes over every coffee shop from about now until Christmas.",
+      "note": "There is famously none of it in the spice mix.",
+      "box": [
+        612,
+        612,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 12,
+      "template": "Born today in 1924: Jimmy ___, peanut farmer and president",
+      "answer": "Carter",
+      "category": "Birthdays",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A single peanut in its shell.",
+      "hint": "Six letters. The 39th US president, who won the Nobel Peace Prize twenty years after leaving office and lived to a hundred.",
+      "note": "He ran the family peanut farm in Plains, Georgia.",
+      "box": [
+        912,
+        612,
+        316,
+        316
+      ]
+    }
+  ]
+}
