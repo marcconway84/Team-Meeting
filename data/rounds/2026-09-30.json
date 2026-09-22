@@ -1,0 +1,237 @@
+{
+  "id": "2026-09-30",
+  "date": "2026-09-30",
+  "title": "The 30th of September",
+  "subject": "One picture, every reason to celebrate",
+  "blurb": "Every one of these is a real thing somebody celebrates on the 30th of September - and some of them are birthdays. They are all in the picture. Name the missing word in each.",
+  "scene": "2026-09-30",
+  "items": [
+    {
+      "n": 1,
+      "template": "International ___ Day",
+      "answer": "Translation",
+      "category": "Language",
+      "prefill": [
+        2,
+        7
+      ],
+      "spot": "A globe with two speech bubbles above it, one white and one yellow.",
+      "hint": "Eleven letters. Turning one language into another, on the feast day of the man who did it to the Bible.",
+      "note": "Declared by the UN in 2017.",
+      "box": [
+        12,
+        12,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 2,
+      "template": "___ Shirt Day, Canada's National Day for Truth and Reconciliation",
+      "answer": "Orange",
+      "category": "Around the World",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A bright orange t-shirt.",
+      "hint": "Six letters, and a colour. A girl's new shirt was taken from her on her first day at residential school.",
+      "note": "For Phyllis Webstad, whose shirt it was.",
+      "box": [
+        312,
+        12,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 3,
+      "template": "National Chewing ___ Day",
+      "answer": "Gum",
+      "category": "Food & Drink",
+      "prefill": [
+        1
+      ],
+      "spot": "Three sticks of gum standing side by side, the middle one unwrapped.",
+      "hint": "Three letters. You are not supposed to swallow it.",
+      "note": null,
+      "box": [
+        612,
+        12,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 4,
+      "template": "Born today in 1861: William ___ Jr, who built an empire on chewing gum",
+      "answer": "Wrigley",
+      "category": "Birthdays",
+      "prefill": [
+        1,
+        5
+      ],
+      "spot": "A baseball, with ivy growing along the bottom of the frame.",
+      "hint": "Seven letters. He started out selling soap and gave gum away as a free gift; the gift outsold the soap. A Chicago ballpark carries his name.",
+      "note": "Sharing the day with National Chewing Gum Day is a coincidence, but a good one.",
+      "box": [
+        912,
+        12,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 5,
+      "template": "Born today in 1924: Truman ___, who wrote Breakfast at Tiffany's",
+      "answer": "Capote",
+      "category": "Birthdays",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A typewriter with a sheet of paper in it.",
+      "hint": "Six letters. His In Cold Blood more or less invented the true crime book.",
+      "note": null,
+      "box": [
+        12,
+        312,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 6,
+      "template": "St ___, patron saint of translators, who is always painted with a lion",
+      "answer": "Jerome",
+      "category": "Tradition",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A lion's face, mane and all.",
+      "hint": "Six letters. He translated the Bible into Latin, and legend says he pulled a thorn from a lion's paw.",
+      "note": "Today is his feast day, which is why the translators have it.",
+      "box": [
+        312,
+        312,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 7,
+      "template": "International ___ Day",
+      "answer": "Podcast",
+      "category": "Arts & Culture",
+      "prefill": [
+        1,
+        5
+      ],
+      "spot": "A studio microphone on a stand, with sound waves either side.",
+      "hint": "Seven letters. Everyone you know has thought about starting one.",
+      "note": null,
+      "box": [
+        612,
+        312,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 8,
+      "template": "Born today in 1832: Ann ___, whose daughter founded Mother's Day in her memory",
+      "answer": "Jarvis",
+      "category": "Birthdays",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A single white carnation.",
+      "hint": "Six letters. Her daughter Anna chose the white carnation as the flower of the day.",
+      "note": "Anna later campaigned against what the day had become.",
+      "box": [
+        912,
+        312,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 9,
+      "template": "Born today in 1957: Fran ___, star of The Nanny",
+      "answer": "Drescher",
+      "category": "Birthdays",
+      "prefill": [
+        2,
+        6
+      ],
+      "spot": "A pram, seen from the side.",
+      "hint": "Eight letters. The voice is the most recognisable thing about her, and she knows it.",
+      "note": "She later led the Screen Actors Guild through its 2023 strike.",
+      "box": [
+        12,
+        612,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 10,
+      "template": "Born today in 1931: Angie ___, who starred in Police Woman",
+      "answer": "Dickinson",
+      "category": "Birthdays",
+      "prefill": [
+        2,
+        6
+      ],
+      "spot": "A police light bar, red and blue, above a windscreen.",
+      "hint": "Nine letters. Her series was the first American cop show built around a woman, and it shares a surname with a famous poet.",
+      "note": "She was also in the original Ocean's Eleven.",
+      "box": [
+        312,
+        612,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 11,
+      "template": "___ Independence Day, marking self-rule since 1966",
+      "answer": "Botswana",
+      "category": "Around the World",
+      "prefill": [
+        1,
+        5
+      ],
+      "spot": "A blue flag with a black stripe edged in white, on a pole.",
+      "hint": "Eight letters. A southern African country whose flag puts water first: blue for rain in a dry land.",
+      "note": "Called Boipuso, meaning self-rule. Diamonds were found at Orapa the following year.",
+      "box": [
+        612,
+        612,
+        316,
+        316
+      ]
+    },
+    {
+      "n": 12,
+      "template": "National Love ___ Day",
+      "answer": "People",
+      "category": "Kindness",
+      "prefill": [
+        1,
+        4
+      ],
+      "spot": "A large red heart with two small figures below it.",
+      "hint": "Six letters. The other ones. All of them.",
+      "note": null,
+      "box": [
+        912,
+        612,
+        316,
+        316
+      ]
+    }
+  ]
+}

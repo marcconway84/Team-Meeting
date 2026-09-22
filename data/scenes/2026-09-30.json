@@ -1,0 +1,66 @@
+{
+  "title": "the 30th of September",
+  "alt": "A cartoon collage of twelve things celebrated on the 30th of September",
+  "drawings": [
+    {
+      "n": 1,
+      "of": "International Translation Day",
+      "svg": "<circle cx=\"150\" cy=\"156\" r=\"78\" class=\"fill\" fill=\"#3a5a8c\"/><path d=\"M72 156 h156 M150 78 q-40 78 0 156 M150 78 q40 78 0 156\" class=\"thin\" stroke=\"#ffffff\"/><path d=\"M52 48 h88 v46 h-58 l-20 20 v-20 h-10 Z\" class=\"fill\" fill=\"#ffffff\"/><path d=\"M160 48 h92 v46 h-10 v20 l-20 -20 h-62 Z\" class=\"fill\" fill=\"#f0d878\"/><path d=\"M78 70 h34 M188 70 h34\" class=\"thin\"/>"
+    },
+    {
+      "n": 2,
+      "of": "Orange Shirt Day",
+      "svg": "<path d=\"M106 74 h88 l44 30 l-24 32 l-20 -14 v122 h-88 V122 l-20 14 l-24 -32 Z\" class=\"fill\" fill=\"#e8853d\"/><path d=\"M106 74 q44 34 88 0\" class=\"thin\"/><path d=\"M118 176 h64 M118 200 h48\" class=\"thin\" opacity=\"0.65\"/>"
+    },
+    {
+      "n": 3,
+      "of": "National Chewing Gum Day",
+      "svg": "<rect x=\"66\" y=\"98\" width=\"52\" height=\"124\" rx=\"7\" class=\"fill\" fill=\"#f0e4b8\"/><rect x=\"124\" y=\"86\" width=\"52\" height=\"136\" rx=\"7\" class=\"fill\" fill=\"#ffffff\"/><rect x=\"182\" y=\"98\" width=\"52\" height=\"124\" rx=\"7\" class=\"fill\" fill=\"#f0e4b8\"/><rect x=\"124\" y=\"118\" width=\"52\" height=\"34\" fill=\"#e2574c\" stroke=\"none\"/><path d=\"M78 122 h28 M194 122 h28\" class=\"thin\" opacity=\"0.7\"/>"
+    },
+    {
+      "n": 4,
+      "of": "William Wrigley Jr",
+      "svg": "<circle cx=\"150\" cy=\"150\" r=\"70\" class=\"fill\" fill=\"#ffffff\"/><path d=\"M104 100 q22 50 0 100 M196 100 q-22 50 0 100\" class=\"ink\" stroke=\"#e2574c\" style=\"stroke-width:5\"/><path d=\"M110 112 l-10 -6 M110 130 l-12 -4 M110 150 l-13 0 M110 170 l-12 4 M110 188 l-10 6\" class=\"thin\" stroke=\"#e2574c\"/><path d=\"M190 112 l10 -6 M190 130 l12 -4 M190 150 l13 0 M190 170 l12 4 M190 188 l10 6\" class=\"thin\" stroke=\"#e2574c\"/><path d=\"M40 232 q40 -22 78 -10 q-6 -26 14 -34\" class=\"ink\" stroke=\"#4d7a3a\" style=\"stroke-width:5\"/><path d=\"M46 220 q10 -14 24 -6 q-6 14 -24 6 Z M78 216 q10 -14 24 -6 q-6 14 -24 6 Z\" class=\"fill\" fill=\"#6d9150\"/>"
+    },
+    {
+      "n": 5,
+      "of": "Truman Capote",
+      "svg": "<path d=\"M58 168 h184 l-14 62 h-156 Z\" class=\"fill\" fill=\"#4a4a55\"/><rect x=\"86\" y=\"96\" width=\"128\" height=\"72\" class=\"fill\" fill=\"#5c5c68\"/><path d=\"M104 62 h92 v40 h-92 Z\" class=\"fill\" fill=\"#ffffff\"/><path d=\"M116 76 h68 M116 88 h52\" class=\"thin\" opacity=\"0.7\"/><path d=\"M82 188 h136\" class=\"ink\" style=\"stroke-width:6\"/><circle cx=\"96\" cy=\"208\" r=\"7\" class=\"fill\" fill=\"#f0e4b8\"/><circle cx=\"124\" cy=\"208\" r=\"7\" class=\"fill\" fill=\"#f0e4b8\"/><circle cx=\"152\" cy=\"208\" r=\"7\" class=\"fill\" fill=\"#f0e4b8\"/><circle cx=\"180\" cy=\"208\" r=\"7\" class=\"fill\" fill=\"#f0e4b8\"/><circle cx=\"208\" cy=\"208\" r=\"7\" class=\"fill\" fill=\"#f0e4b8\"/>"
+    },
+    {
+      "n": 6,
+      "of": "St Jerome and his lion",
+      "svg": "<circle cx=\"150\" cy=\"146\" r=\"58\" class=\"fill\" fill=\"#e8a33d\"/><circle cx=\"150\" cy=\"146\" r=\"82\" class=\"fill\" fill=\"#c98a2e\"/><circle cx=\"150\" cy=\"146\" r=\"58\" class=\"fill\" fill=\"#f0d878\"/><circle cx=\"128\" cy=\"136\" r=\"7\" fill=\"#2e1338\" stroke=\"none\"/><circle cx=\"172\" cy=\"136\" r=\"7\" fill=\"#2e1338\" stroke=\"none\"/><path d=\"M140 160 h20 l-10 12 Z\" class=\"fill\" fill=\"#e2574c\"/><path d=\"M150 172 v12 M120 180 q30 18 60 0\" class=\"thin\"/><path d=\"M112 176 l-26 8 M112 188 l-24 16 M188 176 l26 8 M188 188 l24 16\" class=\"thin\"/>"
+    },
+    {
+      "n": 7,
+      "of": "International Podcast Day",
+      "svg": "<rect x=\"122\" y=\"52\" width=\"56\" height=\"98\" rx=\"28\" class=\"fill\" fill=\"#4a4a55\"/><path d=\"M134 74 h32 M134 92 h32 M134 110 h32\" class=\"thin\" stroke=\"#ffffff\"/><path d=\"M88 128 a62 62 0 0 0 124 0\" class=\"ink\" style=\"stroke-width:7\"/><path d=\"M150 190 v34\" class=\"ink\" style=\"stroke-width:7\"/><path d=\"M112 234 h76\" class=\"ink\" style=\"stroke-width:7\"/><path d=\"M62 96 q-16 34 0 68 M44 80 q-26 50 0 100\" class=\"thin\"/><path d=\"M238 96 q16 34 0 68 M256 80 q26 50 0 100\" class=\"thin\"/>"
+    },
+    {
+      "n": 8,
+      "of": "Ann Jarvis and Mother's Day",
+      "svg": "<path d=\"M150 220 v-84\" class=\"ink\" stroke=\"#4d7a3a\" style=\"stroke-width:7\"/><path d=\"M150 182 q-38 -6 -44 -34 q34 -6 44 34 Z\" class=\"fill\" fill=\"#6d9150\"/><path d=\"M150 166 q38 -6 44 -34 q-34 -6 -44 34 Z\" class=\"fill\" fill=\"#6d9150\"/><circle cx=\"150\" cy=\"104\" r=\"40\" class=\"fill\" fill=\"#ffffff\"/><path d=\"M150 64 q22 18 0 40 q-22 -22 0 -40 Z M190 104 q-18 22 -40 0 q22 -22 40 0 Z M150 144 q-22 -18 0 -40 q22 22 0 40 Z M110 104 q18 -22 40 0 q-22 22 -40 0 Z\" class=\"fill\" fill=\"#f4d3dd\"/><circle cx=\"150\" cy=\"104\" r=\"12\" class=\"fill\" fill=\"#f0d878\"/><path d=\"M118 236 h64\" class=\"ink\" style=\"stroke-width:6\"/>"
+    },
+    {
+      "n": 9,
+      "of": "Fran Drescher, The Nanny",
+      "svg": "<path d=\"M72 176 a78 78 0 0 1 156 0 Z\" class=\"fill\" fill=\"#3a5a8c\"/><path d=\"M72 176 h156\" class=\"ink\" style=\"stroke-width:6\"/><path d=\"M84 176 h132 v22 a12 12 0 0 1 -12 12 h-108 a12 12 0 0 1 -12 -12 Z\" class=\"fill\" fill=\"#c0c6cf\"/><circle cx=\"110\" cy=\"226\" r=\"18\" class=\"fill\" fill=\"#4a4a55\"/><circle cx=\"190\" cy=\"226\" r=\"18\" class=\"fill\" fill=\"#4a4a55\"/><path d=\"M228 152 q34 -16 44 -52\" class=\"ink\" style=\"stroke-width:6\"/><path d=\"M126 116 q24 -22 48 0\" class=\"thin\" stroke=\"#ffffff\"/>"
+    },
+    {
+      "n": 10,
+      "of": "Angie Dickinson, Police Woman",
+      "svg": "<rect x=\"64\" y=\"96\" width=\"172\" height=\"64\" rx=\"10\" class=\"fill\" fill=\"#4a4a55\"/><rect x=\"82\" y=\"112\" width=\"64\" height=\"32\" rx=\"5\" class=\"fill\" fill=\"#e2574c\"/><rect x=\"154\" y=\"112\" width=\"64\" height=\"32\" rx=\"5\" class=\"fill\" fill=\"#3a5a8c\"/><path d=\"M150 160 v22\" class=\"ink\" style=\"stroke-width:8\"/><path d=\"M84 182 h132 v52 h-132 Z\" class=\"fill\" fill=\"#c0c6cf\"/><path d=\"M150 182 v52\" class=\"thin\"/><path d=\"M40 88 q22 -26 44 -8 M260 88 q-22 -26 -44 -8\" class=\"thin\"/>"
+    },
+    {
+      "n": 11,
+      "of": "Botswana Independence Day",
+      "svg": "<path d=\"M58 82 h184 v136 h-184 Z\" class=\"fill\" fill=\"#6da9d2\"/><path d=\"M58 134 h184 v10 h-184 Z\" fill=\"#ffffff\" stroke=\"none\"/><path d=\"M58 144 h184 v12 h-184 Z\" fill=\"#2e1338\" stroke=\"none\"/><path d=\"M58 156 h184 v10 h-184 Z\" fill=\"#ffffff\" stroke=\"none\"/><path d=\"M58 82 h184 v136 h-184 Z\" class=\"ink\" style=\"stroke-width:4\"/><path d=\"M46 82 v160\" class=\"ink\" style=\"stroke-width:7\"/>"
+    },
+    {
+      "n": 12,
+      "of": "National Love People Day",
+      "svg": "<path d=\"M150 214 C96 170 72 144 72 120 C72 98 89 82 110 82 C126 82 140 91 150 105 C160 91 174 82 190 82 C211 82 228 98 228 120 C228 144 204 170 150 214 Z\" class=\"fill\" fill=\"#e2574c\"/><path d=\"M96 232 q22 -24 54 -24 q32 0 54 24\" class=\"ink\" style=\"stroke-width:6\"/><circle cx=\"112\" cy=\"58\" r=\"14\" class=\"fill\" fill=\"#f3e2c8\"/><circle cx=\"188\" cy=\"58\" r=\"14\" class=\"fill\" fill=\"#f3e2c8\"/>"
+    }
+  ]
+}
