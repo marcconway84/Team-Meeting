@@ -82,7 +82,16 @@ bitmap for three reasons: it stays inside the one self-contained HTML file, it s
 sharp at any size, and every vignette is a group the game can reach — which is the
 only reason *show me where* can exist.
 
-Every vignette is numbered, and the number is the number of the blank it answers.
+Every vignette is numbered, the number is the number of the blank it answers, and
+the numbers run in reading order - across the top row, then the next. They did not
+at first: they carried whatever number the item happened to have, so the top row
+read 5, 10, 9, 18, 19, which was worse than not numbering them at all.
+`tests/test_round.py` now re-derives the order from where the drawings actually
+sit and fails if it is not 1, 2, 3.
+
+Each item also carries a `box`, the drawing's bounding box. Opening a row zooms the
+picture to it, which is what makes the round playable on a phone: the whole scene at
+a third of a handset's height leaves a single vignette about a centimetre across.
 It was not, at first: working out which drawing went with which blank was meant to be
 part of the puzzle, and in practice it made the round too hard. The clue that sold
 you the mapping went with the change. `tests/test_round.py` fails the build if an

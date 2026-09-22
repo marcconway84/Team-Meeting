@@ -33,9 +33,8 @@
   <rect x="0" y="640" width="1200" height="180" fill="#f7f4fa"/>
   <path d="M0 640 H1200" class="thin" opacity="0.5"/>
 
-  <!-- ============ 5  British Home Child Day: the ship ============ -->
-  <g class="vig" id="vig-5">
-    <path d="M52 700 h0" />
+  <!-- ============ 1  British Home Child Day: the ship ============ -->
+  <g class="vig" id="vig-1">
     <path d="M40 176 h190 l-22 34 H62 Z" class="fill" fill="#3a5a8c"/>
     <rect x="72" y="140" width="118" height="38" class="fill" fill="#f3eef7"/>
     <rect x="118" y="96" width="26" height="46" class="fill" fill="#e2574c"/>
@@ -63,8 +62,8 @@
     </g>
   </g>
 
-  <!-- ============ 10  Gold Lining Day: the cloud ============ -->
-  <g class="vig" id="vig-10">
+  <!-- ============ 2  Gold Lining Day: the cloud ============ -->
+  <g class="vig" id="vig-2">
     <path d="M320 120 a34 34 0 0 1 60 -22 a30 30 0 0 1 48 10 a28 28 0 0 1 -6 54 H336 a30 30 0 0 1 -16 -42 Z"
           class="fill" fill="#9fb6c9"/>
     <path d="M336 162 h86 a28 28 0 0 0 6 -6" stroke="#f0b429" stroke-width="8" fill="none" stroke-linecap="round"/>
@@ -77,8 +76,8 @@
     </g>
   </g>
 
-  <!-- ============ 9  Gold Star Mother's Day: the window banner ============ -->
-  <g class="vig" id="vig-9">
+  <!-- ============ 3  Gold Star Mother's Day: the window banner ============ -->
+  <g class="vig" id="vig-3">
     <rect x="502" y="86" width="126" height="120" rx="4" class="fill" fill="#f3eef7"/>
     <path d="M565 86 v120 M502 146 h126" class="thin"/>
     <rect x="536" y="106" width="58" height="80" class="fill" fill="#ffffff"/>
@@ -88,8 +87,8 @@
     <path d="M536 106 h58" stroke="#a9714b" stroke-width="5"/>
   </g>
 
-  <!-- ============ 18  Prop Trading Day: the screens ============ -->
-  <g class="vig" id="vig-18">
+  <!-- ============ 4  Prop Trading Day: the screens ============ -->
+  <g class="vig" id="vig-4">
     <rect x="690" y="84" width="170" height="96" rx="5" class="fill" fill="#2e1338"/>
     <path d="M747 84 v96 M804 84 v96 M690 132 h170" stroke="#5b6d8a" stroke-width="2"/>
     <g stroke-linecap="round" stroke-width="4" fill="none">
@@ -111,8 +110,8 @@
     </g>
   </g>
 
-  <!-- ============ 19  National North Carolina Day ============ -->
-  <g class="vig" id="vig-19">
+  <!-- ============ 5  National North Carolina Day ============ -->
+  <g class="vig" id="vig-5">
     <rect x="902" y="80" width="232" height="132" rx="5" class="fill" fill="#f3eef7"/>
     <!-- The state itself: long and thin, pointed in the west, ragged on the coast. -->
     <path d="M922 166 L952 146 L1040 136 L1094 140 L1110 154 L1098 164 L1106 172
@@ -140,8 +139,8 @@
     </g>
   </g>
 
-  <!-- ============ 3  Right to Know Day: town hall + magnifier ============ -->
-  <g class="vig" id="vig-3">
+  <!-- ============ 6  Right to Know Day: town hall + magnifier ============ -->
+  <g class="vig" id="vig-6">
     <path d="M62 320 l82 -44 82 44 Z" class="fill" fill="#e2574c"/>
     <rect x="72" y="320" width="144" height="92" class="fill" fill="#f3eef7"/>
     <path d="M92 332 v68 M120 332 v68 M148 332 v68 M176 332 v68" class="ink" stroke-width="7" stroke="#cbd8e6"/>
@@ -152,8 +151,8 @@
     </g>
   </g>
 
-  <!-- ============ 2  Universal Access to Information ============ -->
-  <g class="vig" id="vig-2">
+  <!-- ============ 7  Universal Access to Information ============ -->
+  <g class="vig" id="vig-7">
     <rect x="278" y="300" width="112" height="116" rx="4" class="fill" fill="#8fa9c4"/>
     <rect x="288" y="312" width="92" height="26" class="fill" fill="#f3eef7"/>
     <rect x="288" y="346" width="92" height="26" class="fill" fill="#f3eef7"/>
@@ -171,8 +170,8 @@
     </g>
   </g>
 
-  <!-- ============ 6  Good Neighbor Day: over the fence ============ -->
-  <g class="vig" id="vig-6">
+  <!-- ============ 8  Good Neighbor Day: over the fence ============ -->
+  <g class="vig" id="vig-8">
     <g fill="#c99a63" stroke="#2e1338" stroke-width="3">
       <rect x="470" y="336" width="18" height="86"/><rect x="496" y="336" width="18" height="86"/>
       <rect x="522" y="336" width="18" height="86"/><rect x="548" y="336" width="18" height="86"/>
@@ -198,8 +197,8 @@
     </g>
   </g>
 
-  <!-- ============ 15  Ask a Stupid Question Day ============ -->
-  <g class="vig" id="vig-15">
+  <!-- ============ 9  Ask a Stupid Question Day ============ -->
+  <g class="vig" id="vig-9">
     <rect x="686" y="272" width="150" height="104" rx="4" class="fill" fill="#2f4a3a"/>
     <text x="761" y="352" text-anchor="middle" font-size="86" font-weight="700" fill="#ffffff">?</text>
     <rect x="686" y="376" width="150" height="8" class="fill" fill="#a9714b"/>
@@ -215,8 +214,8 @@
     </g>
   </g>
 
-  <!-- ============ 16  Fish Tank Floorshow Night ============ -->
-  <g class="vig" id="vig-16">
+  <!-- ============ 10  Fish Tank Floorshow Night ============ -->
+  <g class="vig" id="vig-10">
     <rect x="906" y="266" width="224" height="132" rx="5" class="fill" fill="#bfe4f2"/>
     <rect x="906" y="266" width="224" height="132" rx="5" fill="none" stroke="#2e1338" stroke-width="5"/>
     <rect x="898" y="392" width="240" height="14" rx="4" class="fill" fill="#6b4a2f"/>
@@ -240,8 +239,8 @@
     <circle cx="1078" cy="300" r="4" class="thin"/><circle cx="1086" cy="284" r="3" class="thin"/>
   </g>
 
-  <!-- ============ 1  World Rabies Day: the vet and the dog ============ -->
-  <g class="vig" id="vig-1">
+  <!-- ============ 11  World Rabies Day: the vet and the dog ============ -->
+  <g class="vig" id="vig-11">
     <g>
       <ellipse cx="168" cy="574" rx="46" ry="30" class="fill" fill="#d8a45e"/>
       <circle cx="216" cy="546" r="26" class="fill" fill="#d8a45e"/>
@@ -269,10 +268,10 @@
     </g>
   </g>
 
-  <!-- ============ 4  Freedom From Hunger Day ============ -->
+  <!-- ============ 12  Freedom From Hunger Day ============ -->
   <!-- Arms come in below the loaf and no further left than x=256, which is where
        the dog of vignette 1 ends. They read as one hand passing to another. -->
-  <g class="vig" id="vig-4">
+  <g class="vig" id="vig-12">
     <path d="M282 594 a50 26 0 0 0 100 0 Z" class="fill" fill="#f3eef7"/>
     <path d="M274 594 h116" class="ink" stroke-width="5"/>
     <g>
@@ -291,8 +290,8 @@
     </g>
   </g>
 
-  <!-- ============ 11  Sukkot: the sukkah ============ -->
-  <g class="vig" id="vig-11">
+  <!-- ============ 13  Sukkot: the sukkah ============ -->
+  <g class="vig" id="vig-13">
     <rect x="474" y="486" width="170" height="112" class="fill" fill="#e6d3ad"/>
     <rect x="474" y="486" width="170" height="112" fill="none" stroke="#2e1338" stroke-width="4"/>
     <path d="M462 486 h194" class="ink" stroke-width="5"/>
@@ -317,8 +316,8 @@
     </g>
   </g>
 
-  <!-- ============ 7  National Family Day: the table ============ -->
-  <g class="vig" id="vig-7">
+  <!-- ============ 14  National Family Day: the table ============ -->
+  <g class="vig" id="vig-14">
     <ellipse cx="786" cy="560" rx="106" ry="28" class="fill" fill="#c99a63"/>
     <path d="M700 566 v34 M872 566 v34" class="ink" stroke="#a9714b" stroke-width="7"/>
     <ellipse cx="786" cy="552" rx="40" ry="16" class="fill" fill="#ffffff"/>
@@ -354,8 +353,8 @@
     </g>
   </g>
 
-  <!-- ============ 17  Read a Child a Book You Like Day ============ -->
-  <g class="vig" id="vig-17">
+  <!-- ============ 15  Read a Child a Book You Like Day ============ -->
+  <g class="vig" id="vig-15">
     <path d="M928 600 v-58 a22 22 0 0 1 22 -22 h122 a22 22 0 0 1 22 22 v58 Z" class="fill" fill="#8f6fb0"/>
     <path d="M950 600 v-46 h122 v46" class="fill" fill="#a98ac8"/>
     <path d="M928 556 h-14 v34 h14 M1094 556 h14 v34 h-14" class="fill" fill="#8f6fb0"/>
@@ -378,8 +377,8 @@
     </g>
   </g>
 
-  <!-- ============ 8  National Sons Day ============ -->
-  <g class="vig" id="vig-8">
+  <!-- ============ 16  National Sons Day ============ -->
+  <g class="vig" id="vig-16">
     <g>
       <circle cx="132" cy="690" r="18" class="fill" fill="#efbb96"/>
       <path d="M114 688 a18 18 0 0 1 36 0 q-18 -11 -36 0 Z" class="fill" fill="#6b4a2f"/>
@@ -403,8 +402,8 @@
     <path d="M182 674 q10 6 20 0 M192 666 v24" class="thin"/>
   </g>
 
-  <!-- ============ 12  National Drink Beer Day ============ -->
-  <g class="vig" id="vig-12">
+  <!-- ============ 17  National Drink Beer Day ============ -->
+  <g class="vig" id="vig-17">
     <path d="M406 692 h72 l-8 84 h-56 Z" class="fill" fill="#f5c542"/>
     <path d="M400 686 h84 v14 h-84 Z" class="fill" fill="#fdfdfd"/>
     <path d="M404 686 a14 12 0 0 1 20 -10 a14 12 0 0 1 22 2 a13 11 0 0 1 20 0 a12 10 0 0 1 16 8 Z"
@@ -415,8 +414,8 @@
     <circle cx="434" cy="756" r="3.4" fill="#fdfdfd" opacity="0.8"/>
   </g>
 
-  <!-- ============ 13  International Poke Day ============ -->
-  <g class="vig" id="vig-13">
+  <!-- ============ 18  International Poke Day ============ -->
+  <g class="vig" id="vig-18">
     <path d="M596 714 a62 40 0 0 0 124 0 Z" class="fill" fill="#3a4a63"/>
     <ellipse cx="658" cy="714" rx="62" ry="15" class="fill" fill="#ffffff"/>
     <g>
@@ -431,8 +430,8 @@
     <path d="M666 676 l38 -22 M672 680 l38 -22" class="ink" stroke="#a9714b" stroke-width="4"/>
   </g>
 
-  <!-- ============ 14  National Strawberry Cream Pie Day ============ -->
-  <g class="vig" id="vig-14">
+  <!-- ============ 19  National Strawberry Cream Pie Day ============ -->
+  <g class="vig" id="vig-19">
     <path d="M818 770 h188 l-14 -46 H832 Z" class="fill" fill="#e6c98d"/>
     <ellipse cx="912" cy="724" rx="88" ry="22" class="fill" fill="#f3eef7"/>
     <path d="M824 724 q10 -10 20 0 q10 -10 20 0 q10 -10 20 0 q10 -10 20 0 q10 -10 20 0 q10 -10 20 0 q10 -10 20 0 q10 -10 16 0"
@@ -472,27 +471,30 @@
     </g>
   </g>
 
-  <!-- ==================== the numbers ==================== -->
+  <!-- ==================== the numbers ====================
+       Placed at the top left of each drawing, and running in reading order
+       so the number you see first is 1. They used to carry whatever number
+       the item happened to have, which read 5, 10, 9, 18 across the top. -->
   <g class="badges">
-    <g><circle cx="44" cy="488" r="22" class="badge-bg"/><text x="44" y="496" class="badge-no">1</text></g>
-    <g><circle cx="262" cy="248" r="22" class="badge-bg"/><text x="262" y="256" class="badge-no">2</text></g>
-    <g><circle cx="48" cy="272" r="22" class="badge-bg"/><text x="48" y="280" class="badge-no">3</text></g>
-    <g><circle cx="248" cy="488" r="22" class="badge-bg"/><text x="248" y="496" class="badge-no">4</text></g>
-    <g><circle cx="44" cy="100" r="22" class="badge-bg"/><text x="44" y="108" class="badge-no">5</text></g>
-    <g><circle cx="458" cy="286" r="22" class="badge-bg"/><text x="458" y="294" class="badge-no">6</text></g>
-    <g><circle cx="682" cy="476" r="22" class="badge-bg"/><text x="682" y="484" class="badge-no">7</text></g>
-    <g><circle cx="98" cy="664" r="22" class="badge-bg"/><text x="98" y="672" class="badge-no">8</text></g>
-    <g><circle cx="492" cy="78" r="22" class="badge-bg"/><text x="492" y="86" class="badge-no">9</text></g>
-    <g><circle cx="312" cy="86" r="22" class="badge-bg"/><text x="312" y="94" class="badge-no">10</text></g>
-    <g><circle cx="456" cy="454" r="22" class="badge-bg"/><text x="456" y="462" class="badge-no">11</text></g>
-    <g><circle cx="382" cy="668" r="22" class="badge-bg"/><text x="382" y="676" class="badge-no">12</text></g>
-    <g><circle cx="586" cy="664" r="22" class="badge-bg"/><text x="586" y="672" class="badge-no">13</text></g>
-    <g><circle cx="804" cy="692" r="22" class="badge-bg"/><text x="804" y="700" class="badge-no">14</text></g>
-    <g><circle cx="674" cy="264" r="22" class="badge-bg"/><text x="674" y="272" class="badge-no">15</text></g>
-    <g><circle cx="892" cy="256" r="22" class="badge-bg"/><text x="892" y="264" class="badge-no">16</text></g>
-    <g><circle cx="906" cy="492" r="22" class="badge-bg"/><text x="906" y="500" class="badge-no">17</text></g>
-    <g><circle cx="678" cy="76" r="22" class="badge-bg"/><text x="678" y="84" class="badge-no">18</text></g>
-    <g><circle cx="892" cy="72" r="22" class="badge-bg"/><text x="892" y="80" class="badge-no">19</text></g>
-    <g><circle cx="1002" cy="664" r="22" class="badge-bg"/><text x="1002" y="672" class="badge-no">20</text></g>
+    <g><circle cx="36" cy="66" r="22" class="badge-bg"/><text x="36" y="74" class="badge-no">1</text></g>
+    <g><circle cx="323" cy="90" r="22" class="badge-bg"/><text x="323" y="98" class="badge-no">2</text></g>
+    <g><circle cx="508" cy="90" r="22" class="badge-bg"/><text x="508" y="98" class="badge-no">3</text></g>
+    <g><circle cx="696" cy="88" r="22" class="badge-bg"/><text x="696" y="96" class="badge-no">4</text></g>
+    <g><circle cx="908" cy="82" r="22" class="badge-bg"/><text x="908" y="90" class="badge-no">5</text></g>
+    <g><circle cx="68" cy="280" r="22" class="badge-bg"/><text x="68" y="288" class="badge-no">6</text></g>
+    <g><circle cx="276" cy="244" r="22" class="badge-bg"/><text x="276" y="252" class="badge-no">7</text></g>
+    <g><circle cx="472" cy="290" r="22" class="badge-bg"/><text x="472" y="298" class="badge-no">8</text></g>
+    <g><circle cx="692" cy="276" r="22" class="badge-bg"/><text x="692" y="284" class="badge-no">9</text></g>
+    <g><circle cx="904" cy="270" r="22" class="badge-bg"/><text x="904" y="278" class="badge-no">10</text></g>
+    <g><circle cx="52" cy="499" r="22" class="badge-bg"/><text x="52" y="507" class="badge-no">11</text></g>
+    <g><circle cx="264" cy="496" r="22" class="badge-bg"/><text x="264" y="504" class="badge-no">12</text></g>
+    <g><circle cx="468" cy="466" r="22" class="badge-bg"/><text x="468" y="474" class="badge-no">13</text></g>
+    <g><circle cx="686" cy="480" r="22" class="badge-bg"/><text x="686" y="488" class="badge-no">14</text></g>
+    <g><circle cx="920" cy="493" r="22" class="badge-bg"/><text x="920" y="501" class="badge-no">15</text></g>
+    <g><circle cx="116" cy="670" r="22" class="badge-bg"/><text x="116" y="678" class="badge-no">16</text></g>
+    <g><circle cx="406" cy="676" r="22" class="badge-bg"/><text x="406" y="684" class="badge-no">17</text></g>
+    <g><circle cx="602" cy="658" r="22" class="badge-bg"/><text x="602" y="666" class="badge-no">18</text></g>
+    <g><circle cx="824" cy="696" r="22" class="badge-bg"/><text x="824" y="704" class="badge-no">19</text></g>
+    <g><circle cx="1025" cy="664" r="22" class="badge-bg"/><text x="1025" y="672" class="badge-no">20</text></g>
   </g>
 </svg>

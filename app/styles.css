@@ -668,3 +668,12 @@ h1, h2, h3 { line-height: 1.2; }
   letter-spacing: 0.06em;
 }
 .textlink.forget:hover { color: var(--crimson); border-bottom-color: var(--crimson); }
+
+/* A zoomed picture gets more of the screen, because one drawing filling a third
+   of a phone is the whole point of zooming to it. */
+.picture-frame svg { transition: none; }
+.picture.zoomed .picture-frame { border-color: var(--crimson); }
+.picture.zoomed .picture-frame svg { max-height: 40vh; }
+.picturebar { flex-wrap: wrap; }
+#showall-btn { display: none; }
+.picture.zoomed #showall-btn { display: inline-block; border-color: var(--crimson); color: var(--crimson); }

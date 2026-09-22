@@ -122,6 +122,12 @@ def check_round(round_data: dict) -> dict:
         if f'class="badge-no">{item["n"]}<' not in drawing:
             raise BadPack(at + f"the picture does not number this one {item['n']}")
 
+        box = item.get("box")
+        if not (isinstance(box, list) and len(box) == 4 and all(isinstance(v, int) for v in box)):
+            raise BadPack(at + "no box for the picture to zoom to")
+        if box[2] <= 0 or box[3] <= 0:
+            raise BadPack(at + f"the box is {box[2]}x{box[3]}")
+
         prefill = item.get("prefill") or []
         if not prefill:
             raise BadPack(at + "no letters are filled in to start with")

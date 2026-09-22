@@ -61,7 +61,8 @@ def _round(**overrides) -> dict:
         # these tests are actually about get a look in.
         "items": [
             {"n": n, "template": "World ___ Day", "answer": answer,
-             "category": "Global & Human Rights", "spot": "A drawing.", "prefill": [2]}
+             "category": "Global & Human Rights", "spot": "A drawing.", "prefill": [2],
+             "box": [0, 0, 100, 100]}
             for n, answer in [(1, "Rabies"), (4, "Hunger"), (6, "Neighbor"),
                               (7, "Family"), (11, "Sukkot"), (12, "Beer")]
         ],
@@ -188,6 +189,42 @@ class TestABadRoundFailsTheBuild:
         bad["items"][0]["prefill"] = [0, 1, 2, 3, 4, 5]
         with pytest.raises(build.BadPack, match="every letter is filled in"):
             build.check_round(bad)
+
+
+class TestTheNumbersFollowTheEye:
+    """The number on a drawing has to be the number of the blank it answers, and
+    the drawings have to count up the way you read them. They did not, once: the
+    top row read 5, 10, 9, 18, 19, which was worse than not numbering them."""
+
+    def test_the_numbers_run_from_one_with_no_gaps(self, round_data):
+        numbers = sorted(item["n"] for item in round_data["items"])
+        assert numbers == list(range(1, len(numbers) + 1))
+
+    def test_they_count_up_left_to_right_and_down_the_picture(self, round_data):
+        # Band by vertical position, then read across. Same rule the numbers were
+        # assigned by, checked against where the drawings actually are.
+        placed = sorted(round_data["items"], key=lambda i: i["box"][1] + i["box"][3] / 2)
+        bands, band = [], []
+        for item in placed:
+            centre = item["box"][1] + item["box"][3] / 2
+            if band and centre - (band[0]["box"][1] + band[0]["box"][3] / 2) > 90:
+                bands.append(band)
+                band = []
+            band.append(item)
+        bands.append(band)
+
+        expected = []
+        for band in bands:
+            expected.extend(i["n"] for i in sorted(band, key=lambda i: i["box"][0]))
+        assert expected == list(range(1, len(expected) + 1)), (
+            f"reading the picture gives {expected}")
+
+    def test_every_drawing_has_somewhere_to_zoom_to(self, round_data):
+        for item in round_data["items"]:
+            box = item["box"]
+            assert len(box) == 4 and box[2] > 0 and box[3] > 0, item["answer"]
+            # A box the size of the whole canvas is not a zoom.
+            assert box[2] < 1000 and box[3] < 700, f"{item['answer']}: {box} is the whole picture"
 
 
 class TestThePicture:

@@ -206,8 +206,32 @@
 
   /* ========================================================== the picture === */
 
+  var fullViewBox = null;
+
   function paintPicture() {
     $("picture-frame").innerHTML = SCENE;
+    var svg = $("picture-frame").querySelector("svg");
+    if (svg) fullViewBox = svg.getAttribute("viewBox");
+  }
+
+  /**
+   * Zoom the picture to one drawing, or back out to all of them.
+   *
+   * On a phone the whole scene is about a third of the screen, which makes a
+   * single vignette perhaps a centimetre across - too small to read, and the
+   * reason the round was hard to play on a handset. Opening a row now fills that
+   * space with the one drawing it is about.
+   */
+  function zoomTo(item) {
+    var svg = $("picture-frame").querySelector("svg");
+    if (!svg || !fullViewBox) return;
+    if (!item || !item.box) {
+      svg.setAttribute("viewBox", fullViewBox);
+      $("picture").classList.remove("zoomed");
+      return;
+    }
+    svg.setAttribute("viewBox", item.box.join(" "));
+    $("picture").classList.add("zoomed");
   }
 
   /** Move to another day's round, carrying nothing from the last one. */
@@ -451,11 +475,10 @@
     save();
     if (previous !== null && previous !== index) refreshItem(previous);
     refreshItem(index);
+    zoomTo(state.open === index ? ROUND.items[index] : null);
+    measureMasthead();
     if (state.open === index) {
-      var row = $("item-" + index);
-      // Opening a row near the bottom would otherwise put the input and its clue
-      // sheet below the fold, which is the scrolling this layout exists to avoid.
-      if (row) row.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      scrollRowIntoView(index);
       var input = document.querySelector("#item-" + index + " input");
       if (input) input.focus({ preventScroll: true });
     }
@@ -467,6 +490,24 @@
    * It used to sit above the list, which on a phone meant the answer to "was
    * that right?" was off the top of the screen by the time you had typed it.
    */
+  /**
+   * Put a row just below whatever is pinned above it.
+   *
+   * Worked out here rather than left to scroll-margin-top, because the pinned
+   * height changes the moment the picture zooms and a CSS variable measured a
+   * frame earlier put the row behind the picture instead of under it.
+   */
+  function scrollRowIntoView(index) {
+    var row = $("item-" + index);
+    if (!row) return;
+    var bar = document.querySelector(".masthead");
+    var picture = $("picture");
+    var pinned = (bar ? bar.getBoundingClientRect().height : 0)
+      + (picture && picture.offsetHeight ? picture.getBoundingClientRect().height : 0);
+    var top = row.getBoundingClientRect().top + window.scrollY - pinned - 8;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }
+
   function say(index, text, kind) {
     var host = document.querySelector("#item-" + index + " .verdict");
     if (!host) return;
@@ -484,6 +525,7 @@
       entry.status = "found";
       entry.typed = "";
       state.open = null;
+      zoomTo(null);
       save();
       refreshItem(index);
       pushProgress(true);
@@ -1123,8 +1165,16 @@
   function measureMasthead() {
     var bar = document.querySelector(".masthead");
     if (!bar) return;
-    document.documentElement.style.setProperty(
-      "--mast", Math.round(bar.getBoundingClientRect().height) + "px");
+    var mast = Math.round(bar.getBoundingClientRect().height);
+    document.documentElement.style.setProperty("--mast", mast + "px");
+
+    // How much of the top of the screen is pinned in total. A row scrolled to
+    // without allowing for it lands underneath the picture, which hides the very
+    // blanks you are filling in.
+    var picture = $("picture");
+    var stuck = mast;
+    if (picture && !picture.hidden && picture.offsetHeight) stuck += picture.offsetHeight;
+    document.documentElement.style.setProperty("--stick", stuck + "px");
   }
 
   function wire() {
@@ -1187,8 +1237,12 @@
     $("player-name").addEventListener("change", function () {
       remember(STORE_NAME, $("player-name").value.trim());
     });
+    $("showall-btn").addEventListener("click", function () { zoomTo(null); });
     $("zoom-btn").addEventListener("click", function () {
       $("lightbox-inner").innerHTML = SCENE;
+      var inline = $("picture-frame").querySelector("svg");
+      var big = $("lightbox-inner").querySelector("svg");
+      if (inline && big) big.setAttribute("viewBox", inline.getAttribute("viewBox"));
       $("lightbox").hidden = false;
     });
     $("lightbox-close").addEventListener("click", function () {
