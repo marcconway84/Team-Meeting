@@ -723,7 +723,8 @@
       ? "Everyone in the room should have joined before you press this."
       : server.phase === "running"
         ? "Running. It stops for everybody at the same moment."
-        : "That game is over. Start a new one to play again.";
+        : "That game is over. The room opens itself again a few minutes after "
+          + "the results, or start a new one now.";
     $("start-btn").disabled = server.phase !== "lobby";
   }
 

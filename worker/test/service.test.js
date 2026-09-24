@@ -8,7 +8,7 @@
 //     npm run test:service
 
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { rmSync } from "node:fs";
 import { after, before, describe, test } from "node:test";
 
@@ -46,6 +46,23 @@ async function get(path) {
 
 const ROUND = "2026-09-28";
 
+/**
+ * Wind the current game's clock back so it has already finished.
+ *
+ * Better than shortening the round in the service just for the tests: the code
+ * under test stays the code that runs in front of people, and what is faked is
+ * only the passage of time.
+ */
+function endGameInThePast(msAgo) {
+  const ends = Date.now() - msAgo;
+  execFileSync(
+    `${ROOT}node_modules/.bin/wrangler`,
+    ["d1", "execute", "quickfire-scores", "--local", "--command",
+     `UPDATE game SET started_at = ${ends - 1000}, ends_at = ${ends} WHERE id = 1`],
+    { cwd: ROOT, stdio: "ignore" }
+  );
+}
+
 const openGame = () => post("/host/open", { key: HOST_KEY, round: ROUND });
 const startGame = () => post("/host/start", { key: HOST_KEY });
 const join = (player, name) => post("/join", { player, name });
@@ -65,7 +82,7 @@ describe("the live game", { concurrency: false }, () => {
     worker = spawn(
       `${ROOT}node_modules/.bin/wrangler`,
       ["dev", "--local", "--port", String(PORT), "--ip", "127.0.0.1",
-       "--var", `HOST_KEY:${HOST_KEY}`],
+       "--var", `HOST_KEY:${HOST_KEY}`, "--var", "RESULTS_MS:60000"],
       { cwd: ROOT, stdio: "ignore", env: { ...process.env, CI: "1" } }
     );
     if (!(await waitForHealth())) {
@@ -290,6 +307,45 @@ describe("the live game", { concurrency: false }, () => {
   test("clearing is host-only", async () => {
     const { status } = await post("/host/clear", { key: "not-the-key", round: "2026-09-28" });
     assert.equal(status, 403);
+  });
+
+  test("a finished game opens itself again instead of bricking the room", async () => {
+    // "Over" used to be permanent: the clock ran out, /join refused everybody,
+    // and only somebody with the password could bring the room back. Nobody in
+    // the meeting could fix it, which is the worst possible state for this.
+    await openGame();
+    await join("reopen-a", "Ada");
+    await startGame();
+    assert.equal((await get("/game")).body.phase, "running");
+
+    // The clock ran out long enough ago that the results window has passed too.
+    endGameInThePast(120000);
+    const after = await get("/game");
+    assert.equal(after.body.phase, "lobby", "the room should have opened itself");
+
+    // And it is genuinely usable again, not just reporting a lobby.
+    const joined = await join("reopen-b", "Bea");
+    assert.equal(joined.status, 200);
+  });
+
+  test("reopening the room gives nobody a second go at the day", async () => {
+    // The room reopening must not reopen anybody's score. The session rows are
+    // the record of who has played, and they are not what expired.
+    const round = "2026-09-28";
+    await post("/host/clear", { key: HOST_KEY, round });
+    await openGame();
+    await post("/solo/start", { player: "twice", name: "Cass", round });
+    await post("/progress", { player: "twice", round, found: 5, clues: [] });
+    const scored = (await get(`/board?round=${round}`)).body.top[0].score;
+
+    await startGame();
+    endGameInThePast(120000);
+    assert.equal((await get("/game")).body.phase, "lobby");
+
+    const again = await post("/solo/start", { player: "twice", name: "Cass", round });
+    assert.equal(again.body.played, true, "a day already played is still played");
+    assert.equal((await get(`/board?round=${round}`)).body.top[0].score, scored,
+      "the score on the board must not have moved");
   });
 
   test("the board is readable from the page, wherever it is served from", async () => {

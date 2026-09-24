@@ -21,6 +21,24 @@
 import { BadScore, RULES, roundSize, scoreFrom } from "./scoring.js";
 
 const MAX_NAME = 24;
+
+// How long a finished game's results stay up before the room opens itself again.
+//
+// "Over" used to be permanent: once the clock ran out, /join refused everybody
+// and the only way back was a host with the password. That is a room nobody can
+// use and nobody present can fix - a bad state for a game whose whole point is
+// that somebody presses go in front of a meeting.
+//
+// Reopening returns the *room* to a lobby. It does not touch a single score:
+// the session rows stay exactly where they are, so a day already played is
+// still refused a second go, and rejoining keeps the clock and score you had.
+const RESULTS_MS = 5 * 60 * 1000;
+
+/** Overridable so the tests do not have to wait five real minutes. */
+function resultsMs(env) {
+  const override = Number(env.RESULTS_MS);
+  return Number.isFinite(override) && override >= 0 ? override : RESULTS_MS;
+}
 const REQUESTS_PER_HOUR = 4000;
 const SWEEP_MS = 6 * 60 * 60 * 1000;
 
@@ -81,7 +99,7 @@ class BadRequest extends Error {
 
 async function currentGame(env) {
   const row = await env.DB.prepare("SELECT * FROM game WHERE id = 1").first();
-  if (row) return row;
+  if (row) return reopenIfStale(env, row);
   // A service that has never been opened still has to answer sensibly, so the
   // first caller creates the lobby rather than getting an error.
   await env.DB.prepare(
@@ -90,6 +108,23 @@ async function currentGame(env) {
     .bind(defaultRound(), Date.now())
     .run();
   return env.DB.prepare("SELECT * FROM game WHERE id = 1").first();
+}
+
+/**
+ * A game whose results have been up long enough goes back to being a lobby.
+ *
+ * Done here because every route loads the game through currentGame(), so there
+ * is no path that can see a stale "over" and act on it.
+ */
+async function reopenIfStale(env, game) {
+  if (!game.started_at || !game.ends_at) return game;
+  if (Date.now() < game.ends_at + resultsMs(env)) return game;
+  await env.DB.prepare(
+    "UPDATE game SET started_at = NULL, ends_at = NULL, opened_at = ? WHERE id = 1"
+  )
+    .bind(Date.now())
+    .run();
+  return { ...game, started_at: null, ends_at: null };
 }
 
 /** Whichever round the server knows about, latest first. */
