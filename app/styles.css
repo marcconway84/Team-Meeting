@@ -675,6 +675,7 @@ h1, h2, h3 { line-height: 1.2; }
   text-align: center;
 }
 .practicebar strong { font-weight: 700; }
+.textlink.on { color: var(--crimson); border-bottom-color: var(--crimson); }
 .practicebar .textlink { color: #fff; border-bottom-color: rgba(255, 255, 255, 0.5); }
 .practicebar .textlink:hover { border-bottom-color: #fff; }
 

@@ -25,6 +25,7 @@
       <div class="gauge"><span class="gauge-label">Time</span><strong id="clock">0:00</strong></div>
     </div>
     <nav>
+      <button type="button" class="textlink" id="practice-link">Practice</button>
       <button type="button" class="textlink" id="host-link">Host</button>
       <button type="button" class="textlink" id="rules-link">How to play</button>
       <button type="button" class="textlink" id="quit-link" hidden>Finish</button>
@@ -108,13 +109,13 @@
              somebody another go is to take their row away. A name frees that
              person; blank tears up the whole day. -->
         <div class="hostclear">
-          <label for="clear-name">Let someone play today again</label>
+          <label for="clear-name">Clear the leaderboard</label>
           <div class="hostunlock-row">
             <input id="clear-name" type="text" autocomplete="off" spellcheck="false"
-                   placeholder="Their name, or blank for everyone" />
+                   placeholder="One name, or blank for everyone" />
             <button type="button" class="ghost" id="clear-btn">Clear</button>
           </div>
-          <p class="hostnote" id="clear-note">Wipes today's score so it can be played from scratch.</p>
+          <p class="hostnote" id="clear-note">Wipes today's scores so the day can be played again from scratch. Leave the box empty to clear everybody.</p>
         </div>
 
         <button type="button" class="textlink forget" id="forget-btn">Forget this password</button>

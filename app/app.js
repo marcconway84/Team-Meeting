@@ -1274,6 +1274,20 @@
   }
 
   function wire() {
+    // Turning it on is a page load, not a flag flipped in place: the round list,
+    // the lobby and the server connection are all decided at boot, so the only
+    // honest way in is to start again with the flag set.
+    $("practice-link").addEventListener("click", function () {
+      if (PRACTICE) {
+        $("practice-bar").scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+      var leaving = state
+        ? window.confirm("Switch to practice? This round will be left as it is.")
+        : true;
+      if (!leaving) return;
+      window.location.search = "?practice=1";
+    });
     $("practice-off").addEventListener("click", function () {
       try { window.sessionStorage.removeItem("redletter.practice"); } catch (err) { /* nothing to clear */ }
       // Drop the flag from the address bar too, or a reload turns it back on.
@@ -1401,7 +1415,11 @@
 
   function boot() {
     wire();
-    if (PRACTICE) $("practice-bar").hidden = false;
+    if (PRACTICE) {
+      $("practice-bar").hidden = false;
+      $("practice-link").textContent = "Practising";
+      $("practice-link").classList.add("on");
+    }
     setUpInstall();
     renderBriefing();
     measureMasthead();
