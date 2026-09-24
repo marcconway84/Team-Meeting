@@ -661,6 +661,23 @@ h1, h2, h3 { line-height: 1.2; }
 }
 .install .textlink { margin-top: 0.6rem; font-size: 0.75rem; }
 
+/* ------------------------------------------------------------ practice bar */
+.practicebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.9rem;
+  padding: 0.5rem 1rem;
+  background: var(--crimson);
+  color: #fff;
+  font: 400 0.82rem/1.4 var(--body);
+  text-align: center;
+}
+.practicebar strong { font-weight: 700; }
+.practicebar .textlink { color: #fff; border-bottom-color: rgba(255, 255, 255, 0.5); }
+.practicebar .textlink:hover { border-bottom-color: #fff; }
+
 /* -------------------------------------------------------- host unlocking */
 .hostunlock label {
   display: block;

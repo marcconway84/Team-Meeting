@@ -71,6 +71,30 @@
   var STORE_HOST = "redletter.host";
   var STORE_INSTALL = "redletter.install";
 
+  /*
+   * Practice mode: play it as many times as you like, and none of it counts.
+   *
+   * One go per person per day is the rule, which makes testing the thing very
+   * nearly impossible - the alternative was clearing your own score between
+   * every attempt. So ?practice=1 plays the round with the server left out of
+   * it entirely. Nothing is started, nothing is reported, nothing reaches the
+   * board, which is also why it needs no permission: a mode that cannot write
+   * anything cannot be abused into a better score.
+   *
+   * It lives in sessionStorage so a reload keeps it and closing the tab ends
+   * it, and it says so across the top the whole time, because a practice score
+   * that quietly never appeared on the board would look like a bug.
+   */
+  var PRACTICE = (function () {
+    var asked = /[?&]practice=1\b/.test(window.location.search);
+    try {
+      if (asked) window.sessionStorage.setItem("redletter.practice", "1");
+      return asked || window.sessionStorage.getItem("redletter.practice") === "1";
+    } catch (err) {
+      return asked;
+    }
+  }());
+
   // The key can arrive in the address bar or be typed in. Whichever it is, it is
   // only believed once the server has agreed to it.
   var HOST_KEY = "";
@@ -632,6 +656,10 @@
   var poller = null;
 
   function api(path, body) {
+    // Practice touches nothing. Guarding here rather than at each call site is
+    // deliberate: there are ten of them, and the first go at this guarded the
+    // wrong function and let the round be recorded anyway.
+    if (PRACTICE) return Promise.reject(new Error("practice mode: nothing is sent"));
     if (!LEADERBOARD) return Promise.reject(new Error("no server"));
     var url = LEADERBOARD.url + path;
     var options = body
@@ -744,6 +772,12 @@
     }
     remember(STORE_NAME, name);
 
+    if (PRACTICE) {
+      // No /solo/start, so no row, so no "you have already played this".
+      beginSolo();
+      return;
+    }
+
     if (!LEADERBOARD) {
       // No server means no shared clock, so there is no game to join. Say so
       // rather than quietly starting a solo round nobody else is in.
@@ -769,7 +803,11 @@
   function renderRoundPicker() {
     var list = $("round-list");
     if (!list) return;
-    var playable = playableRounds();
+    // In practice, every day is open - including days that have not happened,
+    // which is the only way to check a round before the morning it goes live.
+    var playable = PRACTICE
+      ? ROUNDS.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; })
+      : playableRounds();
     $("past-rounds").hidden = playable.length < 2;
     list.innerHTML = "";
     playable.forEach(function (round) {
@@ -818,6 +856,13 @@
 
     if (!LEADERBOARD) {
       offline("No game server is configured, so there is no table to join. Playing on your own.");
+      beginSolo();
+      return;
+    }
+
+    if (PRACTICE) {
+      // Nothing is started server-side, so there is no row, so there is no
+      // "you have already played this" however many times you go round.
       beginSolo();
       return;
     }
@@ -897,7 +942,7 @@
 
   function startPolling(everyMs) {
     stopPolling();
-    if (!LEADERBOARD) return;
+    if (PRACTICE || !LEADERBOARD) return;
     poller = window.setInterval(pollOnce, everyMs);
     pollOnce();
   }
@@ -932,6 +977,7 @@
    * because a browser that dies at minute four should still have its score.
    */
   function pushProgress(announce) {
+    if (PRACTICE) return;
     if (!LEADERBOARD || !server.reachable || !state) return;
     var scores = tally();
     api("/progress", {
@@ -1228,6 +1274,11 @@
   }
 
   function wire() {
+    $("practice-off").addEventListener("click", function () {
+      try { window.sessionStorage.removeItem("redletter.practice"); } catch (err) { /* nothing to clear */ }
+      // Drop the flag from the address bar too, or a reload turns it back on.
+      window.location.replace(window.location.pathname);
+    });
     $("install-btn").addEventListener("click", function () {
       if (!installEvent) return;
       installEvent.prompt();
@@ -1350,6 +1401,7 @@
 
   function boot() {
     wire();
+    if (PRACTICE) $("practice-bar").hidden = false;
     setUpInstall();
     renderBriefing();
     measureMasthead();

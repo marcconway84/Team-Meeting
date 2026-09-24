@@ -7,6 +7,13 @@
 -->
 <main id="app">
 
+  <!-- Shown the whole time in practice mode. A practice score that quietly
+       never reached the board would otherwise look like a broken game. -->
+  <div class="practicebar" id="practice-bar" hidden>
+    <span><strong>Practice.</strong> Play it as often as you like &mdash; nothing is scored or saved.</span>
+    <button type="button" class="textlink" id="practice-off">Back to the real game</button>
+  </div>
+
   <header class="masthead">
     <button type="button" class="wordmark" id="home-link" title="Back to the start">
       Red<span>Letter</span>

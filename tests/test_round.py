@@ -456,3 +456,47 @@ class TestTheDrawingIsWhereYouNeedIt:
         # is the problem this solves rather than a solution to it.
         for item in round_data["items"]:
             assert item["box"][2] * item["box"][3] < 1200 * 820 * 0.2, item["answer"]
+
+
+class TestPracticeModeSendsNothing:
+    """Practice mode is only safe while it cannot reach the server.
+
+    It lets anybody replay a day as often as they like, which is fine precisely
+    because nothing it does is recorded. The guard sits inside api(), the single
+    function every request goes through - an earlier attempt guarded call sites
+    instead, put the guard in the wrong function, and let the round be recorded
+    anyway. These tests fail if that centralisation is ever undone.
+    """
+
+    @staticmethod
+    def _app() -> str:
+        return (REPO_ROOT / "app" / "app.js").read_text(encoding="utf-8")
+
+    def test_the_guard_is_inside_api(self):
+        app = self._app()
+        start = app.index("function api(")
+        body = app[start:start + 600]
+        assert "PRACTICE" in body, (
+            "api() no longer refuses in practice mode; a replayed round could "
+            "reach the leaderboard"
+        )
+
+    def test_nothing_else_is_the_only_guard(self):
+        # Every request goes through api(), so there should be no fetch of the
+        # leaderboard that sidesteps it.
+        app = self._app()
+        outside = [
+            line for line in app.splitlines()
+            if "fetch(" in line and "function api" not in line
+        ]
+        for line in outside:
+            assert "LEADERBOARD.url" not in line, f"a request bypasses api(): {line.strip()}"
+
+    def test_practice_is_not_on_by_default(self):
+        app = self._app()
+        assert 'practice=1' in app, "the flag that turns it on has gone"
+        # It must be opted into, never the default state of the page.
+        assert "var PRACTICE = (function ()" in app
+        assert 'sessionStorage' in app, (
+            "practice should live in sessionStorage so closing the tab ends it"
+        )
