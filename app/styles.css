@@ -263,13 +263,25 @@ h1, h2, h3 { line-height: 1.2; }
   #app { max-width: 78rem; }
   .round {
     display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
-    gap: 1.6rem;
+    grid-template-columns: minmax(0, 1.4fr) minmax(21rem, 0.7fr);
+    gap: 1.4rem;
     align-items: start;
   }
   .picture { top: calc(var(--mast, 4.2rem) + 0.6rem); margin-top: 1rem; }
-  .picture-frame svg { max-height: calc(100vh - 8rem); }
+  /* Fill the height that is there. The cap used to be the only limit and the
+     picture was sized by its column, which on a big monitor left it using a
+     third of the width and most of the screen empty below it. */
+  .picture-frame svg { max-height: calc(100vh - 7rem); }
   .listpane { padding-top: 1rem; }
+}
+
+/* On a real desktop monitor the 78rem column was the whole problem: the page
+   sat in the middle of the screen and the picture, sized by that column, came
+   out small with a field of white under it. The round is the one screen worth
+   giving the whole width to - the lobby and the results still read better
+   narrow, so they keep the old measure. */
+@media (min-width: 90rem) {
+  #app:has(.round:not([hidden])) { max-width: 112rem; }
 }
 
 .lightbox {
