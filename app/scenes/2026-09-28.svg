@@ -79,13 +79,31 @@
 
   <!-- ============ 3  Gold Star Mother's Day: the window banner ============ -->
   <g class="vig" id="vig-3">
-    <rect x="502" y="86" width="126" height="120" rx="4" class="fill" fill="#f3eef7"/>
-    <path d="M565 86 v120 M502 146 h126" class="thin"/>
-    <rect x="536" y="106" width="58" height="80" class="fill" fill="#ffffff"/>
-    <rect x="536" y="106" width="58" height="80" fill="none" stroke="#e2574c" stroke-width="7"/>
-    <path d="M565 122 l7 14 15 2 -11 11 3 15 -14 -8 -14 8 3 -15 -11 -11 15 -2 Z"
+    <!-- The banner alone said "gold star" and nothing said whose. A woman
+         stands at the window with a hand to the glass, which is the half of
+         the answer the drawing was missing. -->
+    <rect x="548" y="78" width="104" height="118" rx="4" class="fill" fill="#f3eef7"/>
+    <path d="M600 78 v118 M548 137 h104" class="thin"/>
+    <rect x="574" y="94" width="52" height="72" class="fill" fill="#ffffff"/>
+    <rect x="574" y="94" width="52" height="72" fill="none" stroke="#e2574c" stroke-width="7"/>
+    <path d="M600 110 l7 14 15 2 -11 11 3 15 -14 -8 -14 8 3 -15 -11 -11 15 -2 Z"
           fill="#f0b429" stroke="#2e1338" stroke-width="2"/>
-    <path d="M536 106 h58" stroke="#a9714b" stroke-width="5"/>
+    <path d="M574 94 h52" stroke="#a9714b" stroke-width="5"/>
+
+    <!-- The mother. Grey hair and a bun, because this is a day for women who
+         have been carrying it a long time. -->
+    <g>
+      <circle cx="502" cy="136" r="19" class="fill" fill="#efbb96"/>
+      <path d="M483 134 a19 19 0 0 1 38 0 q-19 -12 -38 0 Z" class="fill" fill="#b9b9c4"/>
+      <circle cx="502" cy="112" r="9" class="fill" fill="#b9b9c4"/>
+      <circle cx="495" cy="136" r="2.2" fill="#2e1338"/>
+      <circle cx="509" cy="136" r="2.2" fill="#2e1338"/>
+      <path d="M495 145 q7 4 14 0" class="thin"/>
+      <path d="M485 160 h34 l11 46 h-56 Z" class="fill" fill="#3a5a8c"/>
+      <path d="M519 166 q20 -6 28 -16" class="ink" style="stroke-width:7" fill="none"/>
+      <path d="M486 166 l-9 34" class="ink" style="stroke-width:7" fill="none"/>
+      <path d="M492 206 v10 M514 206 v10" class="ink" style="stroke-width:6"/>
+    </g>
   </g>
 
   <!-- ============ 4  Prop Trading Day: the screens ============ -->
