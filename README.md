@@ -3,7 +3,7 @@
 *A red-letter day is one worth marking. Every answer in this game is one - and the
 letters filled in for you are red.*
 
-A competitive ice breaker for a team meeting. One cartoon, nineteen things people
+A competitive ice breaker for a team meeting. One cartoon, all the things people
 actually celebrate on the 28th of September, and a clue sheet you pay for out of
 your own score.
 
@@ -48,7 +48,7 @@ anywhere static. Pushing to `main` publishes it to GitHub Pages.
 
 ## How the round works
 
-- **One picture, nineteen answers.** Every one is drawn somewhere in the cartoon.
+- **One picture, every answer in it.** Every one is drawn somewhere in the cartoon.
   You name the **missing word**, not the whole day: `World ___ Day` → `Rabies`.
 - **The blanks start partly filled.** A couple of interior letters each — never the
   first, which would make two of the clues worthless.
@@ -61,7 +61,7 @@ anywhere static. Pushing to `main` publishes it to GitHub Pages.
   you like, and stops being offered once nothing is left hidden.
 - **Giving up on one is free.** Revealing an answer costs nothing, but that one
   scores nothing — and it ends any hope of the bonuses.
-- **The bonuses need a clean sheet.** All nineteen earns 400, and doing it without
+- **The bonuses need a clean sheet.** Every one of them earns 400, and doing it without
   buying a single clue is another 400. In five minutes, good luck.
 - **Interruptions are survivable.** Progress is saved as you go and posted to the
   server on every answer, so a closed tab or a dead battery keeps its score.
@@ -147,7 +147,7 @@ player. It owns three things worth owning:
   get a three minute shorter game.
 - **The arithmetic.** A client says how many it has found and which clues it bought;
   the score is worked out on the server. Posting a made-up total changes nothing,
-  and a score that could not have happened — twenty found out of nineteen, a clue
+  and a score that could not have happened — more found than the round holds, a clue
   the game does not sell — is refused outright.
 - **The start button.** Guarded by a host key. Without it you get a 403.
 

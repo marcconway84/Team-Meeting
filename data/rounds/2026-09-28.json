@@ -69,27 +69,6 @@
     },
     {
       "n": 4,
-      "template": "National ___ Trading Day",
-      "answer": "Prop",
-      "accept": [
-        "proprietary"
-      ],
-      "category": "Quirky & Educational",
-      "prefill": [
-        1
-      ],
-      "spot": "The desk of six screens covered in red and green candlesticks, top right.",
-      "hint": "Four letters, short for a longer word. Trading the firm's own money rather than a client's.",
-      "note": "Short for proprietary trading.",
-      "box": [
-        664,
-        58,
-        222,
-        198
-      ]
-    },
-    {
-      "n": 5,
       "template": "National ___ Day (the twelfth state)",
       "answer": "North Carolina",
       "category": "Quirky & Educational",
@@ -101,14 +80,14 @@
       "hint": "Two words, fourteen letters. First in flight, and there is another state directly above it.",
       "note": "The National Day Calendar works through the states in the order they joined the Union. The biplane is Kitty Hawk, 1903.",
       "box": [
-        876,
+        664,
         52,
         284,
         186
       ]
     },
     {
-      "n": 6,
+      "n": 5,
       "template": "International Right to ___ Day",
       "answer": "Know",
       "accept": [
@@ -129,7 +108,7 @@
       ]
     },
     {
-      "n": 7,
+      "n": 6,
       "template": "International Day for Universal Access to ___",
       "answer": "Information",
       "category": "Global & Human Rights",
@@ -148,7 +127,7 @@
       ]
     },
     {
-      "n": 8,
+      "n": 7,
       "template": "National Good ___ Day",
       "answer": "Neighbor",
       "accept": [
@@ -170,7 +149,7 @@
       ]
     },
     {
-      "n": 9,
+      "n": 8,
       "template": "Ask a ___ Question Day",
       "answer": "Stupid",
       "category": "Quirky & Educational",
@@ -189,29 +168,7 @@
       ]
     },
     {
-      "n": 10,
-      "template": "Fish Tank ___ Night",
-      "answer": "Floorshow",
-      "accept": [
-        "floor show"
-      ],
-      "category": "Quirky & Educational",
-      "prefill": [
-        4,
-        7
-      ],
-      "spot": "The aquarium done up as a theatre: tiny curtains, a spotlight, and fish taking the stage.",
-      "hint": "Nine letters, one word. Turn the lights down and let the fish perform.",
-      "note": null,
-      "box": [
-        872,
-        240,
-        292,
-        192
-      ]
-    },
-    {
-      "n": 11,
+      "n": 9,
       "template": "World ___ Day",
       "answer": "Rabies",
       "category": "Global & Human Rights",
@@ -230,7 +187,7 @@
       ]
     },
     {
-      "n": 12,
+      "n": 10,
       "template": "Freedom From ___ Day",
       "answer": "Hunger",
       "category": "Global & Human Rights",
@@ -249,7 +206,7 @@
       ]
     },
     {
-      "n": 13,
+      "n": 11,
       "template": "The harvest festival of ___",
       "answer": "Sukkot",
       "accept": [
@@ -274,7 +231,7 @@
       ]
     },
     {
-      "n": 14,
+      "n": 12,
       "template": "National ___ Day",
       "answer": "Family",
       "category": "Lifestyle & Community",
@@ -293,7 +250,7 @@
       ]
     },
     {
-      "n": 15,
+      "n": 13,
       "template": "Read a Child a ___ You Like Day",
       "answer": "Book",
       "category": "Quirky & Educational",
@@ -311,7 +268,7 @@
       ]
     },
     {
-      "n": 16,
+      "n": 14,
       "template": "National ___ Day",
       "answer": "Sons",
       "category": "Lifestyle & Community",
@@ -329,7 +286,7 @@
       ]
     },
     {
-      "n": 17,
+      "n": 15,
       "template": "National Drink ___ Day",
       "answer": "Beer",
       "category": "Food & Beverage",
@@ -347,7 +304,7 @@
       ]
     },
     {
-      "n": 18,
+      "n": 16,
       "template": "International ___ Day",
       "answer": "Poke",
       "accept": [
@@ -369,7 +326,7 @@
       ]
     },
     {
-      "n": 19,
+      "n": 17,
       "template": "National ___ Cream Pie Day",
       "answer": "Strawberry",
       "category": "Food & Beverage",
@@ -388,7 +345,7 @@
       ]
     },
     {
-      "n": 20,
+      "n": 18,
       "template": "Born this day in 1934: Brigitte ___",
       "answer": "Bardot",
       "category": "Born on this day",

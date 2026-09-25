@@ -2,6 +2,7 @@
 // No network, no Cloudflare - these run anywhere.
 
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { BadScore, RULES, cluePenalty, roundSize, scoreFrom } from "../src/scoring.js";
@@ -14,7 +15,14 @@ function round(overrides = {}) {
 }
 
 test("the round came across from data/rounds", () => {
-  assert.equal(SIZE, 20);
+  // Checked against the round file rather than a number typed in here. The
+  // literal was 20, and when two items were cut from the round this test was
+  // the thing that had to be remembered - which is the wrong way round. The
+  // round is the source of truth; this asserts the server agrees with it.
+  const source = JSON.parse(readFileSync(
+    new URL(`../../data/rounds/${ROUND}.json`, import.meta.url), "utf8"));
+  assert.equal(SIZE, source.items.length);
+  assert.ok(SIZE > 0, "the round has items");
   assert.equal(roundSize("no-such-round"), null);
 });
 

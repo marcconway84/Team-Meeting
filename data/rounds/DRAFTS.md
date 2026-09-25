@@ -426,7 +426,7 @@ month gives a cartoonist this much.*
 ## What is left to do
 
 The lists are done. **Drawing them is the slow part** — each round is roughly
-twenty hand-drawn vignettes on one canvas, numbered in reading order, with a crop
+twelve hand-drawn vignettes on one canvas, numbered in reading order, with a crop
 box per item. That is the work that cannot be hurried, so pick the order you want
 them in rather than expecting all thirty at once.
 
