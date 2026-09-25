@@ -371,9 +371,15 @@
       <path d="M1025 531 q5 4 10 0" class="thin"/>
     </g>
     <g>
-      <path d="M978 546 l30 -10 30 10 -30 12 Z" class="fill" fill="#ffffff"/>
-      <path d="M1008 536 v22" class="thin"/>
-      <path d="M986 546 h16 M1014 546 h16" class="thin" opacity="0.6"/>
+      <!-- An open book: two pages rising from a spine, with the curl of the
+           outer edges. It was a flat diamond with a line down it, which read
+           as a paper aeroplane rather than the answer. -->
+      <path d="M1008 536 q-26 -12 -50 -7 v32 q26 -5 50 7 Z" class="fill" fill="#ffffff"/>
+      <path d="M1008 536 q26 -12 50 -7 v32 q-26 -5 -50 7 Z" class="fill" fill="#f3eef7"/>
+      <path d="M958 561 q26 -5 50 7 q24 -12 50 -7" class="ink" style="stroke-width:3" fill="none"/>
+      <path d="M1008 536 v32" class="ink" style="stroke-width:3"/>
+      <path d="M966 544 h32 M966 552 h28" class="thin" style="stroke-width:2" opacity="0.5"/>
+      <path d="M1018 544 h32 M1022 552 h28" class="thin" style="stroke-width:2" opacity="0.5"/>
     </g>
   </g>
 
